@@ -8,7 +8,6 @@
 
 ## 🚀 Features
 
-- 🎯 **Quest Mode**: Define story-driven sequences of tasks (quests)
 - 👤 **User Progress Tracking**: XP, levels, and quest history per user
 - 💬 **WhatsApp Notifications**: Real-time task updates and quest progress
 - 🧠 **GraphQL API**: Flexible backend architecture with Express + Apollo Server
