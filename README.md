@@ -2,8 +2,6 @@
 
 **TaskQuest** transforms team task management into a narrative-driven quest. It's a gamified workflow engine where users complete tasks in structured "quests", earn XP, level up, and receive WhatsApp notifications throughout the journey.
 
-> ⚔️ "Because project management shouldn't feel like paperwork. It should feel like an RPG."
-
 ---
 
 ## 🚀 Features
