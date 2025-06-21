@@ -1,10 +1,13 @@
 {
+  "type" : "module",
   "name": "taskquest",
   "version": "1.0.0",
   "description": "**TaskQuest** transforms team task management into a narrative-driven quest. It's a gamified workflow engine where users complete tasks in structured \"quests\", earn XP, level up, and receive WhatsApp notifications throughout the journey.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "postcss styles.css -o dist/styles.css",
+    "watch": "postcss styles.css -o dist/styles.css --watch"
   },
   "repository": {
     "type": "git",
@@ -19,11 +22,15 @@
   "homepage": "https://github.com/subhamagarrwal/TaskQuest#readme",
   "dependencies": {
     "@apollo/server": "^4.12.2",
+    "@tailwindcss/postcss": "^4.1.10",
     "apollo-server-express": "^3.13.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0",
+    "express": "^4.18.2",
     "graphql": "^16.11.0",
-    "mongoose": "^8.16.0"
+    "mongoose": "^8.16.0",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "tailwindcss": "^4.1.10"
   }
 }
