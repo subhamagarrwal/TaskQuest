@@ -1,0 +1,170 @@
+.taskquest-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 30%, #F59E0B 70%, #EF4444 100%);
+  border-radius: 12px;
+  box-shadow: 
+    0 4px 12px rgba(139, 92, 246, 0.3),
+    0 2px 6px rgba(236, 72, 153, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.taskquest-icon::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/taskquest-icon.svg') center/contain no-repeat;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.taskquest-icon:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 
+    0 8px 25px rgba(139, 92, 246, 0.4),
+    0 4px 12px rgba(236, 72, 153, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.taskquest-icon:active {
+  transform: translateY(0) scale(1.02);
+}
+
+/* Size Variants */
+.taskquest-icon-xs {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+.taskquest-icon-sm {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+
+.taskquest-icon-md {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+.taskquest-icon-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+}
+
+.taskquest-icon-xl {
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+}
+
+.taskquest-icon-2xl {
+  width: 120px;
+  height: 120px;
+  border-radius: 20px;
+}
+
+/* Animation Variants */
+.taskquest-icon-float {
+  animation: iconFloat 6s ease-in-out infinite;
+}
+
+.taskquest-icon-pulse {
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+.taskquest-icon-glow {
+  animation: iconGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes iconFloat {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+  }
+  50% { 
+    transform: translateY(-10px) rotate(2deg); 
+  }
+}
+
+@keyframes iconPulse {
+  0%, 100% { 
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% { 
+    transform: scale(1.1);
+    opacity: 0.9;
+  }
+}
+
+@keyframes iconGlow {
+  0% {
+    box-shadow: 
+      0 4px 12px rgba(139, 92, 246, 0.3),
+      0 2px 6px rgba(236, 72, 153, 0.2);
+  }
+  100% {
+    box-shadow: 
+      0 8px 30px rgba(139, 92, 246, 0.6),
+      0 4px 15px rgba(236, 72, 153, 0.4),
+      0 0 25px rgba(245, 158, 11, 0.3);
+  }
+}
+
+/* Text Logo Component */
+.taskquest-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.taskquest-logo:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.taskquest-logo-text {
+  background: linear-gradient(135deg, #FBBF24, #F59E0B, #EC4899, #8B5CF6);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% 200%;
+  animation: gradientShift 4s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Responsive scaling */
+@media (max-width: 768px) {
+  .taskquest-icon-responsive {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (min-width: 769px) {
+  .taskquest-icon-responsive {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .taskquest-icon-responsive {
+    width: 56px;
+    height: 56px;
+  }
+}

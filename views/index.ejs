@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TaskQuest - Transform Your Workflow Into Epic Adventures</title>
+  <link href="/styles.css" rel="stylesheet">
+  <link href="/taskquest-icon.css" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="/taskquest-icon.svg">
+  <style>
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .float { animation: float 6s ease-in-out infinite; }
+    .pulse { animation: pulse 2s ease-in-out infinite; }
+    
+    html { scroll-behavior: smooth; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 min-h-screen relative overflow-x-hidden">
+  <!-- Background Effects -->
+  <div class="absolute inset-0 bg-black opacity-20"></div>
+  <div class="absolute inset-0">
+    <div class="absolute top-20 left-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 float"></div>
+    <div class="absolute top-40 right-10 w-72 h-72 bg-yellow-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 float" style="animation-delay: 2s;"></div>
+    <div class="absolute -bottom-8 left-20 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-30 float" style="animation-delay: 4s;"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="relative z-10 p-6">
+    <div class="flex justify-between items-center max-w-7xl mx-auto">
+      <a href="/" class="taskquest-logo">
+        <img src="/taskquest-icon-static.svg" alt="TaskQuest" class="taskquest-icon taskquest-icon-md taskquest-icon-responsive taskquest-icon-glow" />
+        <span class="taskquest-logo-text text-2xl">TaskQuest</span>
+      </a>
+      <div class="hidden md:flex space-x-8 text-white">
+        <a href="#features" class="hover:text-purple-300 transition">Features</a>
+        <a href="#how-it-works" class="hover:text-purple-300 transition">How It Works</a>
+        <a href="#pricing" class="hover:text-purple-300 transition">Pricing</a>
+      </div>
+      <div class="flex space-x-4">
+        <a href="/login" class="text-white border border-white px-4 py-2 rounded-lg hover:bg-white hover:text-purple-900 transition">Login</a>
+        <button class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600 transition">Get Started</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative z-10 text-center py-20 px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="mb-8">
+        <!-- Large Hero Icon (animated SVG inline) -->
+        <div class="mx-auto mb-6" style="width:120px;height:120px;">
+          <object type="image/svg+xml" data="/taskquest-icon.svg" width="120" height="120" aria-label="TaskQuest Animated Icon"></object>
+        </div>
+        <h1 class="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+          Transform Your <span class="bg-gradient-to-r from-yellow-400 to-pink-400 bg-clip-text text-transparent">Workflow</span><br>
+          Into Epic <span class="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Adventures</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-purple-200 mb-8 max-w-4xl mx-auto leading-relaxed">
+          Turn team tasks into thrilling quests. Assign missions via WhatsApp, track progress in real-time, 
+          and watch your team level up with gamified productivity.
+        </p>
+      </div>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-col md:flex-row gap-4 justify-center mb-16">
+        <button class="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-8 py-4 rounded-xl text-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition transform hover:scale-105 shadow-lg">
+          🚀 Start Your Quest
+        </button>
+        <button class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition transform hover:scale-105 shadow-lg border border-purple-400 border-opacity-50">
+          📱 Watch Demo
+        </button>
+      </div>
+
+      <!-- Feature Cards -->
+      <div id="features" class="grid md:grid-cols-3 gap-8 mb-20">
+        <div class="bg-gradient-to-br from-purple-600 to-purple-800 bg-opacity-30 backdrop-blur-sm p-6 rounded-xl border border-purple-400 border-opacity-30 hover:from-purple-500 hover:to-purple-700 transition">
+          <img src="/taskquest-icon-static.svg" alt="Admin Control" class="taskquest-icon taskquest-icon-lg mx-auto mb-4" />
+          <h3 class="text-xl font-semibold text-white mb-2">Admin Control</h3>
+          <p class="text-purple-200">Create quests, assign tasks, and manage your team's epic journey from one powerful dashboard.</p>
+        </div>
+        <div class="bg-gradient-to-br from-blue-600 to-cyan-800 bg-opacity-30 backdrop-blur-sm p-6 rounded-xl border border-blue-400 border-opacity-30 hover:from-blue-500 hover:to-cyan-700 transition">
+          <div class="text-4xl mb-4">📱</div>
+          <h3 class="text-xl font-semibold text-white mb-2">WhatsApp Integration</h3>
+          <p class="text-purple-200">Instant notifications, OTP login, and real-time updates delivered straight to your team's phones.</p>
+        </div>
+        <div class="bg-gradient-to-br from-pink-600 to-rose-800 bg-opacity-30 backdrop-blur-sm p-6 rounded-xl border border-pink-400 border-opacity-30 hover:from-pink-500 hover:to-rose-700 transition">
+          <div class="text-4xl mb-4">📊</div>
+          <h3 class="text-xl font-semibold text-white mb-2">Performance Tracking</h3>
+          <p class="text-purple-200">Watch team members level up with dynamic performance scores and completion analytics.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" class="relative z-10 py-20 px-6">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-4xl md:text-5xl font-bold text-center text-white mb-16">How The Magic Works</h2>
+      
+      <div class="space-y-12">
+        <!-- Step 1 -->
+        <div class="flex flex-col md:flex-row items-center gap-8">
+          <div class="md:w-1/2">
+            <div class="bg-gradient-to-r from-purple-500 to-pink-500 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-4">1</div>
+            <h3 class="text-2xl font-semibold text-white mb-4">👑 Admin Creates Quest</h3>
+            <p class="text-purple-200 text-lg">Login as admin, create epic quests, and assign tasks to team members using just their phone numbers - no prior signup required!</p>
+          </div>
+          <div class="md:w-1/2">
+            <div class="bg-gradient-to-br from-purple-700 to-indigo-800 bg-opacity-50 backdrop-blur-sm p-6 rounded-xl border border-purple-400 border-opacity-30 text-center">
+              <div class="taskquest-icon taskquest-icon-xl mx-auto mb-4"></div>
+              <p class="text-white">Quest: "Website Launch Mission"</p>
+              <p class="text-purple-200 text-sm">3 tasks assigned to +1234567890</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="flex flex-col md:flex-row-reverse items-center gap-8">
+          <div class="md:w-1/2">
+            <div class="bg-gradient-to-r from-blue-500 to-cyan-500 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-4">2</div>
+            <h3 class="text-2xl font-semibold text-white mb-4">📩 WhatsApp Invitation</h3>
+            <p class="text-purple-200 text-lg">Team members receive instant WhatsApp invites with secure OTP login links. No downloads, no complicated setup!</p>
+          </div>
+          <div class="md:w-1/2">
+            <div class="bg-green-600 bg-opacity-20 backdrop-blur-sm p-6 rounded-xl border border-green-400 border-opacity-30">
+              <div class="text-left">
+                <div class="text-3xl mb-2">📱</div>
+                <p class="text-white text-sm">"🎯 You've been assigned a task in TaskQuest!"</p>
+                <p class="text-green-200 text-sm">"Click here to view: taskquest.io/login"</p>
+                <div class="mt-2 text-xs text-green-300">✓ Delivered via WhatsApp</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="flex flex-col md:flex-row items-center gap-8">
+          <div class="md:w-1/2">
+            <div class="bg-gradient-to-r from-yellow-500 to-orange-500 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-xl mb-4">3</div>
+            <h3 class="text-2xl font-semibold text-white mb-4">⚡ Real-time Updates</h3>
+            <p class="text-purple-200 text-lg">When tasks are completed, admins get instant WhatsApp notifications. Performance scores update automatically!</p>
+          </div>
+          <div class="md:w-1/2">
+            <div class="bg-gradient-to-br from-yellow-600 to-orange-800 bg-opacity-50 backdrop-blur-sm p-6 rounded-xl border border-yellow-400 border-opacity-30">
+              <div class="text-center">
+                <div class="text-4xl mb-4">🎉</div>
+                <p class="text-white">Task Completed!</p>
+                <p class="text-yellow-200 text-sm">+50 XP • Performance Score: 89%</p>
+                <div class="mt-2 text-xs text-green-300">✓ Admin notified via WhatsApp</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="relative z-10 py-12 px-6 border-t border-white border-opacity-20">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <a href="/" class="taskquest-logo mb-4 md:mb-0">
+          <img src="/taskquest-icon-static.svg" alt="TaskQuest" class="taskquest-icon taskquest-icon-sm" />
+          <span class="taskquest-logo-text text-xl">TaskQuest</span>
+        </a>
+        <div class="text-purple-200 text-sm">
+          &copy; 2025 TaskQuest. Turn tasks into adventures.
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

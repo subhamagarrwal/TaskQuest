@@ -1,0 +1,151 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Quest Gradient -->
+    <linearGradient id="questGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6"/>
+      <stop offset="30%" style="stop-color:#EC4899"/>
+      <stop offset="70%" style="stop-color:#F59E0B"/>
+      <stop offset="100%" style="stop-color:#EF4444"/>
+    </linearGradient>
+    
+    <!-- Shield Gradient -->
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E40AF"/>
+      <stop offset="100%" style="stop-color:#7C3AED"/>
+    </linearGradient>
+    
+    <!-- Animated Glow Effect -->
+    <filter id="animatedGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+      <animateTransform
+        attributeName="stdDeviation"
+        type="scale"
+        values="2;4;2"
+        dur="3s"
+        repeatCount="indefinite"/>
+    </filter>
+    
+    <!-- Traffic Light Colors -->
+    <radialGradient id="redGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#EF4444;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#DC2626;stop-opacity:0.8"/>
+    </radialGradient>
+    
+    <radialGradient id="yellowGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#FCD34D;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#F59E0B;stop-opacity:0.8"/>
+    </radialGradient>
+    
+    <radialGradient id="greenGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#10B981;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:0.8"/>
+    </radialGradient>
+  </defs>  
+  <!-- Main Castle/Quest Symbol with Animated Glow -->
+  <g filter="url(#animatedGlow)">
+    <!-- Entire castle group that moves together -->
+    <g transform-origin="32 32">
+      <animateTransform
+        attributeName="transform"
+        type="scale"
+        values="1;1.05;1"
+        dur="4s"
+        repeatCount="indefinite"/>
+      
+      <!-- Castle Base -->
+      <rect x="18" y="38" width="28" height="20" fill="url(#questGradient)" rx="3"/>
+      
+      <!-- Castle Towers -->
+      <rect x="15" y="30" width="8" height="28" fill="url(#questGradient)" rx="2"/>
+      <rect x="41" y="30" width="8" height="28" fill="url(#questGradient)" rx="2"/>
+      <rect x="28" y="25" width="8" height="33" fill="url(#questGradient)" rx="2"/>
+      
+      <!-- Castle Flags with Wave Animation -->
+      <rect x="18" y="18" width="2" height="12" fill="#FCD34D"/>
+      <polygon points="20,18 20,25 28,21.5" fill="#F59E0B">
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          values="0 24 21.5;5 24 21.5;0 24 21.5;-3 24 21.5;0 24 21.5"
+          dur="3s"
+          repeatCount="indefinite"/>
+      </polygon>
+      
+      <rect x="44" y="18" width="2" height="12" fill="#FCD34D"/>
+      <polygon points="46,18 46,25 54,21.5" fill="#F59E0B">
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          values="0 50 21.5;-5 50 21.5;0 50 21.5;3 50 21.5;0 50 21.5"
+          dur="3s"
+          repeatCount="indefinite"/>
+      </polygon>
+      
+      <!-- Center Crown with Pulse -->
+      <polygon points="32,15 28,20 36,20" fill="#FCD34D">
+        <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+      </polygon>
+      <circle cx="32" cy="17" r="2" fill="#F59E0B">
+        <animate attributeName="r" values="2;2.5;2" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      
+      <!-- Quest Shield -->
+      <ellipse cx="32" cy="45" rx="8" ry="10" fill="url(#shieldGradient)" opacity="0.9"/>
+      
+      <!-- Task Checkmarks with Coordinated Animation -->
+      <g stroke="#10B981" stroke-width="2" fill="none">
+        <!-- First checkmark appears when first light turns green (6s) -->
+        <path d="M28,43 L30,45 L34,41" opacity="0">
+          <animate attributeName="opacity" values="0;0;0;0;0;0;1;1" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="stroke-dasharray" values="0,10;0,10;0,10;0,10;0,10;0,10;10,0;10,0" dur="9s" repeatCount="indefinite"/>
+        </path>
+        <!-- Second checkmark appears when second light turns green (7.5s) -->
+        <path d="M28,47 L30,49 L34,45" opacity="0">
+          <animate attributeName="opacity" values="0;0;0;0;0;0;0;1" dur="9s" repeatCount="indefinite"/>
+          <animate attributeName="stroke-dasharray" values="0,10;0,10;0,10;0,10;0,10;0,10;0,10;10,0" dur="9s" repeatCount="indefinite"/>
+        </path>
+      </g>
+    </g>
+  </g>
+  <!-- Experience Points (XP) with Bounce -->
+  <circle cx="52" cy="12" r="6" fill="#FCD34D" opacity="0.9">
+    <animate attributeName="cy" values="12;8;12" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="fill" values="#FCD34D;#F59E0B;#FCD34D" dur="3s" repeatCount="indefinite"/>
+  </circle>
+  <text x="52" y="16" text-anchor="middle" fill="#7C2D12" font-size="8" font-weight="bold">XP
+    <animate attributeName="y" values="16;12;16" dur="2s" repeatCount="indefinite"/>
+  </text>  
+  <!-- Traffic Light Progress Indicators (Red → Yellow → Green sequence) -->
+  <g id="trafficLights">
+    <!-- Top Circle: Red(0-3s) → Yellow(3-6s) → Green(6-9s) -->
+    <circle cx="8" cy="20" r="3" fill="#EF4444">
+      <animate attributeName="fill" 
+        values="#EF4444;#EF4444;#F59E0B;#F59E0B;#10B981;#10B981" 
+        dur="9s" 
+        repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;1;0.6;1;0.6;1" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Middle Circle: Red(0-4.5s) → Yellow(4.5-7.5s) → Green(7.5-9s) -->
+    <circle cx="8" cy="30" r="3" fill="#EF4444">
+      <animate attributeName="fill" 
+        values="#EF4444;#EF4444;#EF4444;#F59E0B;#F59E0B;#10B981" 
+        dur="9s" 
+        repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;1;0.6;1;0.6;1" dur="9s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Bottom Circle: Red(0-6s) → Yellow(6-8s) → Green(8-9s) -->
+    <circle cx="8" cy="40" r="3" fill="#EF4444">
+      <animate attributeName="fill" 
+        values="#EF4444;#EF4444;#EF4444;#EF4444;#F59E0B;#10B981" 
+        dur="9s" 
+        repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.6;1;0.6;1;0.6;1" dur="9s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>

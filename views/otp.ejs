@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Firebase OTP</title>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <!-- Modern minimal styling inspired by Next.js -->
+  <style>
+    body {
+      background: #f6f8fa;
+      min-height: 100vh;
+      margin: 0;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      padding: 2.5rem 2rem 2rem 2rem;
+      max-width: 350px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h2 {
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      color: #222;
+      letter-spacing: -1px;
+    }
+    form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    input[type="text"] {
+      padding: 0.75rem 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border 0.2s;
+    }
+    input[type="text"]:focus {
+      border: 1.5px solid #0070f3;
+    }
+    button {
+      background: #0070f3;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #0059c1;
+    }
+    #result {
+      margin-top: 1rem;
+      min-height: 1.5em;
+      color: #0070f3;
+      font-weight: 500;
+      text-align: center;
+    }
+    #recaptcha-container {
+      margin: 0.5rem 0 0 0;
+      display: flex;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <!-- Title -->
+    <h2>Firebase SMS OTP</h2>
+    <!-- Phone number form -->
+    <form id="phone-form">
+      <input type="text" id="phone" placeholder="Enter phone e.g. +1234567890" required />
+      <div id="recaptcha-container"></div>
+      <button type="submit">Send OTP</button>
+    </form>
+    <!-- OTP input form, hidden by default -->
+    <form id="otp-form" style="display:none;">
+      <input type="text" id="otp" placeholder="Enter OTP" required />
+      <button type="submit">Verify OTP</button>
+    </form>
+    <!-- Result message -->
+    <div id="result"></div>
+  </main>
+
+  <script>
+    // --- Firebase config and initialization ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmS_rBZ9PWYlp_OCH-eUqboeYAIq_YsN0",
+      authDomain: "oauth-practise-d450b.firebaseapp.com",
+      projectId: "oauth-practise-d450b",
+      storageBucket: "oauth-practise-d450b.firebasestorage.app",
+      messagingSenderId: "337604840275",
+      appId: "1:337604840275:web:0dbde6ee75e4b27d66afa6"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    let confirmationResult;
+
+    // --- Setup reCAPTCHA on page load ---
+    window.onload = function() {
+      window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        'size': 'normal',
+        'callback': function(response) {
+          // reCAPTCHA solved
+        }
+      });
+      recaptchaVerifier.render();
+    };
+
+    // --- Handle phone number form submission ---
+    document.getElementById('phone-form').onsubmit = function(e) {
+      e.preventDefault();
+      const phoneNumber = document.getElementById('phone').value;
+      firebase.auth().signInWithPhoneNumber(phoneNumber, window.recaptchaVerifier)
+        .then(function(result) {
+          confirmationResult = result;
+          document.getElementById('phone-form').style.display = 'none';
+          document.getElementById('otp-form').style.display = 'flex';
+          document.getElementById('result').innerText = 'OTP sent! Please check your phone.';
+        }).catch(function(error) {
+          document.getElementById('result').innerText = error.message;
+        });
+    };
+
+    // --- Handle OTP form submission ---
+    document.getElementById('otp-form').onsubmit = function(e) {
+      e.preventDefault();
+      const code = document.getElementById('otp').value;
+      confirmationResult.confirm(code).then(function(result) {
+        document.getElementById('result').innerText = "✅ OTP has been verified!";
+        document.getElementById('otp-form').style.display = 'none';
+      }).catch(function(error) {
+        document.getElementById('result').innerText = "❌ Invalid OTP. Try again.";
+      });
+    };
+  </script>
+</body>
+</html>
