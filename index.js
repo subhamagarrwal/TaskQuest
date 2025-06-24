@@ -1,9 +1,19 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { initializeApp } from 'firebase/app';
+import mongoose from 'mongoose';
 
 dotenv.config();
 
+// Connect to MongoDB
+async function connectDB() {
+  try {
+    await mongoose.connect("mongodb://127.0.0.1:27017/taskquest");
+    console.log('MongoDB connected successfully');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+  }
+}
 const app = express();
 app.set('view engine', 'ejs');
 app.set('views', './views');
@@ -36,4 +46,5 @@ app.get('/otp', (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
+  connectDB();
 });
