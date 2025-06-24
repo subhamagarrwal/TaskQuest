@@ -20,6 +20,8 @@ app.set('views', './views');
 
 // Serve static files from dist
 app.use(express.static('dist'));
+app.use(express.static('public'));
+app.use(cors());
 
 
 const firebaseConfig = {
@@ -37,12 +39,9 @@ const firebaseApp = initializeApp(firebaseConfig);
 const port = process.env.PORT || 3000;
 
 //routes- later will refactor to seperate files
-app.get('/', (req, res) => {
-  res.render('index');
-});
-app.get('/otp', (req, res) => {
-  res.render('otp');
-});
+// app.get('/otp', (req, res) => {
+//   res.render('otp');
+// });
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

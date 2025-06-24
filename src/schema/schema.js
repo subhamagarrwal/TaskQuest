@@ -54,6 +54,15 @@ type Query {
   tasks: [Task!]!
   task(id: ID!): Task
 }
+
+type Mutation {
+  createUser(username: String!, email: String!, phone: String!, role: Role!): User!
+  updateUser(id: ID!, username: String, email: String, phone: String, role: Role): User!
+  deleteUser(id: ID!): User!
+  createQuest(title: String!, description: String!, creatorId: ID!): Quest!
+  updateQuest(id: ID!, title: String, description: String, members: [ID!]): Quest!
+  deleteQuest(id: ID!): Quest! 
+}
 `;
 
 export default typeDefs;
