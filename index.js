@@ -3,13 +3,13 @@ import dotenv from 'dotenv';
 import { initializeApp } from 'firebase/app';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import authRoutes from './routes/auth.js';
 dotenv.config();
 
 // Connect to MongoDB
 async function connectDB() {
   try {
     await mongoose.connect("mongodb://127.0.0.1:27017/taskquest");
-    console.log('MongoDB connected successfully');
   } catch (error) {
     console.error('MongoDB connection error:', error);
   }
@@ -24,6 +24,7 @@ app.use(express.static('public'));
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/api/auth', authRoutes);
 
 const firebaseConfig = {
     apiKey: "AIzaSyCmS_rBZ9PWYlp_OCH-eUqboeYAIq_YsN0",

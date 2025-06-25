@@ -41,11 +41,9 @@
       <div class="hidden md:flex space-x-8 text-white">
         <a href="#features" class="hover:text-purple-300 transition">Features</a>
         <a href="#how-it-works" class="hover:text-purple-300 transition">How It Works</a>
-        <a href="#pricing" class="hover:text-purple-300 transition">Pricing</a>
       </div>
       <div class="flex space-x-4">
-        <a href="/login" class="text-white border border-white px-4 py-2 rounded-lg hover:bg-white hover:text-purple-900 transition">Login</a>
-        <button class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600 transition">Get Started</button>
+        <button class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600 transition open-auth-modal">Get Started</button>
       </div>
     </div>
   </nav>
@@ -70,12 +68,40 @@
 
       <!-- CTA Buttons -->
       <div class="flex flex-col md:flex-row gap-4 justify-center mb-16">
-        <button class="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-8 py-4 rounded-xl text-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition transform hover:scale-105 shadow-lg">
+        <button class="bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-8 py-4 rounded-xl text-lg font-semibold hover:from-yellow-500 hover:to-orange-600 transition transform hover:scale-105 shadow-lg open-auth-modal">
           🚀 Start Your Quest
         </button>
         <button class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-xl text-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition transform hover:scale-105 shadow-lg border border-purple-400 border-opacity-50">
           📱 Watch Demo
         </button>
+      </div>
+
+      <!-- Auth Modal Popup -->
+      <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm hidden">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full relative animate-fade-in">
+          <button id="close-modal-btn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+          <h2 class="text-2xl font-bold text-center mb-6 text-purple-700">Sign In to TaskQuest</h2>
+          <div class="flex flex-col gap-4">
+            <!-- Google Sign-In -->
+            <button id="google-signin-btn" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-3 rounded-lg font-semibold text-lg hover:from-blue-600 hover:to-purple-600 transition">
+              <img src="/taskquest-icon-static.svg" alt="Google" class="w-6 h-6"> Sign in with Google
+            </button>
+            <div class="flex items-center gap-2 my-2">
+              <hr class="flex-1 border-gray-300"> <span class="text-gray-400 text-sm">or</span> <hr class="flex-1 border-gray-300">
+            </div>
+            <!-- Phone OTP Sign-In -->
+            <form id="phone-form" class="flex flex-col gap-3">
+              <input type="text" id="phone" placeholder="Enter phone e.g. +1234567890" required class="border border-gray-300 rounded-lg px-4 py-2 focus:border-purple-500 outline-none" />
+              <div id="recaptcha-container" class="flex justify-center"></div>
+              <button type="submit" class="bg-purple-600 text-white rounded-lg px-4 py-2 font-semibold hover:bg-purple-700 transition">Send OTP</button>
+            </form>
+            <form id="otp-form" class="flex flex-col gap-3 hidden">
+              <input type="text" id="otp" placeholder="Enter OTP" required class="border border-gray-300 rounded-lg px-4 py-2 focus:border-purple-500 outline-none" />
+              <button type="submit" class="bg-green-600 text-white rounded-lg px-4 py-2 font-semibold hover:bg-green-700 transition">Verify OTP</button>
+            </form>
+            <div id="result" class="text-center text-purple-700 font-semibold mt-2 min-h-[1.5em]"></div>
+          </div>
+        </div>
       </div>
 
       <!-- Feature Cards -->
@@ -176,5 +202,106 @@
       </div>
     </div>
   </footer>
+
+  <script type="module">
+    // Modal logic
+    const modal = document.getElementById('auth-modal');
+    const closeBtn = document.getElementById('close-modal-btn');
+    document.querySelectorAll('.open-auth-modal').forEach(btn => {
+      btn.onclick = () => { modal.classList.remove('hidden'); };
+    });
+    closeBtn.onclick = () => { modal.classList.add('hidden'); };
+    window.onclick = (e) => { if (e.target === modal) modal.classList.add('hidden'); };
+
+    // Firebase config
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
+    import { getAuth, signInWithPopup, GoogleAuthProvider, RecaptchaVerifier, signInWithPhoneNumber } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js';
+    const firebaseConfig = {
+      apiKey: "AIzaSyCmS_rBZ9PWYlp_OCH-eUqboeYAIq_YsN0",
+      authDomain: "oauth-practise-d450b.firebaseapp.com",
+      projectId: "oauth-practise-d450b",
+      storageBucket: "oauth-practise-d450b.firebasestorage.app",
+      messagingSenderId: "337604840275",
+      appId: "1:337604840275:web:0dbde6ee75e4b27d66afa6"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // Google Sign-In
+    document.getElementById('google-signin-btn').onclick = async () => {
+      try {
+        const provider = new GoogleAuthProvider();
+        const result = await signInWithPopup(auth, provider);
+        // Always get a fresh token
+        const idToken = await result.user.getIdToken(true);
+        // Send idToken to backend
+        const response = await fetch('/api/auth/firebase', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken })
+        });
+        const data = await response.json();
+        if (data.token) {
+          localStorage.setItem('jwt', data.token);
+          document.getElementById('result').innerText = '✅ Google sign-in successful!';
+          setTimeout(() => { modal.classList.add('hidden'); window.location.href = '/dashboard'; }, 1000);
+        } else {
+          document.getElementById('result').innerText = 'Google sign-in failed.';
+        }
+      } catch (err) {
+        document.getElementById('result').innerText = 'Google sign-in failed.';
+      }
+    };
+
+    // Phone OTP logic
+    let confirmationResult;
+    let recaptcha;
+    function setupRecaptcha() {
+      if (!recaptcha) {
+        recaptcha = new RecaptchaVerifier('recaptcha-container', { 'size': 'normal' }, auth);
+        recaptcha.render();
+      }
+    }
+    setupRecaptcha();
+
+    document.getElementById('phone-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const phoneNumber = document.getElementById('phone').value;
+      try {
+        confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptcha);
+        document.getElementById('phone-form').classList.add('hidden');
+        document.getElementById('otp-form').classList.remove('hidden');
+        document.getElementById('result').innerText = 'OTP sent! Please check your phone.';
+      } catch (error) {
+        document.getElementById('result').innerText = error.message;
+      }
+    };
+
+    document.getElementById('otp-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const code = document.getElementById('otp').value;
+      try {
+        const result = await confirmationResult.confirm(code);
+        // Always get a fresh token
+        const idToken = await result.user.getIdToken(true);
+        // Send idToken to backend
+        const response = await fetch('/api/auth/firebase', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken })
+        });
+        const data = await response.json();
+        if (data.token) {
+          localStorage.setItem('jwt', data.token);
+          document.getElementById('result').innerText = '✅ Phone sign-in successful!';
+          setTimeout(() => { modal.classList.add('hidden'); window.location.href = '/dashboard'; }, 1000);
+        } else {
+          document.getElementById('result').innerText = 'Phone sign-in failed.';
+        }
+      } catch (error) {
+        document.getElementById('result').innerText = '❌ Invalid OTP. Try again.';
+      }
+    };
+  </script>
 </body>
 </html>

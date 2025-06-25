@@ -56,3 +56,12 @@ User types in Telegram:
 Bot receives message → Backend parses command → Updates DB → Optionally replies with confirmation.
 
 When all are done, admin sees "Generate Report" button in dashboard.
+
+Additional
+Joi form validation
+Flash messages+ error handling
+Helmet security
+Authorization:- if ur a admin only thrn u get in if user then inform immediately
+
+Bull mq/rabit mq
+Redis
