@@ -30,17 +30,30 @@ router.post('/firebase', async (req, res) => {
   const { idToken } = req.body;
   try {
     const decoded = await admin.auth().verifyIdToken(idToken);
+    // Try to find user by firebaseUid (if you store it)
     let user = await User.findOne({ firebaseUid: decoded.uid });
     if (!user) {
-      // Determine user fields based on available info
+      // Try to find by username or email
       let username = decoded.name || decoded.email || decoded.phone_number || ('user' + Date.now());
       let email = decoded.email || (decoded.phone_number ? decoded.phone_number + '@example.com' : 'user' + Date.now() + '@example.com');
       let phone = decoded.phone_number || '';
-      user = await User.create({
-        username,
-        email,
-        phone
-      });
+      user = await User.findOne({ $or: [ { username }, { email } ] });
+      if (user) {
+        // Update user with firebaseUid and any new info
+        user.firebaseUid = decoded.uid;
+        user.email = email; // update email if changed
+        if (phone) user.phone = phone; // only update if phone is non-empty
+        await user.save();
+      } else {
+        // Create new user
+        let userData = {
+          username,
+          email,
+          firebaseUid: decoded.uid
+        };
+        if (phone) userData.phone = phone; // only set if non-empty
+        user = await User.create(userData);
+      }
     }
     const jwtToken = signJwt({ userId: user._id, email: user.email });
     res.json({ token: jwtToken, user });
