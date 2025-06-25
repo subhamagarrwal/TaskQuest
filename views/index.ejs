@@ -23,6 +23,161 @@
   </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 min-h-screen relative overflow-x-hidden">
+  <!-- Flash Messages -->
+  <% if (locals.success && success.length > 0) { %>
+    <div id="flash-success" class="flash-notification flash-success">
+      <div class="flash-content">
+        <div class="flash-icon">✅</div>
+        <div class="flash-text"><%= success[0] %></div>
+        <button class="flash-close" onclick="closeFlash('flash-success')">&times;</button>
+      </div>
+      <div class="flash-progress"></div>
+    </div>
+  <% } %>
+  <% if (locals.error && error.length > 0) { %>
+    <div id="flash-error" class="flash-notification flash-error">
+      <div class="flash-content">
+        <div class="flash-icon">❌</div>
+        <div class="flash-text"><%= error[0] %></div>
+        <button class="flash-close" onclick="closeFlash('flash-error')">&times;</button>
+      </div>
+      <div class="flash-progress"></div>
+    </div>
+  <% } %>
+  <% if (locals.info && info.length > 0) { %>
+    <div id="flash-info" class="flash-notification flash-info">
+      <div class="flash-content">
+        <div class="flash-icon">ℹ️</div>
+        <div class="flash-text"><%= info[0] %></div>
+        <button class="flash-close" onclick="closeFlash('flash-info')">&times;</button>
+      </div>
+      <div class="flash-progress"></div>
+    </div>
+  <% } %>
+
+  <style>
+    .flash-notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 9999;
+      min-width: 320px;
+      max-width: 400px;
+      border-radius: 12px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      transform: translateX(100%);
+      animation: slideIn 0.3s ease-out forwards;
+      overflow: hidden;
+    }
+
+    .flash-success {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.95), rgba(22, 163, 74, 0.95));
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .flash-error {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.95), rgba(220, 38, 38, 0.95));
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .flash-info {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.95), rgba(37, 99, 235, 0.95));
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .flash-content {
+      display: flex;
+      align-items: center;
+      padding: 16px 20px;
+      color: white;
+      position: relative;
+    }
+
+    .flash-icon {
+      font-size: 20px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+
+    .flash-text {
+      flex: 1;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .flash-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-left: 12px;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.2s ease;
+    }
+
+    .flash-close:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .flash-progress {
+      height: 3px;
+      background: rgba(255, 255, 255, 0.9);
+      width: 100%;
+      transform: translateX(-100%);
+      animation: progressBar 3s linear forwards;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes slideOut {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+
+    @keyframes progressBar {
+      from {
+        transform: translateX(-100%);
+      }
+      to {
+        transform: translateX(0);
+      }
+    }
+
+    .flash-notification.flash-out {
+      animation: slideOut 0.3s ease-in forwards;
+    }
+
+    /* Multiple flash messages stacking */
+    .flash-notification:nth-child(2) { top: 100px; }
+    .flash-notification:nth-child(3) { top: 180px; }
+    .flash-notification:nth-child(4) { top: 260px; }
+  </style>
+
   <!-- Background Effects -->
   <div class="absolute inset-0 bg-black opacity-20"></div>
   <div class="absolute inset-0">
@@ -303,6 +458,40 @@
         document.getElementById('result').innerText = '❌ Invalid OTP. Try again.';
       }
     };
+
+    // Flash message functions
+    function closeFlash(id) {
+      const element = document.getElementById(id);
+      if (element) {
+        element.classList.add('flash-out');
+        setTimeout(() => element.remove(), 300);
+      }
+    }
+
+    // Auto-dismiss flash messages after 3 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+      const flashMessages = document.querySelectorAll('.flash-notification');
+      flashMessages.forEach(function(flash) {
+        setTimeout(function() {
+          if (flash && flash.parentNode) {
+            flash.classList.add('flash-out');
+            setTimeout(() => flash.remove(), 300);
+          }
+        }, 3000);
+      });
+
+      // Add test links for flash messages (development only)
+      const testDiv = document.createElement('div');
+      testDiv.innerHTML = `
+        <div style="position: fixed; bottom: 10px; left: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-size: 12px; z-index: 10000;">
+          <div style="margin-bottom: 5px; font-weight: bold;">🔧 Dev Tools:</div>
+          <a href="/test-flash" style="color: #60a5fa; margin-right: 10px;">Test Flash</a>
+          <a href="/test-auth" style="color: #60a5fa; margin-right: 10px;">Test Auth</a>
+          <a href="/dashboard" style="color: #60a5fa;">Dashboard</a>
+        </div>
+      `;
+      document.body.appendChild(testDiv);
+    });
   </script>
 </body>
 </html>
