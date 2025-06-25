@@ -166,7 +166,36 @@ app.get('/test-flash', (req, res) => {
 
 // Test route for protected access (triggers auth flash message)
 app.get('/test-auth', requireAuthSSR, (req, res) => {
-  res.send('You are authenticated!');
+  res.send(`
+    <h1>✅ Authentication Successful!</h1>
+    <p>User: ${req.user.email}</p>
+    <p>User ID: ${req.user.userId}</p>
+    <a href="/dashboard">Go to Dashboard</a> | 
+    <a href="/logout">Logout</a> | 
+    <a href="/">Home</a>
+  `);
+});
+
+// Test database connection and user creation
+app.get('/test-db', async (req, res) => {
+  try {
+    const User = (await import('./src/models/User.js')).default;
+    const userCount = await User.countDocuments();
+    const users = await User.find({}).limit(5).select('username email phone firebaseUid');
+    
+    res.json({
+      success: true,
+      userCount,
+      recentUsers: users,
+      message: 'Database connection working!'
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+      message: 'Database connection failed!'
+    });
+  }
 });
 
 app.listen(port, () => {

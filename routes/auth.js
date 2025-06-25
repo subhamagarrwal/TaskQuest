@@ -30,38 +30,87 @@ router.post('/firebase', async (req, res) => {
   const { idToken } = req.body;
   try {
     const decoded = await admin.auth().verifyIdToken(idToken);
-    // Try to find user by firebaseUid (if you store it)
+    
+    // Try to find user by firebaseUid first
     let user = await User.findOne({ firebaseUid: decoded.uid });
+    
     if (!user) {
-      // Try to find by username or email
-      let username = decoded.name || decoded.email || decoded.phone_number || ('user' + Date.now());
-      let email = decoded.email || (decoded.phone_number ? decoded.phone_number + '@example.com' : 'user' + Date.now() + '@example.com');
-      let phone = decoded.phone_number || '';
-      user = await User.findOne({ $or: [ { username }, { email } ] });
-      if (user) {
-        // Update user with firebaseUid and any new info
-        user.firebaseUid = decoded.uid;
-        user.email = email; // update email if changed
-        if (phone) user.phone = phone; // only update if phone is non-empty
-        await user.save();
-      } else {
+      // Try to find by email if provided
+      if (decoded.email) {
+        user = await User.findOne({ email: decoded.email });
+        if (user) {
+          // Update existing user with firebaseUid
+          user.firebaseUid = decoded.uid;
+          await user.save();
+        }
+      }
+      
+      if (!user) {
         // Create new user
-        let userData = {
+        const username = decoded.name || decoded.email?.split('@')[0] || 'user' + Date.now();
+        const email = decoded.email || 'user' + Date.now() + '@example.com';
+        
+        const userData = {
           username,
           email,
           firebaseUid: decoded.uid
         };
-        if (phone) userData.phone = phone; // only set if non-empty
-        user = await User.create(userData);
+        
+        // Only add phone if it exists and is not null/empty
+        if (decoded.phone_number && decoded.phone_number.trim()) {
+          userData.phone = decoded.phone_number;
+        }
+        
+        try {
+          user = await User.create(userData);
+        } catch (createError) {
+          // Handle duplicate key errors
+          if (createError.code === 11000) {
+            console.log('Duplicate key error, trying to find existing user:', createError.message);
+            
+            // Try to find by email or username
+            user = await User.findOne({ 
+              $or: [
+                { email: userData.email },
+                { username: userData.username },
+                ...(userData.phone ? [{ phone: userData.phone }] : [])
+              ]
+            });
+            
+            if (!user) {
+              // If still not found, create with modified username
+              userData.username = userData.username + '_' + Date.now();
+              user = await User.create(userData);
+            } else {
+              // Update existing user with Firebase UID
+              user.firebaseUid = decoded.uid;
+              await user.save();
+            }
+          } else {
+            throw createError; // Re-throw if it's not a duplicate key error
+          }
+        }
       }
+    } else {
+      // User exists, update any new info
+      if (decoded.email && decoded.email !== user.email) {
+        user.email = decoded.email;
+      }
+      if (decoded.phone_number && decoded.phone_number.trim() && decoded.phone_number !== user.phone) {
+        user.phone = decoded.phone_number;
+      }
+      await user.save();
     }
+    
     const jwtToken = signJwt({ userId: user._id, email: user.email });
+    
     // Set cookie for SSR routes
     res.cookie('token', jwtToken, { 
       httpOnly: true, 
       secure: process.env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
+    
     res.json({ token: jwtToken, user });
   } catch (err) {
     console.error('Firebase token verification error:', err);
