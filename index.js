@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { initializeApp } from 'firebase/app';
 import mongoose from 'mongoose';
-
+import cors from 'cors';
 dotenv.config();
 
 // Connect to MongoDB
@@ -22,7 +22,8 @@ app.set('views', './views');
 app.use(express.static('dist'));
 app.use(express.static('public'));
 app.use(cors());
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const firebaseConfig = {
     apiKey: "AIzaSyCmS_rBZ9PWYlp_OCH-eUqboeYAIq_YsN0",
@@ -35,13 +36,52 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 
+connectDB();
 
 const port = process.env.PORT || 3000;
 
-//routes- later will refactor to seperate files
-// app.get('/otp', (req, res) => {
-//   res.render('otp');
-// });
+app.get('/', (req, res) => {
+  res.render('index', { title: 'TaskQuest' });
+});
+
+app.get('/dashboard', (req, res) => {
+  // Sample data - replace with real database queries later
+  const sampleUser = {
+    username: 'John Doe',
+    email: 'john@example.com',
+    role: 'ADMIN'
+  };
+  
+  const sampleTasks = [
+    {
+      title: 'Setup Firebase Authentication',
+      description: 'Configure phone and email authentication',
+      completed: true,
+      priority: 'HIGH'
+    },
+    {
+      title: 'Create Dashboard UI',
+      description: 'Design and implement the main dashboard',
+      completed: false,
+      priority: 'MEDIUM'
+    },
+    {
+      title: 'Implement GraphQL API',
+      description: 'Setup resolvers and mutations',
+      completed: false,
+      priority: 'HIGH'
+    }
+  ];
+  
+  res.render('dashboard', { 
+    user: sampleUser, 
+    tasks: sampleTasks 
+  });
+});
+
+app.get('/otp', (req, res) => {
+  res.render('otp');
+});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
