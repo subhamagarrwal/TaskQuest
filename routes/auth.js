@@ -56,6 +56,12 @@ router.post('/firebase', async (req, res) => {
       }
     }
     const jwtToken = signJwt({ userId: user._id, email: user.email });
+    // Set cookie for SSR routes
+    res.cookie('token', jwtToken, { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
     res.json({ token: jwtToken, user });
   } catch (err) {
     console.error('Firebase token verification error:', err);
