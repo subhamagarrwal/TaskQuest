@@ -8,8 +8,9 @@
       font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
       background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
       color: #ffffff;
-      min-height: 100vh;
+      height: 100vh;
       display: flex;
+      overflow: hidden;
     }    /* Sidebar */
     .sidebar {
       width: 280px;
@@ -19,6 +20,7 @@
       height: 100vh;
       overflow-y: auto;
       transition: transform 0.3s ease;
+      flex-shrink: 0;
     }
 
     /* Mobile Menu Toggle */
@@ -189,6 +191,7 @@
       flex: 1;
       padding: 2rem;
       overflow-y: auto;
+      height: 100vh;
     }
 
     .header {
@@ -464,7 +467,9 @@
 
     @media (max-width: 768px) {
       body {
-        flex-direction: row; /* Keep flex-direction as row for mobile */
+        flex-direction: row;
+        overflow: hidden;
+        height: 100vh;
       }
 
       .mobile-menu-toggle {
@@ -494,6 +499,8 @@
         padding: 4rem 1rem 1rem 1rem;
         width: 100%;
         margin-left: 0;
+        height: 100vh;
+        overflow-y: auto;
       }
 
       .header h1 {
