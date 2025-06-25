@@ -1,0 +1,132 @@
+<!-- Header -->
+<div class="header">
+  <h1>Overview</h1>
+  <div class="user-info">
+    <div class="user-avatar">
+      <%= user && user.username ? user.username.charAt(0).toUpperCase() : 'U' %>
+    </div>
+    <div>
+      <div style="font-weight: 600;"><%= user && user.username ? user.username : 'User' %></div>
+      <div style="color: #64748b; font-size: 0.875rem;"><%= user && user.role === 'ADMIN' ? 'Project Manager' : 'Team Member' %></div>
+    </div>
+  </div>
+</div>
+
+<!-- Task Progress Cards -->
+<div class="dashboard-grid">
+  <div class="dashboard-card">
+    <div class="card-header">
+      <div class="card-avatar" style="background: linear-gradient(45deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; font-size: 2rem;">+</div>
+      <div class="card-info">
+        <h3>Create New Task</h3>
+        <p>Start a new assignment</p>
+      </div>
+    </div>
+    <a href="/create-task" class="btn btn-primary" style="width: 100%; text-align: center;">Create Task</a>
+  </div>
+
+  <div class="dashboard-card">
+    <div class="card-header">
+      <div class="card-avatar" style="background: linear-gradient(45deg, #f59e0b, #ef4444); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">✏️</div>
+      <div class="card-info">
+        <h3>Edit Quest</h3>
+        <p>Modify quest details</p>
+      </div>
+    </div>
+    <a href="/edit-quest" class="btn btn-warning" style="width: 100%; text-align: center; background: linear-gradient(45deg, #f59e0b, #ef4444); color: #fff; border: none;">Edit Quest</a>
+  </div>
+
+  <div class="dashboard-card">
+    <div class="card-header">
+      <div class="card-avatar" style="background: linear-gradient(45deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👥</div>
+      <div class="card-info">
+        <h3>Manage Users</h3>
+        <p>View and edit users</p>
+      </div>
+    </div>
+    <a href="/manage-users" class="btn btn-secondary" style="width: 100%; text-align: center;">Manage Users</a>
+  </div>
+</div>
+
+<!-- Main Dashboard -->
+<div class="dashboard-main">
+  <!-- Analytics -->
+  <div class="analytics-section">
+    <div class="section-header">
+      <h2 class="section-title">Tasks Analytics</h2>
+      <select class="filter-dropdown">
+        <option>Last year</option>
+        <option>Last month</option>
+        <option>Last week</option>
+      </select>
+    </div>
+    <div class="chart-container">
+      <p>Task completion chart will be displayed here</p>
+    </div>
+
+    <!-- Recent Tasks -->
+    <div class="tasks-list">
+      <h3 style="margin-bottom: 1rem;">Recent Tasks</h3>
+      <% if (tasks && tasks.length > 0) { %>
+        <% tasks.slice(0, 5).forEach(task => { %>
+          <div class="task-item">
+            <div class="task-info">
+              <h4><%= task.title %></h4>
+              <p><%= task.description || 'No description' %></p>
+            </div>
+            <div class="task-status <%= task.completed ? 'status-completed' : 'status-pending' %>">
+              <%= task.completed ? 'Completed' : 'Pending' %>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="task-item">
+          <div class="task-info">
+            <h4>No tasks yet</h4>
+            <p>Create your first task to get started</p>
+          </div>
+          <div class="task-status status-pending">Pending</div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Performance Card -->
+  <div class="performance-card">
+    <h2 class="performance-title">Performance</h2>
+    <div class="metric">
+      <div class="metric-icon">📋</div>
+      <div class="metric-info">
+        <h3><%= tasks ? tasks.length : 0 %></h3>
+        <p>tasks created</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">✅</div>
+      <div class="metric-info">
+        <h3><%= tasks ? tasks.filter(t => t.completed).length : 0 %></h3>
+        <p>tasks completed</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">⏳</div>
+      <div class="metric-info">
+        <h3><%= tasks ? tasks.filter(t => !t.completed).length : 0 %></h3>
+        <p>tasks pending</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">🎯</div>
+      <div class="metric-info">
+        <h3>85%</h3>
+        <p>Quest participation rate</p>
+      </div>
+    </div>
+    <div style="background: rgba(0, 0, 0, 0.2); height: 4px; border-radius: 2px; margin-top: 1rem;">
+      <div style="background: #ffffff; height: 100%; width: <%= tasks && tasks.length > 0 ? ((tasks.filter(t => t.completed).length / tasks.length) * 100) : 0 %>%; border-radius: 2px;"></div>
+    </div>
+    <a href="/chatbot" class="btn btn-primary" style="margin-top: 2rem; margin-bottom: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-size: 1.25rem; padding: 1.25rem 0; border-radius: 16px; background: linear-gradient(90deg, #22c55e 0%, #84cc16 100%); color: #fff; font-weight: 700; box-shadow: 0 4px 16px rgba(34,197,94,0.15);">
+      <span style="font-size: 1.5rem;">🤖</span> Ask TaskQuest Bot
+    </a>
+  </div>
+</div>

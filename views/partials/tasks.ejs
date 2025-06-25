@@ -1,0 +1,104 @@
+<!-- Header -->
+<div class="header">
+  <h1>Manage Tasks</h1>
+  <div class="user-info">
+    <div class="user-avatar">
+      <%= user && user.username ? user.username.charAt(0).toUpperCase() : 'U' %>
+    </div>
+    <div>
+      <div style="font-weight: 600;"><%= user && user.username ? user.username : 'User' %></div>
+      <div style="color: #64748b; font-size: 0.875rem;"><%= user && user.role === 'ADMIN' ? 'Project Manager' : 'Team Member' %></div>
+    </div>
+  </div>
+</div>
+
+<!-- Task Management Section -->
+<div class="dashboard-main">
+  <div class="analytics-section">
+    <div class="section-header">
+      <h2 class="section-title">Task Management</h2>
+      <a href="/create-task" class="btn btn-primary">+ New Task</a>
+    </div>
+    
+    <!-- Task Filters -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+      <select class="filter-dropdown">
+        <option>All Tasks</option>
+        <option>Pending</option>
+        <option>Completed</option>
+        <option>In Progress</option>
+      </select>
+      <select class="filter-dropdown">
+        <option>All Priorities</option>
+        <option>High Priority</option>
+        <option>Medium Priority</option>
+        <option>Low Priority</option>
+      </select>
+    </div>
+
+    <!-- Tasks List -->
+    <div class="tasks-list">
+      <% if (tasks && tasks.length > 0) { %>
+        <% tasks.forEach(task => { %>
+          <div class="task-item">
+            <div class="task-info">
+              <h4><%= task.title %></h4>
+              <p><%= task.description || 'No description' %></p>
+              <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                <span style="font-size: 0.75rem; color: #64748b;">Due: <%= task.dueDate || 'No due date' %></span>
+                <span style="font-size: 0.75rem; color: #64748b;">Priority: <%= task.priority || 'Medium' %></span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <div class="task-status <%= task.completed ? 'status-completed' : 'status-pending' %>">
+                <%= task.completed ? 'Completed' : 'Pending' %>
+              </div>
+              <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Edit</button>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="task-item">
+          <div class="task-info">
+            <h4>No tasks found</h4>
+            <p>Create your first task to get started</p>
+          </div>
+          <div class="task-status status-pending">Empty</div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Task Statistics -->
+  <div class="performance-card">
+    <h2 class="performance-title">Task Statistics</h2>
+    <div class="metric">
+      <div class="metric-icon">📝</div>
+      <div class="metric-info">
+        <h3><%= tasks ? tasks.length : 0 %></h3>
+        <p>total tasks</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">✅</div>
+      <div class="metric-info">
+        <h3><%= tasks ? tasks.filter(t => t.completed).length : 0 %></h3>
+        <p>completed</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">⏳</div>
+      <div class="metric-info">
+        <h3><%= tasks ? tasks.filter(t => !t.completed).length : 0 %></h3>
+        <p>pending</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">📊</div>
+      <div class="metric-info">
+        <h3><%= tasks && tasks.length > 0 ? Math.round((tasks.filter(t => t.completed).length / tasks.length) * 100) : 0 %>%</h3>
+        <p>completion rate</p>
+      </div>
+    </div>
+  </div>
+</div>

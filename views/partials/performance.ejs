@@ -1,0 +1,162 @@
+<!-- Header -->
+<div class="header">
+  <h1>Performance Breakdown</h1>
+  <div class="user-info">
+    <div class="user-avatar">
+      <%= user && user.username ? user.username.charAt(0).toUpperCase() : 'U' %>
+    </div>
+    <div>
+      <div style="font-weight: 600;"><%= user && user.username ? user.username : 'User' %></div>
+      <div style="color: #64748b; font-size: 0.875rem;"><%= user && user.role === 'ADMIN' ? 'Project Manager' : 'Team Member' %></div>
+    </div>
+  </div>
+</div>
+
+<!-- Performance Analysis Section -->
+<div class="dashboard-main">
+  <div class="analytics-section">
+    <div class="section-header">
+      <h2 class="section-title">Performance Analytics</h2>
+      <select class="filter-dropdown">
+        <option>Last 30 days</option>
+        <option>Last 7 days</option>
+        <option>Last 3 months</option>
+        <option>Last year</option>
+      </select>
+    </div>
+    
+    <!-- Performance Charts -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+      <div class="chart-container" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(71, 85, 105, 0.3); border-radius: 16px; padding: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;">Task Completion Trends</h3>
+        <div style="height: 200px; background: rgba(71, 85, 105, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b;">
+          <span>📈 Chart will be displayed here</span>
+        </div>
+      </div>
+      
+      <div class="chart-container" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(71, 85, 105, 0.3); border-radius: 16px; padding: 1.5rem;">
+        <h3 style="margin-bottom: 1rem;">Quest Progress</h3>
+        <div style="height: 200px; background: rgba(71, 85, 105, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #64748b;">
+          <span>🎯 Chart will be displayed here</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performance Metrics Grid -->
+    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+      <div class="dashboard-card">
+        <div style="text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚡</div>
+          <h3 style="font-size: 2rem; margin-bottom: 0.25rem;"><%= tasks && tasks.length > 0 ? Math.round((tasks.filter(t => t.completed).length / tasks.length) * 100) : 0 %>%</h3>
+          <p style="color: #64748b;">Task Completion Rate</p>
+        </div>
+      </div>
+      
+      <div class="dashboard-card">
+        <div style="text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">📊</div>
+          <h3 style="font-size: 2rem; margin-bottom: 0.25rem;">4.2</h3>
+          <p style="color: #64748b;">Average Performance Score</p>
+        </div>
+      </div>
+      
+      <div class="dashboard-card">
+        <div style="text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎯</div>
+          <h3 style="font-size: 2rem; margin-bottom: 0.25rem;">87%</h3>
+          <p style="color: #64748b;">Goal Achievement Rate</p>
+        </div>
+      </div>
+      
+      <div class="dashboard-card">
+        <div style="text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">📈</div>
+          <h3 style="font-size: 2rem; margin-bottom: 0.25rem;">+23%</h3>
+          <p style="color: #64748b;">Productivity Increase</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Breakdown -->
+    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(71, 85, 105, 0.3); border-radius: 16px; padding: 1.5rem; margin-top: 2rem;">
+      <h3 style="margin-bottom: 1.5rem;">Performance Breakdown by Category</h3>
+      <div style="display: grid; gap: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>Task Management</span>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 200px; height: 6px; background: rgba(71, 85, 105, 0.3); border-radius: 3px;">
+              <div style="width: 85%; height: 100%; background: linear-gradient(90deg, #22c55e, #16a34a); border-radius: 3px;"></div>
+            </div>
+            <span style="color: #22c55e; font-weight: 600;">85%</span>
+          </div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>Quest Completion</span>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 200px; height: 6px; background: rgba(71, 85, 105, 0.3); border-radius: 3px;">
+              <div style="width: 92%; height: 100%; background: linear-gradient(90deg, #3b82f6, #1d4ed8); border-radius: 3px;"></div>
+            </div>
+            <span style="color: #3b82f6; font-weight: 600;">92%</span>
+          </div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>Bot Interaction</span>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 200px; height: 6px; background: rgba(71, 85, 105, 0.3); border-radius: 3px;">
+              <div style="width: 78%; height: 100%; background: linear-gradient(90deg, #f59e0b, #d97706); border-radius: 3px;"></div>
+            </div>
+            <span style="color: #f59e0b; font-weight: 600;">78%</span>
+          </div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span>Time Management</span>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="width: 200px; height: 6px; background: rgba(71, 85, 105, 0.3); border-radius: 3px;">
+              <div style="width: 67%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #7c3aed); border-radius: 3px;"></div>
+            </div>
+            <span style="color: #8b5cf6; font-weight: 600;">67%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Performance Summary -->
+  <div class="performance-card">
+    <h2 class="performance-title">Performance Summary</h2>
+    <div class="metric">
+      <div class="metric-icon">📅</div>
+      <div class="metric-info">
+        <h3>28</h3>
+        <p>days tracked</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">⭐</div>
+      <div class="metric-info">
+        <h3>156</h3>
+        <p>points earned</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">🏆</div>
+      <div class="metric-info">
+        <h3>12</h3>
+        <p>achievements</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">📊</div>
+      <div class="metric-info">
+        <h3>Top 15%</h3>
+        <p>global ranking</p>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="margin-top: 2rem; margin-bottom: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-size: 1.25rem; padding: 1.25rem 0; border-radius: 16px; background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%); color: #fff; font-weight: 700; box-shadow: 0 4px 16px rgba(139,92,246,0.15);">
+      <span style="font-size: 1.5rem;">📊</span> Export Report
+    </button>
+  </div>
+</div>

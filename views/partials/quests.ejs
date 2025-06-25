@@ -1,0 +1,97 @@
+<!-- Header -->
+<div class="header">
+  <h1>Quests List</h1>
+  <div class="user-info">
+    <div class="user-avatar">
+      <%= user && user.username ? user.username.charAt(0).toUpperCase() : 'U' %>
+    </div>
+    <div>
+      <div style="font-weight: 600;"><%= user && user.username ? user.username : 'User' %></div>
+      <div style="color: #64748b; font-size: 0.875rem;"><%= user && user.role === 'ADMIN' ? 'Project Manager' : 'Team Member' %></div>
+    </div>
+  </div>
+</div>
+
+<!-- Quest Management Section -->
+<div class="dashboard-main">
+  <div class="analytics-section">
+    <div class="section-header">
+      <h2 class="section-title">Available Quests</h2>
+      <a href="/create-quest" class="btn btn-primary">+ New Quest</a>
+    </div>
+    
+    <!-- Quest Grid -->
+    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+      <% if (quests && quests.length > 0) { %>
+        <% quests.forEach(quest => { %>
+          <div class="dashboard-card">
+            <div class="card-header">
+              <div class="card-avatar" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🎯</div>
+              <div class="card-info">
+                <h3><%= quest.title %></h3>
+                <p><%= quest.description || 'No description' %></p>
+              </div>
+            </div>
+            <div style="margin: 1rem 0;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="font-size: 0.875rem; color: #64748b;">Progress</span>
+                <span style="font-size: 0.875rem; color: #64748b;"><%= quest.progress || 0 %>%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: <%= quest.progress || 0 %>%;"></div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="btn btn-primary" style="flex: 1; font-size: 0.875rem;">Join Quest</button>
+              <button class="btn btn-secondary" style="padding: 0.5rem;">⚙️</button>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="dashboard-card">
+          <div class="card-header">
+            <div class="card-avatar" style="background: linear-gradient(45deg, #64748b, #475569); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">❓</div>
+            <div class="card-info">
+              <h3>No Quests Available</h3>
+              <p>Create your first quest to get started</p>
+            </div>
+          </div>
+          <a href="/create-quest" class="btn btn-primary" style="width: 100%; text-align: center;">Create Quest</a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Quest Statistics -->
+  <div class="performance-card">
+    <h2 class="performance-title">Quest Stats</h2>
+    <div class="metric">
+      <div class="metric-icon">🎯</div>
+      <div class="metric-info">
+        <h3><%= quests ? quests.length : 0 %></h3>
+        <p>total quests</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">🏆</div>
+      <div class="metric-info">
+        <h3><%= quests ? quests.filter(q => q.completed).length : 0 %></h3>
+        <p>completed</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">🔄</div>
+      <div class="metric-info">
+        <h3><%= quests ? quests.filter(q => !q.completed && q.progress > 0).length : 0 %></h3>
+        <p>in progress</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">📈</div>
+      <div class="metric-info">
+        <h3><%= quests && quests.length > 0 ? Math.round(quests.reduce((acc, q) => acc + (q.progress || 0), 0) / quests.length) : 0 %>%</h3>
+        <p>avg progress</p>
+      </div>
+    </div>
+  </div>
+</div>

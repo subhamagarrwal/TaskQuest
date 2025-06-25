@@ -29,188 +29,67 @@
       
       <div class="nav-section">
         <div class="nav-title">Overview</div>
-        <div class="nav-section-header">
-          <span>Overview</span>
-          <div class="chevron"></div>
-        </div>
-        <div class="nav-item active">
+        <a href="/dashboard?section=overview" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'overview' ? 'active' : '' %>">
           <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z\"/></svg>')"></div>
           Overview
-        </div>
+        </a>
       </div>
 
       <div class="nav-section">
         <div class="nav-title">Tasks</div>
-        <div class="nav-section-header">
-          <span>Tasks</span>
-          <div class="chevron"></div>
-        </div>
-        <div class="nav-item">
+        <a href="/dashboard?section=tasks" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'tasks' ? 'active' : '' %>">
           <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2\"/></svg>')"></div>
           Manage Tasks
-        </div>
+        </a>
       </div>
 
       <div class="nav-section">
         <div class="nav-title">Quests</div>
-        <div class="nav-section-header">
-          <span>Quests</span>
-          <div class="chevron"></div>
-        </div>
-        <div class="nav-item">
+        <a href="/dashboard?section=quests" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'quests' ? 'active' : '' %>">
           <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z\"/></svg>')"></div>
           Quests List
-        </div>
+        </a>
       </div>
 
       <div class="nav-section">
         <div class="nav-title">Bot</div>
-        <div class="nav-section-header">
-          <span>Manage Bot</span>
-          <div class="chevron"></div>
-        </div>
-        <div class="nav-item">
+        <a href="/dashboard?section=bot" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'bot' ? 'active' : '' %>">
           <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 11c0-1.104.896-2 2-2s2 .896 2 2-.896 2-2 2-2-.896-2-2zm0 0V7m0 4v4m0 0c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2z\"/></svg>')"></div>
           Manage Bot
-        </div>
+        </a>
       </div>
+
+      <div class="nav-section">
+        <div class="nav-title">Performance</div>
+        <a href="/dashboard?section=performance" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'performance' ? 'active' : '' %>">
+          <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 17v-2a4 4 0 018 0v2m-4 4h.01M4 4h16v16H4V4z\"/></svg>')"></div>
+          Performance Breakdown
+        </a>
+      </div>
+
+
     </div>
   </div>
 
   <!-- Main Content -->
   <div class="main-content">
-    <!-- Header -->
-    <div class="header">
-      <h1>Overview</h1>
-      <div class="user-info">
-        <div class="user-avatar">
-          <%= user && user.username ? user.username.charAt(0).toUpperCase() : 'U' %>
-        </div>
-        <div>
-          <div style="font-weight: 600;"><%= user && user.username ? user.username : 'User' %></div>
-          <div style="color: #64748b; font-size: 0.875rem;"><%= user && user.role === 'ADMIN' ? 'Project Manager' : 'Team Member' %></div>
-        </div>
+    <% if (typeof activeSection !== 'undefined' && activeSection === 'overview') { %>
+      <%- include('partials/overview', { user, tasks }) %>
+    <% } else if (typeof activeSection !== 'undefined' && activeSection === 'tasks') { %>
+      <%- include('partials/tasks', { user, tasks }) %>
+    <% } else if (typeof activeSection !== 'undefined' && activeSection === 'quests') { %>
+      <%- include('partials/quests', { user, quests }) %>
+    <% } else if (typeof activeSection !== 'undefined' && activeSection === 'bot') { %>
+      <%- include('partials/bot', { user }) %>
+    <% } else if (typeof activeSection !== 'undefined' && activeSection === 'performance') { %>
+      <%- include('partials/performance', { user, tasks }) %>
+    <% } else { %>
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;">
+        <div style="font-size: 4rem; margin-bottom: 2rem;">🎯</div>
+        <h2 style="color: #ffffff; margin-bottom: 1rem; font-size: 2rem;">Welcome to TaskQuest Dashboard</h2>
+        <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 2rem; max-width: 500px;">Select any section from the sidebar to get started with managing your tasks, quests, bot, or view your performance analytics.</p>
       </div>
-    </div>
-
-    <!-- Task Progress Cards -->
-    <div class="dashboard-grid">
-      <div class="dashboard-card">
-        <div class="card-header">
-          <div class="card-avatar" style="background: linear-gradient(45deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; font-size: 2rem;">+</div>
-          <div class="card-info">
-            <h3>Create New Task</h3>
-            <p>Start a new assignment</p>
-          </div>
-        </div>
-        <a href="/create-task" class="btn btn-primary" style="width: 100%; text-align: center;">Create Task</a>
-      </div>
-
-      <div class="dashboard-card">
-        <div class="card-header">
-          <div class="card-avatar" style="background: linear-gradient(45deg, #f59e0b, #ef4444); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">✏️</div>
-          <div class="card-info">
-            <h3>Edit Quest</h3>
-            <p>Modify quest details</p>
-          </div>
-        </div>
-        <a href="/edit-quest" class="btn btn-primary" style="width: 100%; text-align: center;">Edit Quest</a>
-      </div>
-
-      <div class="dashboard-card">
-        <div class="card-header">
-          <div class="card-avatar" style="background: linear-gradient(45deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👥</div>
-          <div class="card-info">
-            <h3>Manage Users</h3>
-            <p>View and edit users</p>
-          </div>
-        </div>
-        <a href="/manage-users" class="btn btn-secondary" style="width: 100%; text-align: center;">Manage Users</a>
-      </div>
-    </div>
-
-    <!-- Main Dashboard -->
-    <div class="dashboard-main">
-      <!-- Analytics -->
-      <div class="analytics-section">
-        <div class="section-header">
-          <h2 class="section-title">Tasks Analytics</h2>
-          <select class="filter-dropdown">
-            <option>Last year</option>
-            <option>Last month</option>
-            <option>Last week</option>
-          </select>
-        </div>
-        <div class="chart-container">
-          <p>Task completion chart will be displayed here</p>
-        </div>
-
-        <!-- Recent Tasks -->
-        <div class="tasks-list">
-          <h3 style="margin-bottom: 1rem;">Recent Tasks</h3>
-          <% if (tasks && tasks.length > 0) { %>
-            <% tasks.slice(0, 5).forEach(task => { %>
-              <div class="task-item">
-                <div class="task-info">
-                  <h4><%= task.title %></h4>
-                  <p><%= task.description || 'No description' %></p>
-                </div>
-                <div class="task-status <%= task.completed ? 'status-completed' : 'status-pending' %>">
-                  <%= task.completed ? 'Completed' : 'Pending' %>
-                </div>
-              </div>
-            <% }) %>
-          <% } else { %>
-            <div class="task-item">
-              <div class="task-info">
-                <h4>No tasks yet</h4>
-                <p>Create your first task to get started</p>
-              </div>
-              <div class="task-status status-pending">Pending</div>
-            </div>
-          <% } %>
-        </div>
-      </div>
-
-      <!-- Performance Card -->
-      <div class="performance-card">
-        <h2 class="performance-title">Performance</h2>
-        <div class="metric">
-          <div class="metric-icon">📋</div>
-          <div class="metric-info">
-            <h3><%= tasks ? tasks.length : 0 %></h3>
-            <p>tasks created</p>
-          </div>
-        </div>
-        <div class="metric">
-          <div class="metric-icon">✅</div>
-          <div class="metric-info">
-            <h3><%= tasks ? tasks.filter(t => t.completed).length : 0 %></h3>
-            <p>tasks completed</p>
-          </div>
-        </div>
-        <div class="metric">
-          <div class="metric-icon">⏳</div>
-          <div class="metric-info">
-            <h3><%= tasks ? tasks.filter(t => !t.completed).length : 0 %></h3>
-            <p>tasks pending</p>
-          </div>
-        </div>
-        <div class="metric">
-          <div class="metric-icon">🎯</div>
-          <div class="metric-info">
-            <h3>85%</h3>
-            <p>Quest participation rate</p>
-          </div>
-        </div>
-        <div style="background: rgba(0, 0, 0, 0.2); height: 4px; border-radius: 2px; margin-top: 1rem;">
-          <div style="background: #ffffff; height: 100%; width: <%= tasks && tasks.length > 0 ? ((tasks.filter(t => t.completed).length / tasks.length) * 100) : 0 %>%; border-radius: 2px;"></div>
-        </div>
-        <a href="/chatbot" class="btn btn-primary" style="margin-top: 2rem; margin-bottom: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-size: 1.25rem; padding: 1.25rem 0; border-radius: 16px; background: linear-gradient(90deg, #22c55e 0%, #84cc16 100%); color: #fff; font-weight: 700; box-shadow: 0 4px 16px rgba(34,197,94,0.15);">
-          <span style="font-size: 1.5rem;">🤖</span> Ask TaskQuest Bot
-        </a>
-      </div>
-    </div>
+    <% } %>
   </div>
   <script>
     // Mobile menu functionality
@@ -239,55 +118,16 @@
       }
     });
 
-    // Navigation accordion functionality for mobile
-    function setupAccordion() {
-      const navSectionHeaders = document.querySelectorAll('.nav-section-header');
-      
-      navSectionHeaders.forEach(header => {
-        header.addEventListener('click', function() {
-          const navSection = this.parentElement;
-          const isCollapsed = navSection.classList.contains('collapsed');
-          
-          // On mobile, close all other sections when opening one
-          if (window.innerWidth <= 768) {
-            navSectionHeaders.forEach(otherHeader => {
-              if (otherHeader !== header) {
-                otherHeader.parentElement.classList.add('collapsed');
-              }
-            });
-          }
-          
-          navSection.classList.toggle('collapsed', !isCollapsed);
-        });
-      });
-
-      // Initialize accordion state for mobile
-      if (window.innerWidth <= 768) {
-        document.querySelectorAll('.nav-section').forEach((section, index) => {
-          if (index > 0) { // Keep first section open
-            section.classList.add('collapsed');
-          }
-        });
-      }
-    }
-
-    // Navigation item activation
+    // Close mobile menu when nav item is clicked
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', function() {
-        // Don't activate section headers
-        if (this.classList.contains('nav-section-header')) return;
-        
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        this.classList.add('active');
-        
-        // Close mobile menu when nav item is clicked
         if (window.innerWidth <= 768) {
           toggleMobileMenu();
         }
       });
     });
 
-    // Simulate real-time updates
+    // Simulate real-time updates for progress bars
     setInterval(() => {
       const progressBars = document.querySelectorAll('.progress-fill');
       progressBars.forEach(bar => {
@@ -297,14 +137,6 @@
         }
       });
     }, 5000);
-
-    // Initialize accordion functionality
-    setupAccordion();
-
-    // Reinitialize accordion on window resize
-    window.addEventListener('resize', function() {
-      setupAccordion();
-    });
   </script>
 </body>
 </html>

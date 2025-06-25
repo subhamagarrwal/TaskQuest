@@ -1,0 +1,132 @@
+<!-- Header -->
+<div class="header">
+  <h1>Manage Bot</h1>
+  <div class="user-info">
+    <div class="user-avatar">
+      <%= user && user.username ? user.username.charAt(0).toUpperCase() : 'U' %>
+    </div>
+    <div>
+      <div style="font-weight: 600;"><%= user && user.username ? user.username : 'User' %></div>
+      <div style="color: #64748b; font-size: 0.875rem;"><%= user && user.role === 'ADMIN' ? 'Project Manager' : 'Team Member' %></div>
+    </div>
+  </div>
+</div>
+
+<!-- Bot Management Section -->
+<div class="dashboard-main">
+  <div class="analytics-section">
+    <div class="section-header">
+      <h2 class="section-title">TaskQuest Bot Configuration</h2>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <div style="width: 12px; height: 12px; background: #22c55e; border-radius: 50%;"></div>
+        <span style="color: #22c55e; font-size: 0.875rem;">Bot Online</span>
+      </div>
+    </div>
+    
+    <!-- Bot Settings Cards -->
+    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-avatar" style="background: linear-gradient(45deg, #22c55e, #16a34a); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🤖</div>
+          <div class="card-info">
+            <h3>Bot Status</h3>
+            <p>Configure bot availability</p>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+          <span>Enable Bot</span>
+          <label style="position: relative; display: inline-block; width: 60px; height: 34px;">
+            <input type="checkbox" checked style="opacity: 0; width: 0; height: 0;">
+            <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #22c55e; transition: 0.4s; border-radius: 34px; box-shadow: 0 0 1px #22c55e;"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-avatar" style="background: linear-gradient(45deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">💬</div>
+          <div class="card-info">
+            <h3>Response Settings</h3>
+            <p>Configure bot responses</p>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Configure Responses</button>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-avatar" style="background: linear-gradient(45deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📊</div>
+          <div class="card-info">
+            <h3>Analytics</h3>
+            <p>View bot usage statistics</p>
+          </div>
+        </div>
+        <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">View Analytics</button>
+      </div>
+    </div>
+
+    <!-- Bot Commands -->
+    <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(71, 85, 105, 0.3); border-radius: 16px; padding: 1.5rem;">
+      <h3 style="margin-bottom: 1rem;">Available Commands</h3>
+      <div style="display: grid; gap: 1rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: rgba(71, 85, 105, 0.2); border-radius: 8px;">
+          <div>
+            <code style="color: #22c55e;">/help</code>
+            <span style="margin-left: 1rem; color: #64748b;">Show available commands</span>
+          </div>
+          <span style="color: #64748b; font-size: 0.875rem;">Active</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: rgba(71, 85, 105, 0.2); border-radius: 8px;">
+          <div>
+            <code style="color: #22c55e;">/tasks</code>
+            <span style="margin-left: 1rem; color: #64748b;">List user tasks</span>
+          </div>
+          <span style="color: #64748b; font-size: 0.875rem;">Active</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: rgba(71, 85, 105, 0.2); border-radius: 8px;">
+          <div>
+            <code style="color: #22c55e;">/create</code>
+            <span style="margin-left: 1rem; color: #64748b;">Create new task</span>
+          </div>
+          <span style="color: #64748b; font-size: 0.875rem;">Active</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bot Performance -->
+  <div class="performance-card">
+    <h2 class="performance-title">Bot Performance</h2>
+    <div class="metric">
+      <div class="metric-icon">💬</div>
+      <div class="metric-info">
+        <h3>247</h3>
+        <p>messages today</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">👥</div>
+      <div class="metric-info">
+        <h3>42</h3>
+        <p>active users</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">⚡</div>
+      <div class="metric-info">
+        <h3>98%</h3>
+        <p>uptime</p>
+      </div>
+    </div>
+    <div class="metric">
+      <div class="metric-icon">🎯</div>
+      <div class="metric-info">
+        <h3>4.8</h3>
+        <p>avg rating</p>
+      </div>
+    </div>
+    <a href="/chatbot" class="btn btn-primary" style="margin-top: 2rem; margin-bottom: 0; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-size: 1.25rem; padding: 1.25rem 0; border-radius: 16px; background: linear-gradient(90deg, #22c55e 0%, #84cc16 100%); color: #fff; font-weight: 700; box-shadow: 0 4px 16px rgba(34,197,94,0.15);">
+      <span style="font-size: 1.5rem;">🤖</span> Chat with Bot
+    </a>
+  </div>
+</div>

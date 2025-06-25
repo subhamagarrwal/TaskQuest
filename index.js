@@ -46,6 +46,9 @@ app.get('/', (req, res) => {
 });
 
 app.get('/dashboard', (req, res) => {
+  // Get the section from query parameters
+  const activeSection = req.query.section || null;
+  
   // Sample data - replace with real database queries later
   const sampleUser = {
     username: 'John Doe',
@@ -73,10 +76,27 @@ app.get('/dashboard', (req, res) => {
       priority: 'HIGH'
     }
   ];
+
+  const sampleQuests = [
+    {
+      title: 'Complete Project Setup',
+      description: 'Initialize all required components',
+      progress: 75,
+      completed: false
+    },
+    {
+      title: 'User Authentication Quest',
+      description: 'Implement Firebase authentication',
+      progress: 100,
+      completed: true
+    }
+  ];
   
   res.render('dashboard', { 
     user: sampleUser, 
-    tasks: sampleTasks 
+    tasks: sampleTasks,
+    quests: sampleQuests,
+    activeSection: activeSection
   });
 });
 
