@@ -41,6 +41,8 @@ router.post('/firebase', async (req, res) => {
         if (user) {
           // Update existing user with firebaseUid
           user.firebaseUid = decoded.uid;
+          // Ensure existing user also has ADMIN role
+          user.role = 'ADMIN';
           await user.save();
         }
       }
@@ -53,7 +55,8 @@ router.post('/firebase', async (req, res) => {
         const userData = {
           username,
           email,
-          firebaseUid: decoded.uid
+          firebaseUid: decoded.uid,
+          role: 'ADMIN'
         };
         
         // Only add phone if it exists and is not null/empty
@@ -80,10 +83,13 @@ router.post('/firebase', async (req, res) => {
             if (!user) {
               // If still not found, create with modified username
               userData.username = userData.username + '_' + Date.now();
+              userData.role = 'ADMIN';
               user = await User.create(userData);
             } else {
               // Update existing user with Firebase UID
               user.firebaseUid = decoded.uid;
+              // Ensure existing user also has ADMIN role
+              user.role = 'ADMIN';
               await user.save();
             }
           } else {
@@ -99,6 +105,8 @@ router.post('/firebase', async (req, res) => {
       if (decoded.phone_number && decoded.phone_number.trim() && decoded.phone_number !== user.phone) {
         user.phone = decoded.phone_number;
       }
+      // Ensure existing user also has ADMIN role
+      user.role = 'ADMIN';
       await user.save();
     }
     

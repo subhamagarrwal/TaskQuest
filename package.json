@@ -40,6 +40,7 @@
     "firebase-admin": "^13.4.0",
     "graphql": "^16.11.0",
     "graphql-http": "^1.22.4",
+    "graphql-request": "^7.2.0",
     "ioredis": "^5.6.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.16.0",

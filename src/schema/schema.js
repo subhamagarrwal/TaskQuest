@@ -15,16 +15,19 @@ type User {
   id: ID!
   username: String!
   email: String!
-  phone: String!
+  phone: String
   role: Role!
   performanceScore: Float!
-  questsStarted: [Quest!]!
+  questsIn: [Quest!]!
+  firebaseUid: String
+  createdAt: String!
+  updatedAt: String!
 }
 
 type Quest {
   id: ID!
   title: String!
-  description: String!
+  description: String
   creator: User!
   members: [User!]!
   tasks: [Task!]!
@@ -36,7 +39,7 @@ type Quest {
 type Task {
   id: ID!
   title: String!
-  description: String!
+  description: String
   completed: Boolean!
   assignedTo: User!
   quest: Quest!
@@ -56,12 +59,12 @@ type Query {
 }
 
 type Mutation {
-  createUser(username: String!, email: String!, phone: String!, role: Role!): User!
-  updateUser(id: ID!, username: String, email: String, phone: String, role: Role): User!
+  createUser(username: String!, email: String!, phone: String, role: Role!, firebaseUid: String): User!
+  updateUser(id: ID!, username: String, email: String, phone: String, role: Role, firebaseUid: String): User!
   deleteUser(id: ID!): User!
-  createQuest(title: String!, description: String!, creatorId: ID!): Quest!
+  createQuest(title: String!, description: String, creatorId: ID!): Quest!
   updateQuest(id: ID!, title: String, description: String, members: [ID!]): Quest!
-  deleteQuest(id: ID!): Quest! 
+  deleteQuest(id: ID!): Quest!
 }
 `;
 

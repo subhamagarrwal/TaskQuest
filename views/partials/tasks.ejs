@@ -12,12 +12,24 @@
   </div>
 </div>
 
+<!-- Task Creation Form -->
+<form id="createTaskForm" style="margin-bottom: 2rem;">
+  <input type="text" name="title" placeholder="Task Title" required>
+  <input type="text" name="description" placeholder="Description">
+  <select name="priority">
+    <option value="LOW">Low</option>
+    <option value="MEDIUM" selected>Medium</option>
+    <option value="HIGH">High</option>
+  </select>
+  <button type="submit">Add Task</button>
+</form>
+
 <!-- Task Management Section -->
 <div class="dashboard-main">
   <div class="analytics-section">
     <div class="section-header">
       <h2 class="section-title">Task Management</h2>
-      <a href="/create-task" class="btn btn-primary">+ New Task</a>
+      <!-- The new task form is above -->
     </div>
     
     <!-- Task Filters -->
@@ -40,12 +52,11 @@
     <div class="tasks-list">
       <% if (tasks && tasks.length > 0) { %>
         <% tasks.forEach(task => { %>
-          <div class="task-item">
+          <div class="task-item" data-task-id="<%= task.id %>">
             <div class="task-info">
               <h4><%= task.title %></h4>
               <p><%= task.description || 'No description' %></p>
               <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                <span style="font-size: 0.75rem; color: #64748b;">Due: <%= task.dueDate || 'No due date' %></span>
                 <span style="font-size: 0.75rem; color: #64748b;">Priority: <%= task.priority || 'Medium' %></span>
               </div>
             </div>
@@ -53,7 +64,8 @@
               <div class="task-status <%= task.completed ? 'status-completed' : 'status-pending' %>">
                 <%= task.completed ? 'Completed' : 'Pending' %>
               </div>
-              <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Edit</button>
+              <button class="btn btn-secondary edit-task-btn" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Edit</button>
+              <button class="btn btn-secondary delete-task-btn" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Delete</button>
             </div>
           </div>
         <% }) %>
@@ -102,3 +114,70 @@
     </div>
   </div>
 </div>
+
+<script>
+// Handle create task form submission
+// This assumes you have a /graphql endpoint available
+// and the user is authenticated if needed
+
+document.getElementById('createTaskForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const title = this.title.value;
+  const description = this.description.value;
+  const priority = this.priority.value;
+  // You may want to add assignedTo, quest, etc. as needed
+
+  const mutation = `
+    mutation CreateTask($title: String!, $description: String, $priority: Priority) {
+      createTask(title: $title, description: $description, priority: $priority) {
+        id
+        title
+        description
+        priority
+      }
+    }
+  `;
+  const variables = { title, description, priority };
+
+  const res = await fetch('/graphql', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: mutation, variables })
+  });
+  const data = await res.json();
+  if (data.data && data.data.createTask) {
+    location.reload();
+  } else {
+    alert('Error creating task');
+  }
+});
+
+// Handle delete task
+// Add event listeners to all delete buttons
+Array.from(document.getElementsByClassName('delete-task-btn')).forEach(btn => {
+  btn.addEventListener('click', async function() {
+    const taskId = this.closest('.task-item').getAttribute('data-task-id');
+    if (!confirm('Are you sure you want to delete this task?')) return;
+    const mutation = `
+      mutation DeleteTask($id: ID!) {
+        deleteTask(id: $id) { id }
+      }
+    `;
+    const variables = { id: taskId };
+    const res = await fetch('/graphql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: mutation, variables })
+    });
+    const data = await res.json();
+    if (data.data && data.data.deleteTask) {
+      location.reload();
+    } else {
+      alert('Error deleting task');
+    }
+  });
+});
+
+// You can similarly add edit functionality for tasks
+// ...
+</script>
