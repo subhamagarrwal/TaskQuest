@@ -9,7 +9,11 @@ const taskSchema = new Schema({
         type: Schema.Types.ObjectId, ref: 'User', required: true
     },
     quest: {
-        type: Schema.Types.ObjectId, ref: 'Quest', required: true, unique :true
+        type: Schema.Types.ObjectId, 
+        ref: 'Quest', 
+        required: true
+        // Removed unique constraint to allow multiple tasks per quest
+        // But each task can only belong to one quest (enforced by the field itself)
     },
     priority : {type: String, enum: ['LOW', 'MEDIUM', 'HIGH'], default: 'MEDIUM'},
     createdBy: {
@@ -19,5 +23,24 @@ const taskSchema = new Schema({
     {
         timestamps: true
     });
+
+// Add compound index to ensure efficient queries
+taskSchema.index({ quest: 1, assignedTo: 1 });
+taskSchema.index({ assignedTo: 1, completed: 1 });
+
+// Pre-save middleware to ensure task-quest relationship integrity
+taskSchema.pre('save', async function(next) {
+    try {
+        if (this.isModified('quest') && !this.isNew) {
+            // Prevent changing quest assignment after task creation
+            const error = new Error('Quest assignment cannot be changed after task creation');
+            error.name = 'ValidationError';
+            return next(error);
+        }
+        next();
+    } catch (error) {
+        next(error);
+    }
+});
 const Task = model('Task', taskSchema);
 export default Task;

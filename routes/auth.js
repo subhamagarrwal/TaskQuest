@@ -39,24 +39,22 @@ router.post('/firebase', async (req, res) => {
       if (decoded.email) {
         user = await User.findOne({ email: decoded.email });
         if (user) {
-          // Update existing user with firebaseUid
+          // Update existing user with firebaseUid but don't change role
           user.firebaseUid = decoded.uid;
-          // Ensure existing user also has ADMIN role
-          user.role = 'ADMIN';
           await user.save();
         }
       }
       
       if (!user) {
-        // Create new user
+        // Create new user - role will be determined by User model pre-save middleware
         const username = decoded.name || decoded.email?.split('@')[0] || 'user' + Date.now();
         const email = decoded.email || 'user' + Date.now() + '@example.com';
         
         const userData = {
           username,
           email,
-          firebaseUid: decoded.uid,
-          role: 'ADMIN'
+          firebaseUid: decoded.uid
+          // Role will be set automatically by the model (ADMIN for first user, USER for others)
         };
         
         // Only add phone if it exists and is not null/empty
@@ -83,13 +81,10 @@ router.post('/firebase', async (req, res) => {
             if (!user) {
               // If still not found, create with modified username
               userData.username = userData.username + '_' + Date.now();
-              userData.role = 'ADMIN';
               user = await User.create(userData);
             } else {
-              // Update existing user with Firebase UID
+              // Update existing user with Firebase UID but don't change role
               user.firebaseUid = decoded.uid;
-              // Ensure existing user also has ADMIN role
-              user.role = 'ADMIN';
               await user.save();
             }
           } else {
@@ -98,15 +93,14 @@ router.post('/firebase', async (req, res) => {
         }
       }
     } else {
-      // User exists, update any new info
+      // User exists, update any new info but don't change role
       if (decoded.email && decoded.email !== user.email) {
         user.email = decoded.email;
       }
       if (decoded.phone_number && decoded.phone_number.trim() && decoded.phone_number !== user.phone) {
         user.phone = decoded.phone_number;
       }
-      // Ensure existing user also has ADMIN role
-      user.role = 'ADMIN';
+      // Don't modify role for existing users - role is immutable after creation
       await user.save();
     }
     

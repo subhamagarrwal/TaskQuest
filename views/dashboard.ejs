@@ -6,8 +6,24 @@
   <title>TaskQuest Dashboard</title>
     <link rel="stylesheet" href="/css/dashboard.css">
     <link rel="stylesheet" href="/css/flash.css">
+    <script src="/js/graphql-client.js"></script>
+    <script>
+      // Pass user data to frontend - ensure IDs are strings
+      window.currentUserId = '<%= user._id.toString() %>';
+      window.currentUser = {
+        id: '<%= user._id.toString() %>',
+        username: '<%= user.username %>',
+        email: '<%= user.email %>',
+        role: '<%= user.role %>'
+      };
+    </script>
 </head>
 <body>
+  <script>
+    // Initialize GraphQL client
+    window.graphqlClient = new GraphQLClient('/graphql');
+  </script>
+
   <!-- Flash Messages -->
   <% if (locals.success && success.length > 0) { %>
     <div id="flash-success" class="flash-notification flash-success">
@@ -138,7 +154,7 @@
     <% if (typeof activeSection !== 'undefined' && activeSection === 'overview') { %>
       <%- include('partials/overview', { user, tasks }) %>
     <% } else if (typeof activeSection !== 'undefined' && activeSection === 'tasks') { %>
-      <%- include('partials/tasks', { user, tasks }) %>
+      <%- include('partials/tasks', { user, tasks, quests }) %>
     <% } else if (typeof activeSection !== 'undefined' && activeSection === 'quests') { %>
       <%- include('partials/quests', { user, quests }) %>
     <% } else if (typeof activeSection !== 'undefined' && activeSection === 'bot') { %>
@@ -197,7 +213,26 @@
       }
     }
 
-    // Handle create quest form submission - POST to /quests endpoint
+    // Allow closing modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeQuestModal();
+      }
+    });
+
+    // Close modal when clicking on overlay background
+    document.addEventListener('DOMContentLoaded', function() {
+      const overlay = document.getElementById('questModalOverlay');
+      if (overlay) {
+        overlay.addEventListener('click', function(e) {
+          if (e.target === overlay) {
+            closeQuestModal();
+          }
+        });
+      }
+    });
+
+    // Handle create quest form submission - USE GRAPHQL
     document.addEventListener('DOMContentLoaded', function() {
       const form = document.getElementById('createQuestForm');
       if (form) {
@@ -221,38 +256,18 @@
           submitBtn.textContent = '🔄 Creating...';
           
           try {
-            console.log('🎯 Submitting quest:', { title, description });
+            console.log('🎯 Submitting quest via GraphQL:', { title, description });
             
-            // Submit quest creation to backend
-            const response = await fetch('/quests', {
-              method: 'POST',
-              headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: JSON.stringify({ title, description })
-            });
+            // Use GraphQL client to create quest
+            const data = await window.graphqlClient.createQuest(title, description);
+            console.log('✅ Quest created successfully:', data);
             
-            console.log('📡 Response status:', response.status);
+            // Success - reload the page to show the new quest
+            window.location.reload();
             
-            if (response.ok) {
-              const data = await response.json();
-              console.log('✅ Quest created successfully:', data);
-              // Success - reload the page to show the new quest
-              window.location.reload();
-            } else {
-              // Handle error response
-              const errorData = await response.json();
-              console.error('❌ Server error:', errorData);
-              alert('Error creating quest: ' + (errorData.error || 'Unknown error'));
-              
-              // Re-enable button
-              submitBtn.disabled = false;
-              submitBtn.textContent = originalText;
-            }
           } catch (error) {
-            console.error('❌ Network error creating quest:', error);
-            alert('Failed to create quest. Please check your connection and try again.');
+            console.error('❌ Error creating quest:', error);
+            alert('Error creating quest: ' + error.message);
             
             // Re-enable button
             submitBtn.disabled = false;
