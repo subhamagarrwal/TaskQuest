@@ -12,24 +12,41 @@
   </div>
 </div>
 
-<!-- Task Creation Form -->
-<form id="createTaskForm" style="margin-bottom: 2rem;">
-  <input type="text" name="title" placeholder="Task Title" required>
-  <input type="text" name="description" placeholder="Description">
-  <select name="priority">
-    <option value="LOW">Low</option>
-    <option value="MEDIUM" selected>Medium</option>
-    <option value="HIGH">High</option>
-  </select>
-  <button type="submit">Add Task</button>
-</form>
+<!-- Task Creation Modal Popup -->
+<div id="taskModalOverlay" style="position: fixed; inset: 0; background: rgba(30,41,59,0.8); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center;">
+  <div id="taskModal" style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 400px; max-width: 90vw; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
+    <button onclick="closeTaskModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.25rem;">&times;</button>
+    <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
+    <div style="font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; color: #ffffff;">Create New Task</div>
+    <div style="margin-bottom: 1.5rem; color: #94a3b8;">Add a new task to keep track of your work and progress.</div>
+    <form id="createTaskForm" style="text-align: left;">
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Task Title *</label>
+        <input type="text" name="title" placeholder="e.g., Complete project setup" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Description</label>
+        <textarea name="description" placeholder="Describe what this task involves..." style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem; min-height: 80px; resize: vertical;"></textarea>
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Priority</label>
+        <select name="priority" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+          <option value="LOW">Low</option>
+          <option value="MEDIUM" selected>Medium</option>
+          <option value="HIGH">High</option>
+        </select>
+      </div>
+      <button type="submit" style="width: 100%; padding: 0.75rem; background: linear-gradient(45deg, #22c55e, #16a34a); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s;">📝 Create Task</button>
+    </form>
+  </div>
+</div>
 
 <!-- Task Management Section -->
 <div class="dashboard-main">
   <div class="analytics-section">
     <div class="section-header">
       <h2 class="section-title">Task Management</h2>
-      <!-- The new task form is above -->
+      <button onclick="openTaskModal()" class="btn btn-primary" style="background: linear-gradient(45deg, #22c55e, #16a34a);">📝 Create Task</button>
     </div>
     
     <!-- Task Filters -->
@@ -75,7 +92,7 @@
             <h4>No tasks found</h4>
             <p>Create your first task to get started</p>
           </div>
-          <div class="task-status status-pending">Empty</div>
+          <button onclick="openTaskModal()" class="btn btn-primary" style="background: linear-gradient(45deg, #22c55e, #16a34a);">Create Task</button>
         </div>
       <% } %>
     </div>
@@ -116,39 +133,55 @@
 </div>
 
 <script>
+// Modal open/close helpers
+function closeTaskModal() {
+  document.getElementById('taskModalOverlay').style.display = 'none';
+}
+function openTaskModal() {
+  document.getElementById('taskModalOverlay').style.display = 'flex';
+}
+
 // Handle create task form submission
-// This assumes you have a /graphql endpoint available
-// and the user is authenticated if needed
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('createTaskForm');
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const title = this.title.value;
+      const description = this.description.value;
+      const priority = this.priority.value;
+      
+      // You may want to add assignedTo, quest, etc. as needed
+      const mutation = `
+        mutation CreateTask($title: String!, $description: String, $priority: Priority) {
+          createTask(title: $title, description: $description, priority: $priority) {
+            id
+            title
+            description
+            priority
+          }
+        }
+      `;
+      const variables = { title, description, priority };
 
-document.getElementById('createTaskForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const title = this.title.value;
-  const description = this.description.value;
-  const priority = this.priority.value;
-  // You may want to add assignedTo, quest, etc. as needed
-
-  const mutation = `
-    mutation CreateTask($title: String!, $description: String, $priority: Priority) {
-      createTask(title: $title, description: $description, priority: $priority) {
-        id
-        title
-        description
-        priority
+      try {
+        const res = await fetch('/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: mutation, variables })
+        });
+        const data = await res.json();
+        if (data.data && data.data.createTask) {
+          closeTaskModal();
+          location.reload();
+        } else {
+          alert('Error creating task');
+        }
+      } catch (error) {
+        console.error('Error creating task:', error);
+        alert('Error creating task');
       }
-    }
-  `;
-  const variables = { title, description, priority };
-
-  const res = await fetch('/graphql', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ query: mutation, variables })
-  });
-  const data = await res.json();
-  if (data.data && data.data.createTask) {
-    location.reload();
-  } else {
-    alert('Error creating task');
+    });
   }
 });
 

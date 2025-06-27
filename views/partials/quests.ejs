@@ -13,28 +13,32 @@
 </div>
 
 <!-- Quest Creation Modal Popup -->
-<% if (typeof showCreateQuestPrompt !== 'undefined' && showCreateQuestPrompt) { %>
-  <div id="questModalOverlay" style="position: fixed; inset: 0; background: rgba(30,41,59,0.6); backdrop-filter: blur(6px); z-index: 10000; display: flex; align-items: center; justify-content: center;">
-    <div id="questModal" style="background: #fff; color: #1e293b; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.25); padding: 2rem; min-width: 320px; max-width: 90vw; text-align: center; position: relative;">
-      <button onclick="closeQuestModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer;">&times;</button>
-      <div style="font-size: 2rem; margin-bottom: 1rem;">🚩</div>
-      <div style="font-weight: 700; font-size: 1.2rem; margin-bottom: 0.5rem;">No quests found!</div>
-      <div style="margin-bottom: 1.5rem;">Create your first quest to get started.</div>
-      <form id="createQuestForm">
-        <input type="text" name="title" placeholder="Quest Title" required style="width: 90%; margin-bottom: 0.75rem; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1;">
-        <input type="text" name="description" placeholder="Description" style="width: 90%; margin-bottom: 0.75rem; padding: 0.5rem; border-radius: 6px; border: 1px solid #cbd5e1;">
-        <button type="submit" class="btn btn-primary" style="width: 100%;">Add Quest</button>
-      </form>
-    </div>
+<div id="questModalOverlay" style="position: fixed; inset: 0; background: rgba(30,41,59,0.8); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center;">
+  <div id="questModal" style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 400px; max-width: 90vw; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
+    <button onclick="closeQuestModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.25rem;">&times;</button>
+    <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+    <div style="font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; color: #ffffff;">Create New Quest</div>
+    <div style="margin-bottom: 1.5rem; color: #94a3b8;">Create a new quest to organize and track your team's objectives.</div>
+    <form id="createQuestForm" style="text-align: left;">
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Quest Title *</label>
+        <input type="text" name="title" placeholder="e.g., Complete Project Setup" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Description</label>
+        <textarea name="description" placeholder="Describe what this quest involves..." style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem; min-height: 80px; resize: vertical;"></textarea>
+      </div>
+      <button type="submit" style="width: 100%; padding: 0.75rem; background: linear-gradient(45deg, #8b5cf6, #7c3aed); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s;">🎯 Create Quest</button>
+    </form>
   </div>
-<% } %>
+</div>
 
 <!-- Quest Management Section -->
 <div class="dashboard-main">
   <div class="analytics-section">
     <div class="section-header">
       <h2 class="section-title">Available Quests</h2>
-      <!-- The new quest form is in the modal -->
+      <button onclick="openQuestModal()" class="btn btn-primary" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed);">🎯 Create Quest</button>
     </div>
     
     <!-- Quest Grid -->
@@ -130,14 +134,21 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
       const title = this.title.value;
       const description = this.description.value;
-      const res = await fetch('/quests', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description })
-      });
-      if (res.ok) {
-        location.reload();
-      } else {
+      
+      try {
+        const res = await fetch('/quests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description })
+        });
+        if (res.ok) {
+          closeQuestModal();
+          location.reload();
+        } else {
+          alert('Error creating quest');
+        }
+      } catch (error) {
+        console.error('Error creating quest:', error);
         alert('Error creating quest');
       }
     });

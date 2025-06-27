@@ -77,7 +77,7 @@ const firebaseApp = initializeApp(firebaseConfig);
 connectDB();
 
 // Server port configuration
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 4000;
 
 // Homepage route - Clear any existing auth state and show landing page
 app.get('/', (req, res) => {
