@@ -455,6 +455,33 @@
     .status-completed {
       background: rgba(34, 197, 94, 0.2);
       color: #22c55e;
+    }
+
+    /* Priority-based coloring for task status */
+    .task-status-priority {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .priority-high {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .priority-medium {
+      background: rgba(251, 191, 36, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(251, 191, 36, 0.3);
+    }
+
+    .priority-low {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.3);
     }    @media (max-width: 1024px) {
       .dashboard-grid {
         grid-template-columns: 1fr;
