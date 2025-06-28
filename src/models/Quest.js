@@ -7,6 +7,7 @@ const questSchema = new Schema({
     description: {type: String, default: ''},
     progress: {type: Number, default: 0, min: 0, max: 100},
     completed: {type: Boolean, default: false},
+    completionDate: {type: Date, default: null}, // Target completion date
     creator: {
         type: Schema.Types.ObjectId, 
         ref: 'User', 

@@ -1,6 +1,454 @@
+<!-- Custom Scrollbar Styles -->
+<style>
+/* Custom scrollbar for webkit browsers */
+.users-list::-webkit-scrollbar,
+.task-assignment-container > div:nth-child(2)::-webkit-scrollbar {
+  width: 6px;
+}
+
+.users-list::-webkit-scrollbar-track,
+.task-assignment-container > div:nth-child(2)::-webkit-scrollbar-track {
+  background: #1e293b;
+  border-radius: 3px;
+}
+
+.users-list::-webkit-scrollbar-thumb,
+.task-assignment-container > div:nth-child(2)::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 3px;
+}
+
+.users-list::-webkit-scrollbar-thumb:hover,
+.task-assignment-container > div:nth-child(2)::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Smooth scrolling */
+.users-list,
+.task-assignment-container > div:nth-child(2) {
+  scroll-behavior: smooth;
+}
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 768px) {
+  /* Stack columns vertically on mobile */
+  .dashboard-main {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+    height: auto !important;
+    padding: 0.5rem !important;
+  }
+  
+  /* Mobile-friendly column sizing - Remove fixed heights */
+  .team-members-column,
+  .task-assignment-column {
+    height: auto !important;
+    min-height: 300px !important;
+    max-height: none !important;
+  }
+  
+  /* Mobile analytics sections */
+  .analytics-section {
+    height: auto !important;
+    min-height: 250px !important;
+  }
+  
+  /* Mobile scrollable areas - Allow natural height */
+  .users-list {
+    max-height: 60vh !important;
+    height: auto !important;
+  }
+  
+  .task-assignment-container {
+    max-height: 60vh !important;
+    height: auto !important;
+  }
+  
+  .task-assignment-container > div:nth-child(2) {
+    max-height: 40vh !important;
+    height: auto !important;
+  }
+  
+  /* Adjust header for mobile */
+  .header {
+    padding: 1rem !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+    text-align: center !important;
+  }
+  
+  .header h1 {
+    font-size: 1.5rem !important;
+    margin: 0 !important;
+  }
+  
+  .user-info {
+    justify-content: center !important;
+  }
+  
+  /* Mobile section headers */
+  .section-header {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    align-items: stretch !important;
+  }
+  
+  .section-title {
+    font-size: 1.1rem !important;
+    text-align: center !important;
+  }
+  
+  /* Mobile user items - Keep horizontal layout but make more compact */
+  .user-item {
+    padding: 1rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .user-item > div {
+    gap: 0.75rem !important;
+    align-items: center !important;
+  }
+  
+  .user-item > div > div:nth-child(2) {
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+  
+  .user-item h4 {
+    font-size: 0.9rem !important;
+    margin: 0 !important;
+  }
+  
+  .user-item p {
+    font-size: 0.8rem !important;
+    margin: 0.2rem 0 !important;
+    word-break: break-word !important;
+  }
+  
+  .user-avatar-large {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    font-size: 1rem !important;
+    flex-shrink: 0 !important;
+  }
+  
+  /* Mobile task assignment cards */
+  .task-assignment-card {
+    padding: 0.75rem !important;
+  }
+  
+  .task-assignment-card h4 {
+    font-size: 0.9rem !important;
+  }
+  
+  .task-assignment-card p {
+    font-size: 0.8rem !important;
+  }
+  
+  .task-assignment-card > div:first-child {
+    gap: 0.5rem !important;
+  }
+  
+  .task-assignment-card > div:last-child {
+    gap: 0.5rem !important;
+  }
+  
+  /* Mobile modals */
+  #questModal,
+  #userModal,
+  #editUserModal {
+    min-width: 320px !important;
+    max-width: 95vw !important;
+    padding: 1.5rem !important;
+    margin: 1rem !important;
+  }
+  
+  /* Mobile form elements */
+  .modal input,
+  .modal textarea,
+  .modal select {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+  }
+  
+  /* Mobile buttons */
+  .btn {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9rem !important;
+    min-height: 44px !important; /* Touch-friendly minimum size */
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Mobile team stats */
+  .dashboard-main .analytics-section > div:last-child {
+    margin-top: 1rem !important;
+    padding: 0.75rem !important;
+  }
+  
+  /* Mobile assignment modal */
+  #assignTaskModal {
+    min-width: 300px !important;
+    max-width: 95vw !important;
+    padding: 1.5rem !important;
+  }
+  
+  /* Mobile task assignment interface */
+  .task-assignment-container {
+    padding: 1rem !important;
+    max-height: 350px !important;
+  }
+  
+  .tasks-grid {
+    gap: 0.75rem !important;
+  }
+  
+  /* Mobile priority badges and other small elements */
+  .priority-badge {
+    font-size: 0.65rem !important;
+    padding: 0.15rem 0.5rem !important;
+  }
+  
+  .assign-task-btn {
+    padding: 0.3rem 0.6rem !important;
+    font-size: 0.7rem !important;
+    min-height: 36px !important; /* Touch-friendly size */
+  }
+  
+  /* Mobile delete button */
+  .delete-user-btn {
+    padding: 0.4rem 0.6rem !important;
+    font-size: 0.7rem !important;
+    min-height: 36px !important; /* Touch-friendly size */
+  }
+  
+  /* Mobile role badges */
+  .user-role {
+    font-size: 0.65rem !important;
+    padding: 0.2rem 0.6rem !important;
+  }
+  
+  /* Mobile scrollable areas touch improvements */
+  .users-list,
+  .task-assignment-container > div:nth-child(2) {
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+  }
+  
+  /* Mobile touch targets improvements */
+  .task-assignment-card {
+    min-height: 100px !important;
+    cursor: pointer !important;
+  }
+  
+  .edit-user-avatar {
+    cursor: pointer !important;
+  }
+}
+
+/* Tablet Responsive Styles */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  /* Tablet layout - keep side by side but adjust for smaller screens */
+  .dashboard-main {
+    gap: 1.5rem !important;
+    height: auto !important;
+    min-height: 500px !important;
+    padding: 1rem !important;
+  }
+  
+  /* Tablet column sizing - flexible heights */
+  .team-members-column,
+  .task-assignment-column {
+    height: auto !important;
+    min-height: 450px !important;
+    max-height: 70vh !important;
+  }
+  
+  /* Tablet analytics sections */
+  .analytics-section {
+    min-height: 400px !important;
+    height: auto !important;
+  }
+  
+  /* Tablet scrollable areas */
+  .users-list {
+    max-height: 50vh !important;
+    height: auto !important;
+  }
+  
+  .task-assignment-container {
+    max-height: 50vh !important;
+    height: auto !important;
+    padding: 1.25rem !important;
+  }
+  
+  .task-assignment-container > div:nth-child(2) {
+    max-height: 35vh !important;
+    height: auto !important;
+  }
+  
+  /* Tablet header adjustments */
+  .header {
+    padding: 1.25rem !important;
+  }
+  
+  .header h1 {
+    font-size: 1.75rem !important;
+  }
+  
+  /* Slightly smaller elements on tablet */
+  .user-item {
+    padding: 1.25rem !important;
+  }
+  
+  .user-avatar-large {
+    width: 2.75rem !important;
+    height: 2.75rem !important;
+    font-size: 1.1rem !important;
+  }
+  
+  .task-assignment-card {
+    padding: 1rem !important;
+  }
+  
+  .section-title {
+    font-size: 1.2rem !important;
+  }
+  
+  /* Tablet modal sizing */
+  #questModal,
+  #userModal,
+  #editUserModal,
+  #taskAssignmentModal {
+    min-width: 450px !important;
+    max-width: 80vw !important;
+    max-height: 90vh !important;
+    overflow-y: auto !important;
+  }
+  
+  /* Tablet section headers */
+  .section-header {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Tablet stats grid */
+  .dashboard-main .analytics-section > div:last-child {
+    margin-top: 1.25rem !important;
+    padding: 1rem !important;
+  }
+}
+
+/* Large Tablets / Small Desktops */
+@media screen and (min-width: 1025px) and (max-width: 1200px) {
+  .dashboard-main {
+    gap: 2rem !important;
+    height: auto !important;
+    min-height: 600px !important;
+  }
+  
+  .team-members-column,
+  .task-assignment-column {
+    height: auto !important;
+    min-height: 550px !important;
+    max-height: 75vh !important;
+  }
+  
+  .users-list {
+    max-height: 55vh !important;
+  }
+  
+  .task-assignment-container {
+    max-height: 55vh !important;
+  }
+  
+  .task-assignment-container > div:nth-child(2) {
+    max-height: 40vh !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* Extra small mobile devices */
+  .dashboard-main {
+    gap: 0.75rem !important;
+    padding: 0.5rem !important;
+  }
+  
+  /* Remove restrictive heights on small screens */
+  .team-members-column,
+  .task-assignment-column {
+    min-height: 250px !important;
+    max-height: none !important;
+  }
+  
+  /* Allow natural content flow */
+  .analytics-section {
+    min-height: 200px !important;
+  }
+  
+  .users-list {
+    max-height: 70vh !important;
+    height: auto !important;
+  }
+  
+  .task-assignment-container {
+    max-height: 70vh !important;
+    height: auto !important;
+    padding: 0.75rem !important;
+  }
+  
+  .task-assignment-container > div:nth-child(2) {
+    max-height: 50vh !important;
+    height: auto !important;
+  }
+  
+  .user-item {
+    padding: 0.75rem !important;
+  }
+  
+  .user-avatar-large {
+    width: 2rem !important;
+    height: 2rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  .task-assignment-card {
+    padding: 0.5rem !important;
+  }
+  
+  /* Even smaller modal on tiny screens */
+  #questModal,
+  #userModal,
+  #editUserModal,
+  #taskAssignmentModal {
+    min-width: 280px !important;
+    padding: 1rem !important;
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+  }
+  
+  .header h1 {
+    font-size: 1.25rem !important;
+  }
+  
+  .section-title {
+    font-size: 1rem !important;
+  }
+  
+  /* Compact spacing for very small screens */
+  .user-item h4 {
+    font-size: 0.85rem !important;
+  }
+  
+  .user-item p {
+    font-size: 0.75rem !important;
+  }
+}
+</style>
+
 <!-- Header -->
 <div class="header">
-  <h1>Quests List</h1>
+  <h1>Team Members</h1>
   <div class="user-info">
     <div class="user-avatar">
       <%= user && user.username ? user.username.charAt(0).toUpperCase() : 'U' %>
@@ -12,146 +460,843 @@
   </div>
 </div>
 
-<!-- Quest Creation Modal Popup -->
+<!-- Edit Quest Modal Popup -->
 <div id="questModalOverlay" style="position: fixed; inset: 0; background: rgba(30,41,59,0.8); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center;">
-  <div id="questModal" style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 400px; max-width: 90vw; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
+  <div id="questModal" style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 500px; max-width: 90vw; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
     <button onclick="closeQuestModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.25rem;">&times;</button>
     <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
-    <div style="font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; color: #ffffff;">Create New Quest</div>
-    <div style="margin-bottom: 1.5rem; color: #94a3b8;">Create a new quest to organize and track your team's objectives.</div>
-    <form id="createQuestForm" style="text-align: left;">
+    <div style="font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; color: #ffffff;">Edit Quest</div>
+    <div style="margin-bottom: 1.5rem; color: #94a3b8;">Update quest details and completion target date.</div>
+    <form id="editQuestForm" style="text-align: left;">
+      <input type="hidden" id="questId" name="questId">
       <div style="margin-bottom: 1rem;">
         <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Quest Title *</label>
-        <input type="text" name="title" placeholder="e.g., Complete Project Setup" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+        <input type="text" id="questTitle" name="title" placeholder="e.g., Mobile App Development" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Description</label>
+        <textarea id="questDescription" name="description" placeholder="Describe the quest objectives..." style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem; min-height: 100px; resize: vertical;"></textarea>
       </div>
       <div style="margin-bottom: 1.5rem;">
-        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Description</label>
-        <textarea name="description" placeholder="Describe what this quest involves..." style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem; min-height: 80px; resize: vertical;"></textarea>
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Target Completion Date</label>
+        <input type="date" id="questCompletionDate" name="completionDate" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
       </div>
-      <button type="submit" style="width: 100%; padding: 0.75rem; background: linear-gradient(45deg, #8b5cf6, #7c3aed); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s;">🎯 Create Quest</button>
+      <div style="display: flex; gap: 1rem;">
+        <button type="button" onclick="closeQuestModal()" style="flex: 1; padding: 0.75rem; background: #64748b; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">Cancel</button>
+        <button type="submit" style="flex: 1; padding: 0.75rem; background: linear-gradient(45deg, #f59e0b, #ef4444); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">🎯 Update Quest</button>
+      </div>
     </form>
   </div>
 </div>
 
-<!-- Quest Management Section -->
-<div class="dashboard-main">
-  <div class="analytics-section">
-    <div class="section-header">
-      <h2 class="section-title">Available Quests</h2>
-      <button onclick="openQuestModal()" class="btn btn-primary" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed);">🎯 Create Quest</button>
-    </div>
-    
-    <!-- Quest Grid -->
-    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-      <% if (quests && quests.length > 0) { %>
-        <% quests.forEach(quest => { %>
-          <div class="dashboard-card">
-            <div class="card-header">
-              <div class="card-avatar" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🎯</div>
-              <div class="card-info">
-                <h3><%= quest.title %></h3>
-                <p><%= quest.description || 'No description' %></p>
-              </div>
-            </div>
-            <div style="margin: 1rem 0;">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                <span style="font-size: 0.875rem; color: #64748b;">Progress</span>
-                <span style="font-size: 0.875rem; color: #64748b;"><%= quest.progress || 0 %>%</span>
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: <%= quest.progress || 0 %>%;"></div>
-              </div>
-            </div>
-            <div style="display: flex; gap: 0.5rem;">
-              <button class="btn btn-primary" style="flex: 1; font-size: 0.875rem;">Join Quest</button>
-              <button class="btn btn-secondary" style="padding: 0.5rem;">⚙️</button>
-            </div>
-          </div>
-        <% }) %>
-      <% } else { %>
-        <div class="dashboard-card">
-          <div class="card-header">
-            <div class="card-avatar" style="background: linear-gradient(45deg, #64748b, #475569); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">❓</div>
-            <div class="card-info">
-              <h3>No Quests Available</h3>
-              <p>Create your first quest to get started</p>
-            </div>
-          </div>
-          <a href="#" onclick="openQuestModal(); return false;" class="btn btn-primary" style="width: 100%; text-align: center;">Create Quest</a>
+<!-- Add Team Member Modal Popup -->
+<div id="userModalOverlay" style="position: fixed; inset: 0; background: rgba(30,41,59,0.8); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center;">
+  <div id="userModal" style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 400px; max-width: 90vw; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
+    <button onclick="closeUserModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.25rem;">&times;</button>
+    <div style="font-size: 3rem; margin-bottom: 1rem;">👤</div>
+    <div style="font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; color: #ffffff;">Add Team Member</div>
+    <div style="margin-bottom: 1.5rem; color: #94a3b8;">Add a new team member who can be assigned tasks in your quest.</div>
+    <form id="createUserForm" style="text-align: left;">
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Username *</label>
+        <input type="text" name="username" placeholder="e.g., john_doe" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Email *</label>
+        <input type="email" name="email" placeholder="e.g., john@example.com" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Phone (Optional)</label>
+        <input type="tel" name="phone" placeholder="e.g., +1234567890" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Role</label>
+        <select name="role" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+          <option value="USER" selected>User (Team Member)</option>
+          <% if (user && user.role === 'ADMIN') { %>
+            <option value="ADMIN">Admin (Project Manager)</option>
+          <% } %>
+        </select>
+      </div>
+      <button type="submit" style="width: 100%; padding: 0.75rem; background: linear-gradient(45deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s;">👤 Add Team Member</button>
+    </form>
+  </div>
+</div>
+
+<!-- Edit User Modal Popup -->
+<div id="editUserModalOverlay" style="position: fixed; inset: 0; background: rgba(30,41,59,0.8); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center;">
+  <div id="editUserModal" style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 400px; max-width: 90vw; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
+    <button onclick="closeEditUserModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.25rem;">&times;</button>
+    <div style="font-size: 3rem; margin-bottom: 1rem;">✏️</div>
+    <div style="font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; color: #ffffff;">Edit Team Member</div>
+    <div style="margin-bottom: 1.5rem; color: #94a3b8;">Update team member details and information.</div>
+    <form id="editUserForm" style="text-align: left;">
+      <input type="hidden" id="editUserId" name="userId">
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Username *</label>
+        <input type="text" id="editUserUsername" name="username" placeholder="Enter username" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Email *</label>
+        <input type="email" id="editUserEmail" name="email" placeholder="Enter email address" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Phone</label>
+        <input type="tel" id="editUserPhone" name="phone" placeholder="Enter phone number (optional)" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+      </div>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Role</label>
+        <div id="editUserRoleDisplay" style="padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #94a3b8; font-size: 0.9rem;">
+          <!-- Role will be displayed here (read-only) -->
         </div>
-      <% } %>
+        <div style="margin-top: 0.5rem; font-size: 0.75rem; color: #64748b;">
+          💡 Note: User roles cannot be changed after creation for security reasons.
+        </div>
+      </div>
+      <div style="display: flex; gap: 1rem;">
+        <button type="button" onclick="closeEditUserModal()" style="flex: 1; padding: 0.75rem; background: #64748b; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">Cancel</button>
+        <button type="submit" style="flex: 1; padding: 0.75rem; background: linear-gradient(45deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">✏️ Update Member</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Main Content Layout -->
+<div class="dashboard-main" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; height: 700px;">
+  
+  <!-- Left Column: Team Members -->
+  <div class="team-members-column" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+    <!-- Team Members Section -->
+    <div class="analytics-section" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+      <div class="section-header" style="flex-shrink: 0;">
+        <h2 class="section-title">Team Members</h2>
+        <button onclick="openUserModal()" class="btn btn-primary" style="background: linear-gradient(45deg, #3b82f6, #2563eb);">👤 Add Member</button>
+      </div>
+      
+      <!-- Users List - Scrollable -->
+      <div class="users-list" style="flex: 1; overflow-y: auto; min-height: 0; padding-right: 0.5rem;">
+        <% if (typeof allUsers !== 'undefined' && allUsers && allUsers.length > 0) { %>
+          <% allUsers.forEach(userItem => { %>
+            <div class="user-item" data-user-id="<%= userItem._id ? userItem._id.toString() : userItem.id %>" style="background: #1e293b; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #334155; flex-shrink: 0;">
+              <div style="display: flex; gap: 1rem; align-items: center;">
+                <div class="user-avatar-large edit-user-avatar" 
+                     data-user-id="<%= userItem._id ? userItem._id.toString() : userItem.id %>"
+                     data-user-username="<%= userItem.username %>"
+                     data-user-email="<%= userItem.email %>"
+                     data-user-phone="<%= userItem.phone || '' %>"
+                     data-user-role="<%= userItem.role %>"
+                     style="background: linear-gradient(45deg, <%= userItem.role === 'ADMIN' ? '#8b5cf6, #7c3aed' : '#3b82f6, #2563eb' %>); color: white; width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.2rem; cursor: pointer; transition: all 0.2s; position: relative;"
+                     onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'"
+                     onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'"
+                     title="Click to edit user details">
+                  <%= userItem.username ? userItem.username.charAt(0).toUpperCase() : 'U' %>
+                  <div style="position: absolute; bottom: -2px; right: -2px; background: #ffffff; border-radius: 50%; width: 1rem; height: 1rem; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #64748b;">✏️</div>
+                </div>
+                <div style="flex: 1;">
+                  <h4 style="margin: 0; color: #e2e8f0;"><%= userItem.username %></h4>
+                  <p style="margin: 0.25rem 0; color: #94a3b8; font-size: 0.875rem;"><%= userItem.email %></p>
+                  <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                    <span class="user-role role-<%= userItem.role.toLowerCase() %>" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600; background: <%= userItem.role === 'ADMIN' ? 'rgba(139, 92, 246, 0.2); color: #a78bfa' : 'rgba(59, 130, 246, 0.2); color: #60a5fa' %>;">
+                      <%= userItem.role === 'ADMIN' ? '👑 Admin' : '👤 User' %>
+                    </span>
+                    <span style="font-size: 0.75rem; color: #64748b;">
+                      Joined: <%= new Date(userItem.createdAt).toLocaleDateString() %>
+                    </span>
+                  </div>
+                </div>
+                <% if (user && user.role === 'ADMIN' && userItem._id.toString() !== user._id.toString()) { %>
+                  <button class="btn btn-secondary delete-user-btn" data-user-id="<%= userItem._id.toString() %>" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; background: #dc2626;">Remove</button>
+                <% } %>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="no-users-prompt" style="text-align: center; padding: 3rem; background: #1e293b; border-radius: 12px; border: 2px dashed #475569; flex-shrink: 0;">
+            <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.6;">👥</div>
+            <h3 style="color: #e2e8f0; margin-bottom: 0.5rem;">No Team Members Yet</h3>
+            <p style="color: #94a3b8; margin-bottom: 2rem;">Start building your team by adding members who can be assigned tasks in your quest.</p>
+            <button onclick="openUserModal()" class="btn btn-primary" style="background: linear-gradient(45deg, #3b82f6, #2563eb); padding: 0.75rem 2rem; font-size: 1rem;">
+              👤 Add First Team Member
+            </button>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Compact Team Stats -->
+      <div style="margin-top: 1.5rem; background: #1e293b; border-radius: 8px; padding: 1rem; border: 1px solid #334155; flex-shrink: 0;">
+        <h3 style="margin: 0 0 1rem 0; color: #e2e8f0; font-size: 1rem;">📊 Team Overview</h3>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+          <div style="text-align: center;">
+            <div style="font-size: 1.25rem; font-weight: 700; color: #3b82f6;"><%= allUsers ? allUsers.length : 0 %></div>
+            <div style="font-size: 0.75rem; color: #9ca3af;">Total Members</div>
+          </div>
+          <div style="text-align: center;">
+            <div style="font-size: 1.25rem; font-weight: 700; color: #a78bfa;"><%= allUsers ? allUsers.filter(u => u.role === 'ADMIN').length : 0 %></div>
+            <div style="font-size: 0.75rem; color: #9ca3af;">Admins</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Quest Statistics -->
-  <div class="performance-card">
-    <h2 class="performance-title">Quest Stats</h2>
-    <div class="metric">
-      <div class="metric-icon">🎯</div>
-      <div class="metric-info">
-        <h3><%= quests ? quests.length : 0 %></h3>
-        <p>total quests</p>
+  <!-- Right Column: Task Assignment (Admin Only) -->
+  <% if (user && user.role === 'ADMIN') { %>
+    <div class="task-assignment-column" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+      <div class="analytics-section" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+        <div class="section-header" style="flex-shrink: 0;">
+          <h2 class="section-title">Task Assignment</h2>
+          <div style="color: #94a3b8; font-size: 0.875rem;">Assign tasks to team members</div>
+        </div>
+        
+        <!-- Task Assignment Interface -->
+        <div class="task-assignment-container" style="background: #1e293b; border-radius: 12px; padding: 1.5rem; border: 1px solid #334155; flex: 1; display: flex; flex-direction: column; min-height: 0;">
+          
+          <!-- Available Tasks Header -->
+          <div style="flex-shrink: 0;">
+            <h3 style="color: #e2e8f0; margin-bottom: 1rem; font-size: 1.1rem;">📋 Available Tasks</h3>
+          </div>
+
+          <!-- Available Tasks - Scrollable Container -->
+          <div style="flex: 1; overflow-y: auto; min-height: 0; padding-right: 0.5rem;">
+            <% if (typeof tasks !== 'undefined' && tasks && tasks.length > 0) { %>
+              <div class="tasks-grid" style="display: grid; gap: 1rem;">
+                <% tasks.forEach(task => { %>
+                  <div class="task-assignment-card" 
+                       data-task-id="<%= task._id.toString() %>"
+                       style="background: #334155; border-radius: 8px; padding: 1rem; border: 1px solid #475569; cursor: pointer; transition: all 0.2s; flex-shrink: 0;"
+                       onmouseover="this.style.borderColor='#3b82f6'"
+                       onmouseout="this.style.borderColor='#475569'">
+                    <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 0.5rem;">
+                      <h4 style="margin: 0; color: #e2e8f0; font-size: 1rem;"><%= task.title %></h4>
+                      <span class="priority-badge priority-<%= task.priority || 'MEDIUM' %>" 
+                            style="font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 12px; font-weight: 600; 
+                                   background: <%= task.priority === 'HIGH' ? 'rgba(239, 68, 68, 0.2); color: #ef4444' : 
+                                                  task.priority === 'LOW' ? 'rgba(34, 197, 94, 0.2); color: #22c55e' : 
+                                                  'rgba(249, 115, 22, 0.2); color: #f97316' %>;">
+                        <%= task.priority || 'MEDIUM' %>
+                      </span>
+                    </div>
+                    <p style="margin: 0 0 0.75rem 0; color: #94a3b8; font-size: 0.875rem; line-height: 1.4;">
+                      <%= task.description ? (task.description.length > 80 ? task.description.substring(0, 80) + '...' : task.description) : 'No description' %>
+                    </p>
+                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 0.75rem;">
+                      <span style="font-size: 0.75rem; color: #64748b;">
+                        <%= task.completed ? '✅ Completed' : '⏳ Pending' %>
+                      </span>
+                      <span style="font-size: 0.75rem; color: #64748b;">
+                        <%= new Date(task.createdAt).toLocaleDateString() %>
+                      </span>
+                    </div>
+                    <div style="display: flex; justify-content: between; align-items: center;">
+                      <div style="font-size: 0.75rem; color: #94a3b8;">
+                        <% if (task.assignedTo) { %>
+                          <span style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 0.2rem 0.5rem; border-radius: 8px;">
+                            👤 <%= task.assignedTo.username %>
+                          </span>
+                        <% } else { %>
+                          <span style="background: rgba(107, 114, 128, 0.2); color: #9ca3af; padding: 0.2rem 0.5rem; border-radius: 8px;">
+                            🚫 Unassigned
+                          </span>
+                        <% } %>
+                      </div>
+                      <button class="assign-task-btn" 
+                              data-task-id="<%= task._id.toString() %>"
+                              data-task-title="<%= task.title %>"
+                              style="background: linear-gradient(45deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 6px; padding: 0.4rem 0.8rem; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
+                        🎯 Assign
+                      </button>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <div style="text-align: center; padding: 2rem; background: #334155; border-radius: 8px; border: 2px dashed #475569; flex-shrink: 0;">
+                <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.6;">📋</div>
+                <h4 style="color: #e2e8f0; margin-bottom: 0.5rem;">No Tasks Available</h4>
+                <p style="color: #94a3b8; margin-bottom: 1.5rem;">Create tasks in the Tasks section before assigning them to team members.</p>
+                <a href="/dashboard?section=tasks" style="display: inline-block; background: linear-gradient(45deg, #3b82f6, #2563eb); color: white; text-decoration: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
+                  📝 Create Tasks
+                </a>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Quick Task Stats - Fixed at bottom -->
+          <div style="margin-top: 1.5rem; background: #334155; border-radius: 8px; padding: 1rem; border: 1px solid #475569; flex-shrink: 0;">
+            <h4 style="margin: 0 0 1rem 0; color: #e2e8f0; font-size: 0.95rem;">📊 Quick Stats</h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+              <div style="text-align: center;">
+                <div style="font-size: 1.25rem; font-weight: 700; color: #3b82f6;"><%= tasks ? tasks.length : 0 %></div>
+                <div style="font-size: 0.75rem; color: #9ca3af;">Total Tasks</div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 1.25rem; font-weight: 700; color: #22c55e;"><%= tasks ? tasks.filter(t => t.assignedTo).length : 0 %></div>
+                <div style="font-size: 0.75rem; color: #9ca3af;">Assigned</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="metric">
-      <div class="metric-icon">🏆</div>
-      <div class="metric-info">
-        <h3><%= quests ? quests.filter(q => q.completed).length : 0 %></h3>
-        <p>completed</p>
+  <% } %>
+</div>
+
+<!-- This section has been removed - task assignment is now handled in the right column above -->
+
+<!-- Task Assignment Modal -->
+<div id="taskAssignmentModalOverlay" style="position: fixed; inset: 0; background: rgba(30,41,59,0.8); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center;">
+  <div id="taskAssignmentModal" style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 500px; max-width: 90vw; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
+    <button onclick="closeTaskAssignmentModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.25rem;">&times;</button>
+    <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+    <div style="font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; color: #ffffff;">Assign Task</div>
+    <div id="taskAssignmentDescription" style="margin-bottom: 1.5rem; color: #94a3b8;">Select a team member to assign this task.</div>
+    <form id="taskAssignmentForm" style="text-align: left;">
+      <input type="hidden" id="assignTaskId" name="taskId">
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Task Details</label>
+        <div id="assignTaskDetails" style="background: #334155; border-radius: 8px; padding: 1rem; border: 1px solid #475569;">
+          <!-- Task details will be populated here -->
+        </div>
       </div>
-    </div>
-    <div class="metric">
-      <div class="metric-icon">🔄</div>
-      <div class="metric-info">
-        <h3><%= quests ? quests.filter(q => !q.completed && q.progress > 0).length : 0 %></h3>
-        <p>in progress</p>
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Assign to Team Member *</label>
+        <select id="assignToUser" name="assignedTo" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+          <option value="">-- Select a team member --</option>
+          <option value="UNASSIGN">🚫 Assign to None (Unassign)</option>
+          <% if (typeof allUsers !== 'undefined' && allUsers && allUsers.length > 0) { %>
+            <% allUsers.forEach(userItem => { %>
+              <option value="<%= userItem._id ? userItem._id.toString() : userItem.id %>">
+                <%= userItem.username %> (<%= userItem.role === 'ADMIN' ? '👑 Admin' : '👤 User' %>)
+              </option>
+            <% }) %>
+          <% } %>
+        </select>
       </div>
-    </div>
-    <div class="metric">
-      <div class="metric-icon">📈</div>
-      <div class="metric-info">
-        <h3><%= quests && quests.length > 0 ? Math.round(quests.reduce((acc, q) => acc + (q.progress || 0), 0) / quests.length) : 0 %>%</h3>
-        <p>avg progress</p>
+      <div style="display: flex; gap: 1rem;">
+        <button type="button" onclick="closeTaskAssignmentModal()" style="flex: 1; padding: 0.75rem; background: #64748b; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">Cancel</button>
+        <button type="submit" style="flex: 1; padding: 0.75rem; background: linear-gradient(45deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">🎯 Assign Task</button>
       </div>
-    </div>
+    </form>
   </div>
 </div>
 
 <script>
 // Modal open/close helpers
+function closeUserModal() {
+  document.getElementById('userModalOverlay').style.display = 'none';
+}
+function openUserModal() {
+  document.getElementById('userModalOverlay').style.display = 'flex';
+}
 function closeQuestModal() {
   document.getElementById('questModalOverlay').style.display = 'none';
 }
 function openQuestModal() {
   document.getElementById('questModalOverlay').style.display = 'flex';
 }
+function closeEditUserModal() {
+  document.getElementById('editUserModalOverlay').style.display = 'none';
+}
+function openEditUserModal() {
+  document.getElementById('editUserModalOverlay').style.display = 'flex';
+}
+function closeTaskAssignmentModal() {
+  document.getElementById('taskAssignmentModalOverlay').style.display = 'none';
+}
+function openTaskAssignmentModal() {
+  document.getElementById('taskAssignmentModalOverlay').style.display = 'flex';
+}
 
-// Handle create quest form submission (POST to /quests)
+// Allow closing modals with Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeUserModal();
+    closeEditUserModal();
+    closeQuestModal();
+    closeTaskAssignmentModal();
+  }
+});
+
+// Close modal when clicking on overlay background
 document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('createQuestForm');
-  if (form) {
-    form.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      const title = this.title.value;
-      const description = this.description.value;
-      
-      try {
-        const res = await fetch('/quests', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ title, description })
-        });
-        if (res.ok) {
-          closeQuestModal();
-          location.reload();
-        } else {
-          alert('Error creating quest');
-        }
-      } catch (error) {
-        console.error('Error creating quest:', error);
-        alert('Error creating quest');
+  const userOverlay = document.getElementById('userModalOverlay');
+  const editUserOverlay = document.getElementById('editUserModalOverlay');
+  const questOverlay = document.getElementById('questModalOverlay');
+  const taskOverlay = document.getElementById('taskAssignmentModalOverlay');
+  
+  if (userOverlay) {
+    userOverlay.addEventListener('click', function(e) {
+      if (e.target === userOverlay) {
+        closeUserModal();
       }
     });
   }
+  
+  if (editUserOverlay) {
+    editUserOverlay.addEventListener('click', function(e) {
+      if (e.target === editUserOverlay) {
+        closeEditUserModal();
+      }
+    });
+  }
+  
+  if (questOverlay) {
+    questOverlay.addEventListener('click', function(e) {
+      if (e.target === questOverlay) {
+        closeQuestModal();
+      }
+    });
+  }
+  
+  if (taskOverlay) {
+    taskOverlay.addEventListener('click', function(e) {
+      if (e.target === taskOverlay) {
+        closeTaskAssignmentModal();
+      }
+    });
+  }
+});
+
+// Handle create user form submission via GraphQL
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('createUserForm');
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const username = this.username.value.trim();
+      const email = this.email.value.trim();
+      const phone = this.phone.value.trim();
+      const role = this.role.value;
+      
+      if (!username || !email) {
+        alert('Username and email are required!');
+        return;
+      }
+      
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = '🔄 Adding Member...';
+      
+      try {
+        console.log('👤 Creating user via GraphQL:', { username, email, phone, role });
+        
+        // Use GraphQL client to create user
+        const data = await window.graphqlClient.createUser(username, email, phone, role);
+        console.log('✅ User created successfully:', data);
+        
+        // Show success message with role information
+        const createdUser = data.createUser;
+        if (createdUser.role === 'ADMIN' && role !== 'ADMIN') {
+          alert(`✅ Success!\n\nUser "${createdUser.username}" has been created as the first user and automatically assigned ADMIN role.`);
+        } else {
+          alert(`✅ User "${createdUser.username}" created successfully with ${createdUser.role} role.`);
+        }
+        
+        closeUserModal();
+        window.location.reload();
+        
+      } catch (error) {
+        console.error('❌ Error creating user:', error);
+        
+        // Show user-friendly error messages
+        if (error.message.includes('Users who are assigned to quests cannot become admins')) {
+          alert('⚠️ Cannot Assign Admin Role\n\nUsers who are currently assigned to quests cannot become administrators. Please remove the user from all quests first, then try again.');
+        } else {
+          alert('Error creating user: ' + error.message);
+        }
+        
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+  }
+});
+
+// Handle delete user functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Add event listeners to all delete buttons
+  Array.from(document.getElementsByClassName('delete-user-btn')).forEach(btn => {
+    btn.addEventListener('click', async function() {
+      const userId = this.getAttribute('data-user-id');
+      
+      if (!confirm('Are you sure you want to remove this user? This action cannot be undone.')) return;
+      
+      // Disable button during deletion
+      this.disabled = true;
+      this.textContent = 'Removing...';
+      
+      try {
+        console.log('🗑️ Deleting user via GraphQL:', userId);
+        
+        const data = await window.graphqlClient.deleteUser(userId);
+        console.log('✅ User deleted successfully:', data);
+        
+        // Reload to update the UI
+        window.location.reload();
+        
+      } catch (error) {
+        console.error('❌ GraphQL error deleting user:', error);
+        alert('Error deleting user: ' + error.message);
+        
+        // Re-enable button on error
+        this.disabled = false;
+        this.textContent = 'Remove';
+      }
+    });
+  });
+});
+
+// Quest modal management functions
+function closeQuestModal() {
+  document.getElementById('questModalOverlay').style.display = 'none';
+}
+
+function openQuestModal() {
+  document.getElementById('questModalOverlay').style.display = 'flex';
+}
+
+// Handle quest editing functionality
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if we should open quest edit modal (when coming from overview)
+  if (sessionStorage.getItem('openQuestEditModal') === 'true') {
+    sessionStorage.removeItem('openQuestEditModal');
+    
+    // Get quest data from session storage
+    const questEditData = sessionStorage.getItem('questEditData');
+    if (questEditData) {
+      try {
+        const questData = JSON.parse(questEditData);
+        console.log('🎯 Opening quest edit modal from overview with data:', questData);
+        
+        // Populate the modal fields
+        document.getElementById('questId').value = questData.id;
+        document.getElementById('questTitle').value = questData.title;
+        document.getElementById('questDescription').value = questData.description;
+        document.getElementById('questCompletionDate').value = questData.completionDate;
+        
+        // Open the modal
+        setTimeout(() => {
+          openQuestModal();
+        }, 100);
+        
+        // Remove the quest data from session storage
+        sessionStorage.removeItem('questEditData');
+      } catch (error) {
+        console.error('❌ Error parsing quest edit data:', error);
+      }
+    }
+  }
+  
+  // Add event listeners to all edit quest buttons (if any exist)
+  Array.from(document.getElementsByClassName('edit-quest-btn')).forEach(btn => {
+    btn.addEventListener('click', function() {
+      const questId = this.getAttribute('data-quest-id');
+      const questTitle = this.getAttribute('data-quest-title');
+      const questDescription = this.getAttribute('data-quest-description');
+      const questCompletionDate = this.getAttribute('data-quest-completion-date');
+      
+      console.log('✏️ Opening quest edit modal:', { questId, questTitle, questDescription, questCompletionDate });
+      
+      // Populate the modal fields
+      document.getElementById('questId').value = questId;
+      document.getElementById('questTitle').value = questTitle;
+      document.getElementById('questDescription').value = questDescription;
+      document.getElementById('questCompletionDate').value = questCompletionDate;
+      
+      // Open the modal
+      openQuestModal();
+    });
+  });
+  
+  // Handle quest edit form submission
+  const editQuestForm = document.getElementById('editQuestForm');
+  if (editQuestForm) {
+    editQuestForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const questId = document.getElementById('questId').value;
+      const title = document.getElementById('questTitle').value.trim();
+      const description = document.getElementById('questDescription').value.trim();
+      const completionDate = document.getElementById('questCompletionDate').value;
+      
+      if (!title) {
+        alert('Please enter a quest title!');
+        return;
+      }
+      
+      console.log('🎯 Updating quest:', { questId, title, description, completionDate });
+      
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Updating...';
+      
+      try {
+        const result = await window.graphqlClient.updateQuest(questId, title, description, completionDate);
+        console.log('✅ Quest updated successfully:', result);
+        
+        // Close modal and reload page to show changes
+        closeQuestModal();
+        window.location.reload();
+        
+      } catch (error) {
+        console.error('❌ Error updating quest:', error);
+        alert('Error updating quest: ' + error.message);
+        
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+  }
+});
+
+// Edit user modal management functions
+function closeEditUserModal() {
+  document.getElementById('editUserModalOverlay').style.display = 'none';
+}
+
+function openEditUserModal() {
+  document.getElementById('editUserModalOverlay').style.display = 'flex';
+}
+
+// Handle avatar click to open edit user modal
+document.addEventListener('DOMContentLoaded', function() {
+  // Add event listeners to all edit user avatars
+  Array.from(document.getElementsByClassName('edit-user-avatar')).forEach(avatar => {
+    avatar.addEventListener('click', function() {
+      const userId = this.getAttribute('data-user-id');
+      const username = this.getAttribute('data-user-username');
+      const email = this.getAttribute('data-user-email');
+      const phone = this.getAttribute('data-user-phone');
+      const role = this.getAttribute('data-user-role');
+      
+      console.log('✏️ Opening user edit modal:', { userId, username, email, phone, role });
+      
+      // Populate the modal fields
+      document.getElementById('editUserId').value = userId;
+      document.getElementById('editUserUsername').value = username;
+      document.getElementById('editUserEmail').value = email;
+      document.getElementById('editUserPhone').value = phone || '';
+      
+      // Display role (read-only)
+      const roleDisplay = document.getElementById('editUserRoleDisplay');
+      const roleIcon = role === 'ADMIN' ? '👑' : '👤';
+      const roleText = role === 'ADMIN' ? 'Administrator' : 'Team Member';
+      roleDisplay.innerHTML = `${roleIcon} ${roleText}`;
+      
+      // Open the modal
+      openEditUserModal();
+    });
+  });
+});
+
+// Handle edit user form submission
+document.addEventListener('DOMContentLoaded', function() {
+  const editForm = document.getElementById('editUserForm');
+  if (editForm) {
+    editForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const userId = document.getElementById('editUserId').value;
+      const username = document.getElementById('editUserUsername').value.trim();
+      const email = document.getElementById('editUserEmail').value.trim();
+      const phone = document.getElementById('editUserPhone').value.trim();
+      
+      if (!username || !email) {
+        alert('Username and email are required!');
+        return;
+      }
+      
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = '🔄 Updating...';
+      
+      try {
+        console.log('✏️ Updating user via GraphQL:', { userId, username, email, phone });
+        
+        // Use GraphQL client to update user
+        const data = await window.graphqlClient.updateUser(userId, username, email, phone);
+        console.log('✅ User updated successfully:', data);
+        
+        // Show success feedback
+        const updatedUser = data.updateUser;
+        alert(`✅ Success!\n\nUser "${updatedUser.username}" has been updated successfully.`);
+        
+        closeEditUserModal();
+        window.location.reload();
+        
+      } catch (error) {
+        console.error('❌ Error updating user:', error);
+        alert('Error updating user: ' + error.message);
+        
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+  }
+});
+
+// Task Assignment Modal Functions
+function closeTaskAssignmentModal() {
+  document.getElementById('taskAssignmentModalOverlay').style.display = 'none';
+}
+
+function openTaskAssignmentModal() {
+  document.getElementById('taskAssignmentModalOverlay').style.display = 'flex';
+}
+
+// Handle task assignment button clicks
+document.addEventListener('DOMContentLoaded', function() {
+  // Add event listeners to all assign task buttons
+  Array.from(document.getElementsByClassName('assign-task-btn')).forEach(btn => {
+    btn.addEventListener('click', function() {
+      const taskId = this.getAttribute('data-task-id');
+      const taskTitle = this.getAttribute('data-task-title');
+      
+      console.log('🎯 Opening task assignment modal for:', { taskId, taskTitle });
+      
+      // Populate the modal with task details
+      document.getElementById('assignTaskId').value = taskId;
+      document.getElementById('taskAssignmentDescription').textContent = `Assign "${taskTitle}" to a team member.`;
+      
+      // Show task details in the modal
+      const taskDetailsElement = document.getElementById('assignTaskDetails');
+      taskDetailsElement.innerHTML = `
+        <div style="font-weight: 600; color: #e2e8f0; margin-bottom: 0.5rem;">${taskTitle}</div>
+        <div style="color: #94a3b8; font-size: 0.875rem;">Task ID: ${taskId}</div>
+      `;
+      
+      // Open the modal
+      openTaskAssignmentModal();
+    });
+  });
+  
+  // Handle task assignment form submission
+  const assignmentForm = document.getElementById('taskAssignmentForm');
+  if (assignmentForm) {
+    assignmentForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const taskId = document.getElementById('assignTaskId').value;
+      const assignedToValue = document.getElementById('assignToUser').value;
+      
+      if (!taskId || !assignedToValue) {
+        alert('Please select an option (team member or unassign)!');
+        return;
+      }
+      
+      // Handle unassign case
+      const assignedTo = assignedToValue === 'UNASSIGN' ? null : assignedToValue;
+      
+      console.log('🎯 Assigning task:', { taskId, assignedTo });
+      
+      const submitBtn = this.querySelector('button[type="submit"]');
+      const originalText = submitBtn.textContent;
+      submitBtn.disabled = true;
+      submitBtn.textContent = assignedToValue === 'UNASSIGN' ? 'Unassigning...' : 'Assigning...';
+      
+      try {
+        // Find the task title for better user feedback
+        const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+        const taskTitle = taskCard ? taskCard.querySelector('h4').textContent : 'Task';
+        const selectedUserElement = document.querySelector(`#assignToUser option[value="${assignedToValue}"]`);
+        const selectedUser = selectedUserElement ? selectedUserElement.textContent : 'Unknown';
+        
+        console.log('🎯 Assigning task:', { taskId, taskTitle, assignedTo, selectedUser });
+        
+        // Create a direct GraphQL mutation to only update the assignedTo field
+        const mutation = `
+          mutation AssignTask($id: ID!, $assignedTo: ID) {
+            updateTask(id: $id, assignedTo: $assignedTo) {
+              id
+              title
+              assignedTo {
+                id
+                username
+              }
+            }
+          }
+        `;
+        
+        const response = await fetch('/graphql', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1]}`
+          },
+          body: JSON.stringify({
+            query: mutation,
+            variables: {
+              id: taskId,
+              assignedTo: assignedTo
+            }
+          })
+        });
+        
+        const result = await response.json();
+        
+        if (result.errors) {
+          throw new Error(result.errors[0].message);
+        }
+        
+        console.log('✅ Task assigned successfully:', result.data.updateTask);
+        
+        // Show success message
+        if (assignedToValue === 'UNASSIGN') {
+          alert(`✅ Success!\n\n"${taskTitle}" has been unassigned and is now available for assignment.`);
+        } else {
+          alert(`✅ Success!\n\n"${taskTitle}" has been assigned to ${selectedUser}.`);
+        }
+        
+        closeTaskAssignmentModal();
+        
+        // Add visual feedback before reload
+        if (taskCard) {
+          taskCard.style.background = 'rgba(34, 197, 94, 0.2)';
+          taskCard.style.borderColor = '#22c55e';
+        }
+        
+        // Reload after a short delay to show the feedback
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+        
+      } catch (error) {
+        console.error('❌ Error assigning task:', error);
+        alert('Error assigning task: ' + error.message);
+        
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+      }
+    });
+  }
+});
+
+// Add click handlers for task cards to show more info
+document.addEventListener('DOMContentLoaded', function() {
+  Array.from(document.getElementsByClassName('task-assignment-card')).forEach(card => {
+    card.addEventListener('click', function(e) {
+      // Don't trigger card click if user clicked the assign button
+      if (e.target.classList.contains('assign-task-btn')) {
+        return;
+      }
+      
+      const taskId = this.getAttribute('data-task-id');
+      
+      // Highlight the selected card
+      document.querySelectorAll('.task-assignment-card').forEach(c => {
+        c.style.borderColor = '#475569';
+        c.style.background = '#334155';
+      });
+      
+      this.style.borderColor = '#3b82f6';
+      this.style.background = '#3730a3';
+      
+      console.log('📋 Task card selected:', taskId);
+    });
+  });
 });
 </script>

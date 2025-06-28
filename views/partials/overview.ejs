@@ -22,29 +22,31 @@
         <p>Start a new assignment</p>
       </div>
     </div>
-    <a href="/create-task" class="btn btn-primary" style="width: 100%; text-align: center;">Create Task</a>
+    <button onclick="navigateToTasksAndOpenModal()" class="btn btn-primary" style="width: 100%; text-align: center;">Create Task</button>
   </div>
 
-  <div class="dashboard-card">
-    <div class="card-header">
-      <div class="card-avatar" style="background: linear-gradient(45deg, #f59e0b, #ef4444); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">✏️</div>
-      <div class="card-info">
-        <h3>Edit Quest</h3>
-        <p>Modify quest details</p>
+  <% if (typeof quests !== 'undefined' && quests && quests.length > 0) { %>
+    <div class="dashboard-card">
+      <div class="card-header">
+        <div class="card-avatar" style="background: linear-gradient(45deg, #f59e0b, #ef4444); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">✏️</div>
+        <div class="card-info">
+          <h3>Edit Quest</h3>
+          <p>Modify quest details</p>
+        </div>
       </div>
+      <button onclick="openQuestEditFromOverview()" class="btn btn-warning" style="width: 100%; text-align: center; background: linear-gradient(45deg, #f59e0b, #ef4444); color: #fff; border: none;">Edit Quest</button>
     </div>
-    <a href="/edit-quest" class="btn btn-warning" style="width: 100%; text-align: center; background: linear-gradient(45deg, #f59e0b, #ef4444); color: #fff; border: none;">Edit Quest</a>
-  </div>
+  <% } %>
 
   <div class="dashboard-card">
     <div class="card-header">
       <div class="card-avatar" style="background: linear-gradient(45deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👥</div>
       <div class="card-info">
-        <h3>Manage Users</h3>
-        <p>View and edit users</p>
+        <h3>Team Members</h3>
+        <p>Assign users to tasks</p>
       </div>
     </div>
-    <a href="/manage-users" class="btn btn-secondary" style="width: 100%; text-align: center;">Manage Users</a>
+    <button onclick="navigateToQuestsAndOpenUserModal()" class="btn btn-secondary" style="width: 100%; text-align: center;">Team Members</button>
   </div>
 </div>
 
@@ -130,3 +132,83 @@
     </a>
   </div>
 </div>
+
+<script>
+// Overview navigation functions to link buttons to existing components
+
+// Navigate to tasks section and open task creation modal
+function navigateToTasksAndOpenModal() {
+  // First navigate to the tasks section
+  window.location.href = '/dashboard?section=tasks';
+  
+  // Set a flag to open the modal once the page loads
+  sessionStorage.setItem('openTaskModal', 'true');
+}
+
+// Navigate to quests section (team members)
+function navigateToQuestsAndOpenUserModal() {
+  // Navigate directly to the quests section (where team members management is)
+  window.location.href = '/dashboard?section=quests';
+}
+
+// Function to open quest edit modal directly from overview
+function openQuestEditFromOverview() {
+  console.log('🎯 Edit Quest clicked from overview');
+  
+  <% if (typeof quests !== 'undefined' && quests && quests.length > 0) { %>
+    try {
+      // Get the first quest data (since only one quest is allowed)
+      const questData = {
+        id: '<%= quests[0]._id.toString() %>',
+        title: '<%= quests[0].title.replace(/'/g, "\\'") %>',
+        description: '<%= (quests[0].description || "").replace(/'/g, "\\'") %>',
+        completionDate: '<%= quests[0].completionDate ? quests[0].completionDate.toISOString().split("T")[0] : "" %>'
+      };
+      
+      console.log('📊 Quest data prepared:', questData);
+      
+      // Store quest data in session storage for use in quests section
+      sessionStorage.setItem('questEditData', JSON.stringify(questData));
+      console.log('💾 Quest data stored in session storage');
+    } catch (error) {
+      console.error('❌ Error preparing quest data:', error);
+    }
+  <% } else { %>
+    console.log('⚠️ No quests available for editing');
+  <% } %>
+  
+  // Navigate to quests section and open quest edit modal
+  console.log('🔄 Navigating to quests section...');
+  
+  // Set a flag to open the quest edit modal once the page loads
+  sessionStorage.setItem('openQuestEditModal', 'true');
+  
+  // Navigate to quests section
+  window.location.href = '/dashboard?section=quests';
+}
+
+// Check for flags on page load and open appropriate modals
+document.addEventListener('DOMContentLoaded', function() {
+  // Check if we should open task modal (when coming from overview)
+  if (sessionStorage.getItem('openTaskModal') === 'true') {
+    sessionStorage.removeItem('openTaskModal');
+    // Small delay to ensure DOM is ready
+    setTimeout(() => {
+      if (typeof openTaskModal === 'function') {
+        openTaskModal();
+      }
+    }, 100);
+  }
+  
+  // Check if we should open user modal (when coming from overview)
+  if (sessionStorage.getItem('openUserModal') === 'true') {
+    sessionStorage.removeItem('openUserModal');
+    // Small delay to ensure DOM is ready
+    setTimeout(() => {
+      if (typeof openUserModal === 'function') {
+        openUserModal();
+      }
+    }, 100);
+  }
+});
+</script>

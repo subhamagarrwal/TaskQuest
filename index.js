@@ -180,16 +180,69 @@ async function startServer() {
       const Task = (await import('./src/models/Task.js')).default;
       let tasks = [];
       try {
-        const userId = user._id; // Fix variable reference
-        tasks = await Task.find({ assignedTo: userId })
-          .populate('quest', 'title description')
-          .populate('createdBy', 'username email')
-          .sort({ createdAt: -1 }) // Sort by newest first
-          .lean();
-        console.log('📋 Fetched tasks:', tasks.length, 'tasks found');
+        if (user.role === 'ADMIN') {
+          // Admins can see all tasks in the system for assignment purposes
+          tasks = await Task.find({})
+            .populate('assignedTo', 'username email')
+            .populate('quest', 'title description')
+            .populate('createdBy', 'username email')
+            .sort({ createdAt: -1 })
+            .lean();
+          console.log('📋 Admin: Fetched all tasks:', tasks.length, 'tasks found');
+        } else {
+          // Regular users only see tasks assigned to them
+          const userId = user._id;
+          tasks = await Task.find({ assignedTo: userId })
+            .populate('quest', 'title description')
+            .populate('createdBy', 'username email')
+            .sort({ createdAt: -1 })
+            .lean();
+          console.log('📋 User: Fetched assigned tasks:', tasks.length, 'tasks found');
+        }
       } catch (taskError) {
         console.warn('⚠️ Error fetching tasks:', taskError.message);
         // Continue with empty tasks array
+      }
+      
+      // Fetch all users for team member management
+      let allUsers = [];
+      try {
+        if (user.role === 'ADMIN') {
+          // Admins can see all users in the system
+          allUsers = await User.find({})
+            .select('username email role questsIn createdAt phone') // Select necessary fields including phone
+            .populate('questsIn', 'title')
+            .sort({ createdAt: -1 })
+            .lean();
+            
+          console.log('👥 Admin: Fetched all users:', allUsers.length, 'users found');
+        } else {
+          // Regular users can see users who share quests with them, plus themselves
+          const userQuestIds = user.questsIn || [];
+          
+          if (userQuestIds.length > 0) {
+            // Find users who are part of the same quests as the current user
+            allUsers = await User.find({
+              $or: [
+                { questsIn: { $in: userQuestIds } }, // Users who share quests
+                { _id: user._id } // Always include current user
+              ]
+            })
+            .select('username email role questsIn createdAt phone')
+            .populate('questsIn', 'title')
+            .sort({ createdAt: -1 })
+            .lean();
+            
+            console.log('👥 User: Fetched team members:', allUsers.length, 'users found');
+          } else {
+            console.log('👥 Current user has no quests, showing only themselves');
+            // If user has no quests, only show themselves
+            allUsers = [user];
+          }
+        }
+      } catch (userError) {
+        console.warn('⚠️ Error fetching users:', userError.message);
+        // Continue with empty users array
       }
       
       // Set welcome message only once per session
@@ -203,6 +256,7 @@ async function startServer() {
         user,
         tasks,
         quests,
+        allUsers, // Pass all users for user management
         activeSection: req.query.section || null,
         showCreateQuestPrompt // This will trigger the modal popup if no quests exist
       });

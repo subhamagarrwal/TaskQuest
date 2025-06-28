@@ -68,9 +68,13 @@
             <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Quest Title *</label>
             <input type="text" name="title" placeholder="e.g., Complete Project Setup" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
           </div>
-          <div style="margin-bottom: 1.5rem;">
+          <div style="margin-bottom: 1rem;">
             <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Description</label>
             <textarea name="description" placeholder="Describe what this quest involves..." style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem; min-height: 80px; resize: vertical;"></textarea>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Target Completion Date</label>
+            <input type="date" name="completionDate" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
           </div>
           <button type="submit" style="width: 100%; padding: 0.75rem; background: linear-gradient(45deg, #8b5cf6, #7c3aed); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; transition: all 0.2s;">🎯 Create Quest</button>
         </form>
@@ -115,10 +119,10 @@
       </div>
 
       <div class="nav-section">
-        <div class="nav-title">Users</div>
+        <div class="nav-title">Team</div>
         <a href="/dashboard?section=quests" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'quests' ? 'active' : '' %>">
-          <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z\"/></svg>')"></div>
-          Manage Users
+          <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-1.5l-6-3-6 3a1 1 0 000 1.732l6 3 6-3a1 1 0 000-1.732z\"/></svg>')"></div>
+          Team Members
         </a>
       </div>
 
@@ -152,11 +156,11 @@
   <!-- Main Content -->
   <div class="main-content">
     <% if (typeof activeSection !== 'undefined' && activeSection === 'overview') { %>
-      <%- include('partials/overview', { user, tasks }) %>
+      <%- include('partials/overview', { user, tasks, quests }) %>
     <% } else if (typeof activeSection !== 'undefined' && activeSection === 'tasks') { %>
       <%- include('partials/tasks', { user, tasks, quests }) %>
     <% } else if (typeof activeSection !== 'undefined' && activeSection === 'quests') { %>
-      <%- include('partials/quests', { user, quests }) %>
+      <%- include('partials/quests', { user, quests, tasks, allUsers }) %>
     <% } else if (typeof activeSection !== 'undefined' && activeSection === 'bot') { %>
       <%- include('partials/bot', { user }) %>
     <% } else if (typeof activeSection !== 'undefined' && activeSection === 'performance') { %>
@@ -242,6 +246,7 @@
           // Get form data
           const title = this.title.value.trim();
           const description = this.description.value.trim();
+          const completionDate = this.completionDate.value;
           
           // Validate title is not empty
           if (!title) {
@@ -256,10 +261,10 @@
           submitBtn.textContent = '🔄 Creating...';
           
           try {
-            console.log('🎯 Submitting quest via GraphQL:', { title, description });
+            console.log('🎯 Submitting quest via GraphQL:', { title, description, completionDate });
             
             // Use GraphQL client to create quest
-            const data = await window.graphqlClient.createQuest(title, description);
+            const data = await window.graphqlClient.createQuest(title, description, completionDate);
             console.log('✅ Quest created successfully:', data);
             
             // Success - reload the page to show the new quest
@@ -267,7 +272,13 @@
             
           } catch (error) {
             console.error('❌ Error creating quest:', error);
-            alert('Error creating quest: ' + error.message);
+            
+            // Show user-friendly error message for single quest limitation
+            if (error.message.includes('Only one quest is allowed')) {
+              alert('⚠️ Only One Quest Allowed\n\nTaskQuest is designed to focus on a single quest at a time. Please edit your existing quest instead of creating a new one.\n\nYou can modify the quest details in the Quests section.');
+            } else {
+              alert('Error creating quest: ' + error.message);
+            }
             
             // Re-enable button
             submitBtn.disabled = false;
@@ -322,6 +333,29 @@
         }
       });
     }, 5000);
+
+    // Handle modal opening from overview navigation
+    // Check if we should open task modal (when coming from overview)
+    if (sessionStorage.getItem('openTaskModal') === 'true') {
+      sessionStorage.removeItem('openTaskModal');
+      // Small delay to ensure DOM is ready and section is loaded
+      setTimeout(() => {
+        if (typeof openTaskModal === 'function') {
+          openTaskModal();
+        }
+      }, 200);
+    }
+    
+    // Check if we should open user modal (when coming from overview)
+    if (sessionStorage.getItem('openUserModal') === 'true') {
+      sessionStorage.removeItem('openUserModal');
+      // Small delay to ensure DOM is ready and section is loaded
+      setTimeout(() => {
+        if (typeof openUserModal === 'function') {
+          openUserModal();
+        }
+      }, 200);
+    }
   </script>
 </body>
 </html>

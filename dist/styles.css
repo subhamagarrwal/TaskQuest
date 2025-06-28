@@ -238,6 +238,9 @@
   }
 }
 @layer utilities {
+  .visible {
+    visibility: visible;
+  }
   .absolute {
     position: absolute;
   }
@@ -343,6 +346,9 @@
   .hidden {
     display: none;
   }
+  .inline {
+    display: inline;
+  }
   .h-6 {
     height: calc(var(--spacing) * 6);
   }
@@ -399,6 +405,9 @@
   }
   .flex-col {
     flex-direction: column;
+  }
+  .flex-wrap {
+    flex-wrap: wrap;
   }
   .items-center {
     align-items: center;

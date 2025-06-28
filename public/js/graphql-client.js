@@ -52,14 +52,82 @@ class GraphQLClient {
     }
   }
 
-  // Quest operations
-  async createQuest(title, description) {
+  // User operations
+  async createUser(username, email, phone, role) {
     const query = `
-      mutation CreateQuest($title: String!, $description: String, $creatorId: ID!) {
-        createQuest(title: $title, description: $description, creatorId: $creatorId) {
+      mutation CreateUser($username: String!, $email: String!, $phone: String, $role: Role!) {
+        createUser(username: $username, email: $email, phone: $phone, role: $role) {
+          id
+          username
+          email
+          phone
+          role
+          isFirstUser
+          createdAt
+        }
+      }
+    `;
+    
+    const variables = {
+      username: String(username),
+      email: String(email),
+      phone: phone ? String(phone) : null,
+      role: String(role)
+    };
+    
+    console.log('👤 Creating user with variables:', variables);
+    
+    return this.request(query, variables);
+  }
+
+  async deleteUser(id) {
+    const query = `
+      mutation DeleteUser($id: ID!) {
+        deleteUser(id: $id) {
+          id
+          username
+        }
+      }
+    `;
+    
+    return this.request(query, { id: String(id) });
+  }
+
+  async updateUser(id, username, email, phone) {
+    const query = `
+      mutation UpdateUser($id: ID!, $username: String!, $email: String!, $phone: String) {
+        updateUser(id: $id, username: $username, email: $email, phone: $phone) {
+          id
+          username
+          email
+          phone
+          role
+          createdAt
+        }
+      }
+    `;
+    
+    const variables = {
+      id: String(id),
+      username: String(username),
+      email: String(email),
+      phone: phone ? String(phone) : null
+    };
+    
+    console.log('✏️ Updating user with variables:', variables);
+    
+    return this.request(query, variables);
+  }
+
+  // Quest operations
+  async createQuest(title, description, completionDate) {
+    const query = `
+      mutation CreateQuest($title: String!, $description: String, $completionDate: String, $creatorId: ID!) {
+        createQuest(title: $title, description: $description, completionDate: $completionDate, creatorId: $creatorId) {
           id
           title
           description
+          completionDate
           creator {
             id
             username
@@ -83,6 +151,7 @@ class GraphQLClient {
     const variables = {
       title: String(title),
       description: String(description || ''),
+      completionDate: completionDate ? String(completionDate) : null,
       creatorId: String(userId)
     };
     
@@ -91,13 +160,14 @@ class GraphQLClient {
     return this.request(query, variables);
   }
 
-  async updateQuest(id, title, description, members) {
+  async updateQuest(id, title, description, completionDate, members) {
     const query = `
-      mutation UpdateQuest($id: ID!, $title: String, $description: String, $members: [ID!]) {
-        updateQuest(id: $id, title: $title, description: $description, members: $members) {
+      mutation UpdateQuest($id: ID!, $title: String, $description: String, $completionDate: String, $members: [ID!]) {
+        updateQuest(id: $id, title: $title, description: $description, completionDate: $completionDate, members: $members) {
           id
           title
           description
+          completionDate
           members {
             id
             username
@@ -107,9 +177,10 @@ class GraphQLClient {
     `;
     
     return this.request(query, {
-      id,
-      title,
-      description,
+      id: String(id),
+      title: title ? String(title) : undefined,
+      description: description ? String(description) : undefined,
+      completionDate: completionDate ? String(completionDate) : null,
       members
     });
   }
@@ -171,10 +242,10 @@ class GraphQLClient {
     return this.request(query, variables);
   }
 
-  async updateTask(id, title, description, completed, priority) {
+  async updateTask(id, title, description, completed, priority, assignedTo) {
     const query = `
-      mutation UpdateTask($id: ID!, $title: String, $description: String, $completed: Boolean, $priority: Priority) {
-        updateTask(id: $id, title: $title, description: $description, completed: $completed, priority: $priority) {
+      mutation UpdateTask($id: ID!, $title: String, $description: String, $completed: Boolean, $priority: Priority, $assignedTo: ID) {
+        updateTask(id: $id, title: $title, description: $description, completed: $completed, priority: $priority, assignedTo: $assignedTo) {
           id
           title
           description
@@ -188,17 +259,27 @@ class GraphQLClient {
             id
             title
           }
+          createdBy {
+            id
+            username
+          }
+          createdAt
         }
       }
     `;
     
-    return this.request(query, {
-      id,
+    const variables = {
+      id: String(id),
       title,
       description,
       completed,
-      priority
-    });
+      priority,
+      assignedTo: assignedTo ? String(assignedTo) : undefined
+    };
+    
+    console.log('📝 Updating task with variables:', variables);
+    
+    return this.request(query, variables);
   }
 
   async deleteTask(id) {
