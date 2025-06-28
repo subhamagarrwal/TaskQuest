@@ -16,7 +16,13 @@ const userSchema = new Schema({
         ref: 'Quest'
     }],
     firebaseUid: { type: String, unique: true, sparse: true },
-    isFirstUser: { type: Boolean, default: false } // Track if this is the very first user (for admin privileges)
+    isFirstUser: { type: Boolean, default: false }, // Track if this is the very first user (for admin privileges)
+    // Telegram integration fields
+    telegramId: { type: String, unique: true, sparse: true },
+    telegramUsername: { type: String },
+    telegramLinked: { type: Boolean, default: false },
+    linkCode: { type: String }, // Temporary code for linking Telegram account
+    linkCodeExpires: { type: Date } // Expiration time for link code
 },
 {
     timestamps: true

@@ -36,6 +36,10 @@ type Quest {
   members: [User!]!
   tasks: [Task!]!
   createdBy: User!
+  inviteCode: String
+  inviteCodeExpires: String
+  maxMembers: Int
+  isActive: Boolean
   createdAt: String!
   updatedAt: String!
 }
@@ -51,6 +55,19 @@ type Task {
   createdBy: User!
   createdAt: String!
   updatedAt: String!
+}
+
+type InviteCodeResponse {
+  success: Boolean!
+  inviteCode: String
+  botLink: String
+  expiresAt: String
+}
+
+type AutoGenerateResponse {
+  success: Boolean!
+  message: String!
+  updatedCount: Int!
 }
 
 type Query {
@@ -72,6 +89,8 @@ type Mutation {
   createTask(title: String!, description: String, assignedTo: ID!, questId: ID!, priority: Priority, createdBy: ID!): Task!
   updateTask(id: ID!, title: String, description: String, completed: Boolean, priority: Priority, assignedTo: ID): Task!
   deleteTask(id: ID!): Task!
+  generateQuestInviteCode(questId: ID!, expiresInHours: Int, maxMembers: Int): InviteCodeResponse!
+  autoGenerateInviteCodes: AutoGenerateResponse!
 }
 `;
 

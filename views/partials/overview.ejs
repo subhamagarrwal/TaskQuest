@@ -50,6 +50,110 @@
   </div>
 </div>
 
+<!-- Quest Management Section -->
+<% if (typeof quests !== 'undefined' && quests && quests.length > 0) { %>
+  <div class="dashboard-grid" style="margin-top: 2rem;">
+    <div class="dashboard-card" style="grid-column: 1 / -1;">
+      <div class="card-header">
+        <div class="card-avatar" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🎯</div>
+        <div class="card-info">
+          <h3><%= quests[0].title %></h3>
+          <p><%= quests[0].description || 'Quest Description' %></p>
+        </div>
+      </div>
+      
+      <!-- Quest Invite Code Section -->
+      <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h4 style="margin: 0; color: #e2e8f0; display: flex; align-items: center; gap: 0.5rem;">
+            🔗 Quest Invite Code
+          </h4>
+          <button onclick="generateInviteCode('<%= quests[0]._id %>')" class="btn btn-primary" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed); padding: 0.5rem 1rem; font-size: 0.875rem;">
+            🔄 Generate New Code
+          </button>
+        </div>
+        
+        <div id="invite-code-section-<%= quests[0]._id %>">
+          <% if (quests[0].inviteCode) { %>
+            <div style="background: #1e293b; border-radius: 8px; padding: 1rem; border: 1px solid #334155;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                <label style="color: #94a3b8; font-size: 0.875rem; font-weight: 500;">Quest Code:</label>
+                <button onclick="copyToClipboard('<%= quests[0].inviteCode %>')" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">📋 Copy</button>
+              </div>
+              <div style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 1.125rem; font-weight: 700; color: #a78bfa; background: #0f172a; padding: 0.75rem; border-radius: 6px; border: 1px solid #475569; letter-spacing: 0.1em;">
+                <%= quests[0].inviteCode %>
+              </div>
+              
+              <div style="margin-top: 1rem;">
+                <label style="color: #94a3b8; font-size: 0.875rem; font-weight: 500; display: block; margin-bottom: 0.5rem;">Bot Invitation Link:</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="text" 
+                         id="bot-link-<%= quests[0]._id %>" 
+                         value="https://t.me/<%= process.env.BOT_USERNAME || 'your_bot' %>?start=auth_<%= quests[0].inviteCode %>" 
+                         readonly 
+                         style="flex: 1; padding: 0.5rem; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: #94a3b8; font-size: 0.875rem; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;">
+                  <button onclick="copyBotLink('<%= quests[0]._id %>')" class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.75rem;">📋</button>
+                  <button onclick="shareBotLink('<%= quests[0]._id %>')" class="btn btn-primary" style="background: linear-gradient(45deg, #0ea5e9, #0284c7); padding: 0.5rem; font-size: 0.75rem;">📤 Share</button>
+                </div>
+              </div>
+              
+              <% if (quests[0].inviteCodeExpires) { %>
+                <div style="margin-top: 0.75rem; color: #f59e0b; font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                  ⏰ Expires: <%= new Date(quests[0].inviteCodeExpires).toLocaleDateString() %> at <%= new Date(quests[0].inviteCodeExpires).toLocaleTimeString() %>
+                </div>
+              <% } %>
+              
+              <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 6px;">
+                <div style="color: #22c55e; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem;">📱 How to invite users:</div>
+                <div style="color: #94a3b8; font-size: 0.8rem;">
+                  1. Share the bot link above with team members<br>
+                  2. Users click the link to auto-join via Telegram<br>
+                  3. Or users can manually type: <code style="background: #0f172a; padding: 0.1rem 0.3rem; border-radius: 3px; color: #a78bfa;">/auth <%= quests[0].inviteCode %></code>
+                </div>
+              </div>
+            </div>
+          <% } else { %>
+            <div style="text-align: center; padding: 2rem; color: #64748b;" id="no-code-message-<%= quests[0]._id %>">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔐</div>
+              <p>Generating invite code...</p>
+              <p style="font-size: 0.875rem;">Your quest is being set up with an invitation link</p>
+            </div>
+            <script>
+              // Auto-generate invite code for quests without one
+              (function() {
+                generateInviteCode('<%= quests[0]._id %>').catch(error => {
+                  console.error('Failed to auto-generate invite code:', error);
+                  document.getElementById('no-code-message-<%= quests[0]._id %>').innerHTML = `
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚠️</div>
+                    <p>Failed to generate invite code</p>
+                    <p style="font-size: 0.875rem;">Click "Generate New Code" to try again</p>
+                  `;
+                });
+              })();
+            </script>
+          <% } %>
+        </div>
+      </div>
+      
+      <!-- Quest Stats -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-top: 1rem;">
+        <div style="text-align: center; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
+          <div style="font-size: 1.25rem; font-weight: 700; color: #3b82f6;"><%= quests[0].members ? quests[0].members.length : 0 %></div>
+          <div style="font-size: 0.75rem; color: #94a3b8;">Members</div>
+        </div>
+        <div style="text-align: center; padding: 0.75rem; background: rgba(34, 197, 94, 0.1); border-radius: 8px;">
+          <div style="font-size: 1.25rem; font-weight: 700; color: #22c55e;"><%= quests[0].progress || 0 %>%</div>
+          <div style="font-size: 0.75rem; color: #94a3b8;">Progress</div>
+        </div>
+        <div style="text-align: center; padding: 0.75rem; background: rgba(249, 115, 22, 0.1); border-radius: 8px;">
+          <div style="font-size: 1.25rem; font-weight: 700; color: #f97316;"><%= tasks ? tasks.filter(t => t.quest && t.quest._id.toString() === quests[0]._id.toString()).length : 0 %></div>
+          <div style="font-size: 0.75rem; color: #94a3b8;">Tasks</div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>
+
 <!-- Main Dashboard -->
 <div class="dashboard-main">
   <!-- Analytics -->
@@ -211,4 +315,160 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100);
   }
 });
+
+// Invite code management functions
+async function generateInviteCode(questId, expiresInHours = 24) {
+  try {
+    console.log('🔄 Generating invite code for quest:', questId);
+    
+    const mutation = `
+      mutation GenerateQuestInviteCode($questId: ID!, $expiresInHours: Int) {
+        generateQuestInviteCode(questId: $questId, expiresInHours: $expiresInHours) {
+          success
+          inviteCode
+          botLink
+          expiresAt
+        }
+      }
+    `;
+
+    const response = await window.graphqlClient.request(mutation, {
+      questId: questId,
+      expiresInHours: expiresInHours
+    });
+
+    if (response.generateQuestInviteCode.success) {
+      const { inviteCode, botLink, expiresAt } = response.generateQuestInviteCode;
+      
+      // Update the invite code section
+      const section = document.getElementById(`invite-code-section-${questId}`);
+      const expireDate = expiresAt ? new Date(expiresAt) : null;
+      
+      section.innerHTML = `
+        <div style="background: #1e293b; border-radius: 8px; padding: 1rem; border: 1px solid #334155;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <label style="color: #94a3b8; font-size: 0.875rem; font-weight: 500;">Quest Code:</label>
+            <button onclick="copyToClipboard('${inviteCode}')" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">📋 Copy</button>
+          </div>
+          <div style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 1.125rem; font-weight: 700; color: #a78bfa; background: #0f172a; padding: 0.75rem; border-radius: 6px; border: 1px solid #475569; letter-spacing: 0.1em;">
+            ${inviteCode}
+          </div>
+          
+          <div style="margin-top: 1rem;">
+            <label style="color: #94a3b8; font-size: 0.875rem; font-weight: 500; display: block; margin-bottom: 0.5rem;">Bot Invitation Link:</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" 
+                     id="bot-link-${questId}" 
+                     value="${botLink}" 
+                     readonly 
+                     style="flex: 1; padding: 0.5rem; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: #94a3b8; font-size: 0.875rem; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;">
+              <button onclick="copyBotLink('${questId}')" class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.75rem;">📋</button>
+              <button onclick="shareBotLink('${questId}')" class="btn btn-primary" style="background: linear-gradient(45deg, #0ea5e9, #0284c7); padding: 0.5rem; font-size: 0.75rem;">📤 Share</button>
+            </div>
+          </div>
+          
+          ${expireDate ? `
+            <div style="margin-top: 0.75rem; color: #f59e0b; font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+              ⏰ Expires: ${expireDate.toLocaleDateString()} at ${expireDate.toLocaleTimeString()}
+            </div>
+          ` : ''}
+          
+          <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 6px;">
+            <div style="color: #22c55e; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem;">📱 How to invite users:</div>
+            <div style="color: #94a3b8; font-size: 0.8rem;">
+              1. Share the bot link above with team members<br>
+              2. Users click the link to auto-join via Telegram<br>
+              3. Or users can manually type: <code style="background: #0f172a; padding: 0.1rem 0.3rem; border-radius: 3px; color: #a78bfa;">/auth ${inviteCode}</code>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Show success message
+      showNotification('✅ Invite code generated successfully!', 'success');
+      
+    } else {
+      throw new Error('Failed to generate invite code');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error generating invite code:', error);
+    showNotification('❌ Failed to generate invite code: ' + error.message, 'error');
+  }
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    showNotification('📋 Copied to clipboard!', 'success');
+  }).catch(() => {
+    showNotification('❌ Failed to copy to clipboard', 'error');
+  });
+}
+
+function copyBotLink(questId) {
+  const input = document.getElementById(`bot-link-${questId}`);
+  if (input) {
+    input.select();
+    navigator.clipboard.writeText(input.value).then(() => {
+      showNotification('📋 Bot link copied to clipboard!', 'success');
+    }).catch(() => {
+      showNotification('❌ Failed to copy bot link', 'error');
+    });
+  }
+}
+
+function shareBotLink(questId) {
+  const input = document.getElementById(`bot-link-${questId}`);
+  if (input && navigator.share) {
+    navigator.share({
+      title: 'Join our TaskQuest team!',
+      text: 'Click this link to join our quest team on Telegram:',
+      url: input.value
+    }).catch(console.error);
+  } else if (input) {
+    // Fallback to copying
+    copyBotLink(questId);
+  }
+}
+
+function showNotification(message, type = 'info') {
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = `flash-notification flash-${type}`;
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    background: ${type === 'success' ? '#059669' : type === 'error' ? '#dc2626' : '#3b82f6'};
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    animation: slideInRight 0.3s ease-out;
+  `;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  // Auto remove after 3 seconds
+  setTimeout(() => {
+    notification.style.animation = 'slideOutRight 0.3s ease-in';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// Add CSS animations
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
 </script>

@@ -20,7 +20,12 @@ const questSchema = new Schema({
     tasks: [{
         type: Schema.Types.ObjectId, 
         ref: 'Task'
-    }]
+    }],
+    // Add invite code fields
+    inviteCode: { type: String, unique: true, sparse: true },
+    inviteCodeExpires: { type: Date },
+    maxMembers: { type: Number, default: null }, // null = unlimited
+    isActive: { type: Boolean, default: true }
 }, {
     timestamps: true
 });

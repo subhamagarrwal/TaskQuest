@@ -14,11 +14,19 @@ const resolvers = {
     },
     // Fetch all quests
     quests: async () => {
-      return await Quest.find();
+      return await Quest.find()
+        .populate('creator', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+        .populate('members', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+        .populate('createdBy', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+        .populate('tasks');
     },
     // Fetch a single quest by ID
     quest: async (_, { id }) => {
-      return await Quest.findById(id);
+      return await Quest.findById(id)
+        .populate('creator', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+        .populate('members', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+        .populate('createdBy', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+        .populate('tasks');
     },
     // Fetch all tasks
     tasks: async () => {
@@ -140,10 +148,57 @@ const resolvers = {
       
       try {
         // Check if a quest already exists in the system
-        const existingQuestCount = await Quest.countDocuments();
-        if (existingQuestCount > 0) {
-          throw new Error('Only one quest is allowed in the system. Please edit the existing quest instead of creating a new one.');
+        const existingQuests = await Quest.find({});
+        if (existingQuests.length > 0) {
+          // Instead of throwing an error, add the creator to the existing quest
+          const existingQuest = existingQuests[0];
+          console.log('📋 Quest already exists, adding user to existing quest:', existingQuest.title);
+          
+          // Add creator to the quest's members if not already there
+          if (!existingQuest.members.some(memberId => memberId.toString() === creatorId.toString())) {
+            existingQuest.members.push(creatorId);
+            await existingQuest.save();
+          }
+          
+          // Add quest to the creator's questsIn array
+          await User.findByIdAndUpdate(
+            creatorId,
+            { $addToSet: { questsIn: existingQuest._id } },
+            { new: true }
+          );
+          
+          console.log('✅ User added to existing quest:', existingQuest._id);
+          
+          // Populate the quest with user data before returning
+          const populatedQuest = await Quest.findById(existingQuest._id)
+            .populate('creator', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+            .populate('members', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+            .populate('createdBy', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+            .populate('tasks');
+          
+          // Serialize for GraphQL
+          return {
+            ...populatedQuest.toObject(),
+            id: populatedQuest._id.toString(),
+            creator: {
+              ...populatedQuest.creator.toObject(),
+              id: populatedQuest.creator._id.toString()
+            },
+            members: populatedQuest.members.map(member => ({
+              ...member.toObject(),
+              id: member._id.toString()
+            })),
+            createdBy: {
+              ...populatedQuest.createdBy.toObject(),
+              id: populatedQuest.createdBy._id.toString()
+            },
+            completionDate: populatedQuest.completionDate ? populatedQuest.completionDate.toISOString() : null,
+            inviteCodeExpires: populatedQuest.inviteCodeExpires ? populatedQuest.inviteCodeExpires.toISOString() : null
+          };
         }
+        
+        // Generate unique invite code automatically
+        const inviteCode = Math.random().toString(36).substring(2, 10).toUpperCase();
         
         const questData = {
           title,
@@ -151,7 +206,9 @@ const resolvers = {
           creator: creatorId,
           createdBy: creatorId,
           members: [creatorId],
-          tasks: []
+          tasks: [],
+          inviteCode: inviteCode,
+          isActive: true
         };
         
         // Add completion date if provided
@@ -162,7 +219,7 @@ const resolvers = {
         const quest = new Quest(questData);
         
         await quest.save();
-        console.log('✅ Quest saved:', quest._id);
+        console.log('✅ New quest created with invite code:', quest._id, inviteCode);
         
         // Add the quest to the creator's questsIn array
         await User.findByIdAndUpdate(
@@ -173,13 +230,31 @@ const resolvers = {
         
         console.log('✅ User updated with new quest:', quest._id);
         
-        // Serialize ObjectId to string for GraphQL
+        // Populate the quest with user data before returning
+        const populatedQuest = await Quest.findById(quest._id)
+          .populate('creator', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+          .populate('members', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+          .populate('createdBy', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+          .populate('tasks');
+        
+        // Serialize for GraphQL
         return {
-          ...quest.toObject(),
-          id: quest._id.toString(),
-          creator: quest.creator.toString(),
-          members: quest.members.map(m => m.toString()),
-          completionDate: quest.completionDate ? quest.completionDate.toISOString() : null
+          ...populatedQuest.toObject(),
+          id: populatedQuest._id.toString(),
+          creator: {
+            ...populatedQuest.creator.toObject(),
+            id: populatedQuest.creator._id.toString()
+          },
+          members: populatedQuest.members.map(member => ({
+            ...member.toObject(),
+            id: member._id.toString()
+          })),
+          createdBy: {
+            ...populatedQuest.createdBy.toObject(),
+            id: populatedQuest.createdBy._id.toString()
+          },
+          completionDate: populatedQuest.completionDate ? populatedQuest.completionDate.toISOString() : null,
+          inviteCodeExpires: populatedQuest.inviteCodeExpires ? populatedQuest.inviteCodeExpires.toISOString() : null
         };
       } catch (error) {
         console.error('❌ Error creating quest:', error);
@@ -211,13 +286,31 @@ const resolvers = {
         
         console.log('✅ Quest updated successfully:', updatedQuest._id);
         
-        // Serialize ObjectId to string for GraphQL
+        // Populate the quest with user data before returning
+        const populatedQuest = await Quest.findById(updatedQuest._id)
+          .populate('creator', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+          .populate('members', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+          .populate('createdBy', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
+          .populate('tasks');
+        
+        // Serialize for GraphQL
         return {
-          ...updatedQuest.toObject(),
-          id: updatedQuest._id.toString(),
-          creator: updatedQuest.creator.toString(),
-          members: updatedQuest.members.map(m => m.toString()),
-          completionDate: updatedQuest.completionDate ? updatedQuest.completionDate.toISOString() : null
+          ...populatedQuest.toObject(),
+          id: populatedQuest._id.toString(),
+          creator: {
+            ...populatedQuest.creator.toObject(),
+            id: populatedQuest.creator._id.toString()
+          },
+          members: populatedQuest.members.map(member => ({
+            ...member.toObject(),
+            id: member._id.toString()
+          })),
+          createdBy: {
+            ...populatedQuest.createdBy.toObject(),
+            id: populatedQuest.createdBy._id.toString()
+          },
+          completionDate: populatedQuest.completionDate ? populatedQuest.completionDate.toISOString() : null,
+          inviteCodeExpires: populatedQuest.inviteCodeExpires ? populatedQuest.inviteCodeExpires.toISOString() : null
         };
       } catch (error) {
         console.error('❌ Error updating quest:', error);
@@ -338,6 +431,86 @@ const resolvers = {
       );
       
       return await Task.findByIdAndDelete(id);
+    },
+
+    // Generate quest invite code
+    generateQuestInviteCode: async (_, { questId, expiresInHours, maxMembers }, { user }) => {
+      if (!user) {
+        throw new Error('Authentication required');
+      }
+
+      try {
+        const quest = await Quest.findById(questId);
+        
+        if (!quest) {
+          throw new Error('Quest not found');
+        }
+
+        // Check if user is the quest creator or admin
+        if (quest.creator.toString() !== user.userId && user.role !== 'ADMIN') {
+          throw new Error('Only quest creators can generate invite codes');
+        }
+
+        // Generate unique invite code
+        const inviteCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+        
+        // Set expiration if provided
+        let inviteCodeExpires = null;
+        if (expiresInHours) {
+          inviteCodeExpires = new Date(Date.now() + expiresInHours * 60 * 60 * 1000);
+        }
+
+        // Update quest with invite code
+        quest.inviteCode = inviteCode;
+        quest.inviteCodeExpires = inviteCodeExpires;
+        if (maxMembers) quest.maxMembers = maxMembers;
+        
+        await quest.save();
+
+        return {
+          success: true,
+          inviteCode,
+          botLink: `https://t.me/${process.env.BOT_USERNAME}?start=auth_${inviteCode}`,
+          expiresAt: inviteCodeExpires ? inviteCodeExpires.toISOString() : null
+        };
+
+      } catch (error) {
+        console.error('Error generating invite code:', error);
+        throw new Error(error.message || 'Failed to generate invite code');
+      }
+    },
+
+    // Auto-generate invite codes for quests that don't have them
+    autoGenerateInviteCodes: async () => {
+      try {
+        const questsWithoutCodes = await Quest.find({ 
+          $or: [
+            { inviteCode: { $exists: false } },
+            { inviteCode: null },
+            { inviteCode: '' }
+          ]
+        });
+
+        let updated = 0;
+        for (const quest of questsWithoutCodes) {
+          const inviteCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+          quest.inviteCode = inviteCode;
+          quest.isActive = quest.isActive !== undefined ? quest.isActive : true;
+          await quest.save();
+          updated++;
+          console.log(`✅ Generated invite code ${inviteCode} for quest: ${quest.title}`);
+        }
+
+        return {
+          success: true,
+          message: `Generated invite codes for ${updated} quests`,
+          updatedCount: updated
+        };
+
+      } catch (error) {
+        console.error('Error auto-generating invite codes:', error);
+        throw new Error(error.message || 'Failed to auto-generate invite codes');
+      }
     },
   },
 };

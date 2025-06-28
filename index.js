@@ -1,4 +1,3 @@
-// TaskQuest Application - Express.js server with MongoDB, Firebase Auth, GraphQL, and EJS templates
 import express from 'express';
 import dotenv from 'dotenv';
 import { initializeApp } from 'firebase/app';
@@ -16,6 +15,7 @@ import http from 'http';
 import typeDefs from './src/schema/schema.js';
 import resolvers from './src/resolvers/resolver.js';
 import { verifyJwt } from './utils/jwt.js';
+// import { startTelegramBot } from './src/bot/index.js';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -56,6 +56,14 @@ const getGraphQLContext = async ({ req }) => {
 async function startServer() {
   // MongoDB connection
   await connectDB();
+  
+  // Initialize Telegram bot
+  try {
+    const { startTelegramBot } = await import('./src/bot/index.js');
+    startTelegramBot();
+  } catch (error) {
+    console.error('❌ Failed to start Telegram bot:', error);
+  }
   
   // Create Apollo Server
   const apolloServer = new ApolloServer({
@@ -153,13 +161,53 @@ async function startServer() {
         return res.redirect('/logout');
       }
       
-      // Fetch all quests assigned to this user
+      // Check if there are any quests in the system
+      const allQuests = await Quest.find({}).lean();
+      console.log(`📊 Total quests in system: ${allQuests.length}`);
+      
+      // Fetch quests assigned to this user
       let quests = [];
       if (user.questsIn && user.questsIn.length > 0) {
         quests = await Quest.find({ _id: { $in: user.questsIn } })
           .populate('creator', 'username email')
           .populate('members', 'username email')
           .lean();
+      }
+      
+      // If user has no quests but quests exist in the system, add user to the first quest
+      if (quests.length === 0 && allQuests.length > 0) {
+        console.log('🔧 User has no quests but quests exist. Adding user to first available quest...');
+        
+        const firstQuest = allQuests[0];
+        
+        // Add user to the quest's members if not already there
+        if (!firstQuest.members.some(memberId => memberId.toString() === user._id.toString())) {
+          await Quest.findByIdAndUpdate(
+            firstQuest._id,
+            { $addToSet: { members: user._id } }
+          );
+        }
+        
+        // Add quest to user's questsIn array if not already there
+        if (!user.questsIn || !user.questsIn.some(questId => questId.toString() === firstQuest._id.toString())) {
+          await User.findByIdAndUpdate(
+            user._id,
+            { $addToSet: { questsIn: firstQuest._id } }
+          );
+          
+          // Update user object for rendering
+          user.questsIn = user.questsIn || [];
+          user.questsIn.push(firstQuest._id);
+        }
+        
+        // Re-fetch quests for the user
+        quests = await Quest.find({ _id: { $in: user.questsIn || [firstQuest._id] } })
+          .populate('creator', 'username email')
+          .populate('members', 'username email')
+          .lean();
+          
+        console.log('✅ User added to existing quest successfully');
+        req.flash('success', `Welcome! You've been added to the quest: ${firstQuest.title}`);
       }
       
       // Debug: Log quests data
@@ -174,7 +222,9 @@ async function startServer() {
       // Check if user has no quests - if so, show create quest modal on dashboard
       // Allow skipping the modal with ?skipModal=true query parameter for testing
       const skipModal = req.query.skipModal === 'true';
-      const showCreateQuestPrompt = !skipModal && (!quests || quests.length === 0);
+      
+      // Only show create quest prompt if NO quests exist in the entire system
+      const showCreateQuestPrompt = !skipModal && allQuests.length === 0;
       
       // Fetch tasks related to the user
       const Task = (await import('./src/models/Task.js')).default;
