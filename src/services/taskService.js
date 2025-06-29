@@ -89,9 +89,11 @@ export const removeUserFromQuest = async (userId) => {
   }
 };
 
-// Updated updateTaskStatus to handle userId and taskId
+// Updated updateTaskStatus to handle userId and taskId with web notification
 export const updateTaskStatus = async (userId, taskId, status) => {
   try {
+    console.log(`🔄 Updating task status: userId=${userId}, taskId=${taskId}, status=${status}`);
+    
     // Verify user has permission to update this task
     const task = await Task.findOne({ 
       _id: taskId, 
@@ -99,16 +101,37 @@ export const updateTaskStatus = async (userId, taskId, status) => {
     });
     
     if (!task) {
+      console.log(`❌ Task not found or user not authorized: taskId=${taskId}, userId=${userId}`);
+      console.log(`📋 Available tasks for user:`, await Task.find({ assignedTo: userId }).select('_id title'));
       throw new Error('Task not found or user not authorized');
     }
     
-    const updatedTask = await Task.findByIdAndUpdate(
-      taskId, 
-      { status }, 
-      { new: true }
-    );
+    console.log(`✅ Task found: ${task.title}, current status: ${task.status}, completed: ${task.completed}`);
+    
+    // Update the task using .save() to trigger middleware
+    task.status = status;
+    const updatedTask = await task.save();
+    
+    console.log(`✅ Task updated successfully: ${updatedTask.title}, new status: ${updatedTask.status}, completed: ${updatedTask.completed}`);
+    
+    // Notify all connected web clients about the task update
+    // This would typically use WebSockets or Server-Sent Events
+    // For now, we'll add a simple notification service
+    try {
+      const { notifyWebDashboard } = await import('./notificationService.js');
+      await notifyWebDashboard('task_updated', {
+        taskId,
+        userId,
+        status,
+        task: updatedTask
+      });
+    } catch (notificationError) {
+      console.log('Web notification failed (non-critical):', notificationError.message);
+    }
+    
     return updatedTask;
   } catch (error) {
+    console.error('Error updating task status:', error);
     throw new Error('Error updating task status: ' + error.message);
   }
 };

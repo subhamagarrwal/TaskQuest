@@ -5,6 +5,11 @@ const taskSchema = new Schema({
     title : {type: String, required: true},
     description: {type: String},
     completed: {type: Boolean, default: false},
+    status: {
+        type: String, 
+        enum: ['not_started', 'in_progress', 'completed'], 
+        default: 'not_started'
+    },
     assignedTo: {
         type: Schema.Types.ObjectId, ref: 'User', required: true
     },
@@ -28,7 +33,7 @@ const taskSchema = new Schema({
 taskSchema.index({ quest: 1, assignedTo: 1 });
 taskSchema.index({ assignedTo: 1, completed: 1 });
 
-// Pre-save middleware to ensure task-quest relationship integrity
+// Pre-save middleware to ensure task-quest relationship integrity and sync completed field
 taskSchema.pre('save', async function(next) {
     try {
         if (this.isModified('quest') && !this.isNew) {
@@ -37,6 +42,12 @@ taskSchema.pre('save', async function(next) {
             error.name = 'ValidationError';
             return next(error);
         }
+        
+        // Sync completed field with status
+        if (this.isModified('status')) {
+            this.completed = this.status === 'completed';
+        }
+        
         next();
     } catch (error) {
         next(error);

@@ -330,6 +330,27 @@ async function startServer() {
     });
   });
 
+  // API endpoint to check for web notifications (for real-time updates)
+  app.get('/api/notifications', requireAuth, async (req, res) => {
+    try {
+      const { getWebNotifications } = await import('./src/services/notificationService.js');
+      const lastCheck = req.query.lastCheck;
+      const notifications = getWebNotifications(lastCheck);
+      
+      res.json({
+        success: true,
+        notifications,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch notifications'
+      });
+    }
+  });
+
   // Test route for GraphQL (development only)
   app.get('/test-graphql', (req, res) => {
     res.send(`

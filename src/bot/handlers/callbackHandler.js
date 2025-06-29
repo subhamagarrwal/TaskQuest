@@ -78,15 +78,17 @@ const callbackHandler = async (ctx) => {
                 await handleStatusUpdate(ctx, callbackData);
                 break;
 
+            // Direct task completion callbacks (from tasks command)
+            case callbackData.startsWith('complete_'):
+                await handleDirectTaskCompletion(ctx, callbackData);
+                break;
+
             default:
-                await ctx.answerCallbackQuery('Unknown action. Please try again.');
+                console.log(`Unknown callback action: ${callbackData}`);
                 return;
         }
-
-        await ctx.answerCallbackQuery();
     } catch (error) {
         console.error('Error handling callback query:', error);
-        await ctx.answerCallbackQuery('An error occurred. Please try again later.');
     }
 };
 
@@ -150,6 +152,48 @@ async function handleLeaveQuest(ctx) {
     } catch (error) {
         console.error('Error leaving quest:', error);
         await ctx.editMessageText('❌ An error occurred while leaving the quest.');
+    }
+}
+
+// Handle direct task completion from "Complete Task X" buttons
+async function handleDirectTaskCompletion(ctx, callbackData) {
+    const taskId = callbackData.split('_')[1];
+    const userId = ctx.from.id;
+
+    try {
+        console.log(`🔄 Attempting to complete task ${taskId} for telegram user ${userId}`);
+        
+        // Find the user by telegram ID
+        const User = (await import('../../models/User.js')).default;
+        const user = await User.findOne({ telegramId: userId.toString() });
+        
+        if (!user) {
+            console.log(`❌ User not found for telegram ID: ${userId}`);
+            await ctx.editMessageText('❌ User not found. Please authenticate first with /auth <quest-code>');
+            return;
+        }
+
+        console.log(`✅ Found user: ${user.username} (MongoDB ID: ${user._id})`);
+
+        // Update task status to completed
+        const result = await updateTaskStatus(user._id, taskId, 'completed');
+        
+        if (result) {
+            console.log(`✅ Task completed successfully: ${result.title}`);
+            await ctx.editMessageText(
+                `🎉 **Task Completed Successfully!**\n\n` +
+                `✅ Task: "${result.title}"\n\n` +
+                `Status changed to: *completed*\n\n` +
+                `Great work! Use /tasks to see your remaining tasks.`,
+                { parse_mode: 'Markdown' }
+            );
+        } else {
+            console.log(`❌ Failed to complete task ${taskId}`);
+            await ctx.editMessageText('❌ Failed to complete task. Please try again later.');
+        }
+    } catch (error) {
+        console.error('Error completing task directly:', error);
+        await ctx.editMessageText('❌ An error occurred while completing the task.');
     }
 }
 

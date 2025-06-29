@@ -134,8 +134,8 @@
               <div class="task-status-priority priority-<%= (task.priority || 'MEDIUM').toLowerCase() %>">
                 <%= task.priority || 'MEDIUM' %>
               </div>
-              <div class="task-status <%= task.completed ? 'status-completed' : 'status-pending' %>">
-                <%= task.completed ? 'Completed' : 'Pending' %>
+              <div class="task-status <%= (task.completed || task.status === 'completed') ? 'status-completed' : 'status-pending' %>">
+                <%= (task.completed || task.status === 'completed') ? 'Completed' : 'Pending' %>
               </div>
               <button class="btn btn-secondary edit-task-btn" data-task-id="<%= task._id ? task._id.toString() : task.id %>" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Edit</button>
               <button class="btn btn-secondary delete-task-btn" data-task-id="<%= task._id ? task._id.toString() : task.id %>" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Delete</button>
@@ -167,21 +167,21 @@
     <div class="metric">
       <div class="metric-icon">✅</div>
       <div class="metric-info">
-        <h3><%= tasks ? tasks.filter(t => t.completed).length : 0 %></h3>
+        <h3><%= tasks ? tasks.filter(t => t.completed || t.status === 'completed').length : 0 %></h3>
         <p>completed</p>
       </div>
     </div>
     <div class="metric">
       <div class="metric-icon">⏳</div>
       <div class="metric-info">
-        <h3><%= tasks ? tasks.filter(t => !t.completed).length : 0 %></h3>
+        <h3><%= tasks ? tasks.filter(t => !t.completed && t.status !== 'completed').length : 0 %></h3>
         <p>pending</p>
       </div>
     </div>
     <div class="metric">
       <div class="metric-icon">📊</div>
       <div class="metric-info">
-        <h3><%= tasks && tasks.length > 0 ? Math.round((tasks.filter(t => t.completed).length / tasks.length) * 100) : 0 %>%</h3>
+        <h3><%= tasks && tasks.length > 0 ? Math.round((tasks.filter(t => t.completed || t.status === 'completed').length / tasks.length) * 100) : 0 %>%</h3>
         <p>completion rate</p>
       </div>
     </div>
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const priorityElement = taskItem.querySelector('.task-status-priority');
       const priority = priorityElement ? priorityElement.textContent.trim() : 'MEDIUM';
       const statusElement = taskItem.querySelector('.task-status');
-      const completed = statusElement ? statusElement.textContent.trim() === 'Completed' : false;
+      const completed = statusElement ? (statusElement.textContent.trim() === 'Completed') : false;
       
       console.log('📝 Opening edit modal for task:', { taskId, title, description, priority, completed });
       

@@ -130,7 +130,7 @@
         <div class="nav-title">Bot</div>
         <a href="/dashboard?section=bot" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'bot' ? 'active' : '' %>">
           <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 11c0-1.104.896-2 2-2s2 .896 2 2-.896 2-2 2-2-.896-2-2zm0 0V7m0 4v4m0 0c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2z\"/></svg>')"></div>
-          Manage Bot
+          Bot Accessibility
         </a>
       </div>
 
@@ -345,6 +345,100 @@
         }
       }, 200);
     }
+
+    // Real-time notification polling for bot updates
+    let lastNotificationCheck = null;
+    
+    function pollForUpdates() {
+      const url = lastNotificationCheck 
+        ? `/api/notifications?lastCheck=${lastNotificationCheck}`
+        : '/api/notifications';
+        
+      fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1] || ''}`
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.notifications.length > 0) {
+          console.log('📢 Received notifications:', data.notifications);
+          
+          // Check if any task updates occurred
+          const taskUpdates = data.notifications.filter(n => n.eventType === 'task_updated');
+          
+          if (taskUpdates.length > 0) {
+            console.log('🔄 Task updates detected, refreshing display...');
+            
+            // Show a subtle notification to user
+            showUpdateNotification(`${taskUpdates.length} task(s) updated via bot`);
+            
+            // If we're on the tasks or overview section, refresh the content
+            const currentSection = new URLSearchParams(window.location.search).get('section');
+            if (currentSection === 'tasks' || currentSection === 'overview' || !currentSection) {
+              // Refresh task data without full page reload
+              setTimeout(() => {
+                window.location.reload();
+              }, 2000); // Give user time to see the notification
+            }
+          }
+        }
+        
+        lastNotificationCheck = data.timestamp;
+      })
+      .catch(error => {
+        console.error('Error polling for updates:', error);
+      });
+    }
+    
+    function showUpdateNotification(message) {
+      // Create a subtle notification
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(45deg, #22c55e, #16a34a);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 600;
+        opacity: 0;
+        transform: translateX(100%);
+        transition: all 0.3s ease;
+      `;
+      notification.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <span>🔄</span>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Animate in
+      setTimeout(() => {
+        notification.style.opacity = '1';
+        notification.style.transform = 'translateX(0)';
+      }, 100);
+      
+      // Animate out and remove
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 300);
+      }, 3000);
+    }
+    
+    // Start polling every 5 seconds for real-time updates
+    pollForUpdates(); // Initial call
+    setInterval(pollForUpdates, 5000);
+
+    console.log('🔄 Real-time update polling started');
     
     // Check if we should open user modal (when coming from overview)
     if (sessionStorage.getItem('openUserModal') === 'true') {
