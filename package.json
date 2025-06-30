@@ -5,12 +5,14 @@
   "description": "**TaskQuest** transforms team task management into a narrative-driven quest. It's a gamified workflow engine where users complete tasks in structured \"quests\", earn XP, level up, and receive WhatsApp notifications throughout the journey.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "concurrently \"npm run watch\" \"npm run dev\"",
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "postcss styles.css -o dist/styles.css",
     "watch": "postcss styles.css -o dist/styles.css --watch",
-    "all": "concurrently \"npm run watch\" \"npm run dev\""
+    "all": "concurrently 'npm run watch' 'npm run dev'",
+    "prod": "node index.js",
+    "start:prod": "npm run build && npm run prod"
   },
   "repository": {
     "type": "git",
