@@ -24,7 +24,7 @@ dotenv.config();
 // MongoDB connection function
 async function connectDB() {
   try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/taskquest");
+    await mongoose.connect(process.env.MONGODB_URI);
     console.log('✅ Connected to MongoDB');
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
