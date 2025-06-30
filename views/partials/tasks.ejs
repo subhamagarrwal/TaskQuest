@@ -30,14 +30,19 @@
       </div>
       <div style="margin-bottom: 1rem;">
         <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Quest *</label>
-        <select name="questId" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+        <select name="questId" id="questSelect" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;" onchange="updateDeadlineLimit()">
           <option value="">Select a quest...</option>
           <% if (typeof quests !== 'undefined' && quests && quests.length > 0) { %>
             <% quests.forEach(quest => { %>
-              <option value="<%= quest._id.toString() %>"><%= quest.title %></option>
+              <option value="<%= quest._id.toString() %>" data-completion-date="<%= quest.completionDate ? quest.completionDate.toISOString().split('T')[0] : '' %>"><%= quest.title %></option>
             <% }); %>
           <% } %>
         </select>
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Deadline</label>
+        <input type="date" name="deadline" id="taskDeadline" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+        <div id="deadlineWarning" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.25rem;">Task deadline cannot exceed quest completion date</div>
       </div>
       <div style="margin-bottom: 1.5rem;">
         <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Priority</label>
@@ -68,6 +73,10 @@
       <div style="margin-bottom: 1rem;">
         <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Description</label>
         <textarea id="editTaskDescription" name="description" placeholder="Describe what this task involves..." style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem; min-height: 80px; resize: vertical;"></textarea>
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Deadline</label>
+        <input type="date" id="editTaskDeadline" name="deadline" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
       </div>
       <div style="margin-bottom: 1rem;">
         <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Priority</label>
@@ -124,6 +133,12 @@
             <div class="task-info">
               <h4><%= task.title %></h4>
               <p><%= task.description || 'No description' %></p>
+              <% if (task.deadline) { %>
+                <div style="color: #fbbf24; font-size: 0.875rem; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
+                  <span>⏰</span>
+                  <span>Deadline: <%= new Date(task.deadline).toLocaleDateString() %></span>
+                </div>
+              <% } %>
               <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
                 <span style="font-size: 0.75rem; color: #64748b;">
                   Quest: <%= task.quest && task.quest.title ? task.quest.title : 'Unknown Quest' %>
@@ -201,14 +216,47 @@ function closeEditTaskModal() {
   document.getElementById('editTaskModalOverlay').style.display = 'none';
 }
 
-function openEditTaskModal(taskId, title, description, priority, completed) {
+function openEditTaskModal(taskId, title, description, priority, deadline, completed) {
   document.getElementById('editTaskId').value = taskId;
   document.getElementById('editTaskTitle').value = title;
   document.getElementById('editTaskDescription').value = description || '';
   document.getElementById('editTaskPriority').value = priority || 'MEDIUM';
+  document.getElementById('editTaskDeadline').value = deadline ? new Date(deadline).toISOString().split('T')[0] : '';
   document.getElementById('editTaskCompleted').value = completed ? 'true' : 'false';
   document.getElementById('editTaskModalOverlay').style.display = 'flex';
 }
+
+// Deadline validation function
+function updateDeadlineLimit() {
+  const questSelect = document.getElementById('questSelect');
+  const deadlineInput = document.getElementById('taskDeadline');
+  const warningDiv = document.getElementById('deadlineWarning');
+  
+  if (questSelect && deadlineInput) {
+    const selectedOption = questSelect.selectedOptions[0];
+    if (selectedOption && selectedOption.dataset.completionDate) {
+      const questCompletionDate = selectedOption.dataset.completionDate;
+      deadlineInput.max = questCompletionDate;
+      
+      // Check current value against limit
+      if (deadlineInput.value && deadlineInput.value > questCompletionDate) {
+        warningDiv.style.display = 'block';
+        deadlineInput.style.borderColor = '#ef4444';
+      } else {
+        warningDiv.style.display = 'none';
+        deadlineInput.style.borderColor = '#475569';
+      }
+    }
+  }
+}
+
+// Add deadline validation to deadline input
+document.addEventListener('DOMContentLoaded', function() {
+  const deadlineInput = document.getElementById('taskDeadline');
+  if (deadlineInput) {
+    deadlineInput.addEventListener('change', updateDeadlineLimit);
+  }
+});
 
 // Allow closing modals with Escape key
 document.addEventListener('keydown', function(e) {
@@ -251,6 +299,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const description = this.description.value.trim();
       const priority = this.priority.value;
       const questId = this.questId.value;
+      const deadline = this.deadline.value || null;
       
       // Validate required fields
       if (!title) {
@@ -263,6 +312,19 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       
+      // Validate deadline against quest completion date
+      if (deadline) {
+        const questSelect = document.getElementById('questSelect');
+        const selectedOption = questSelect.selectedOptions[0];
+        if (selectedOption && selectedOption.dataset.completionDate) {
+          const questCompletionDate = selectedOption.dataset.completionDate;
+          if (deadline > questCompletionDate) {
+            alert('Task deadline cannot exceed quest completion date!');
+            return;
+          }
+        }
+      }
+      
       // Disable submit button
       const submitBtn = this.querySelector('button[type="submit"]');
       const originalText = submitBtn.textContent;
@@ -270,10 +332,10 @@ document.addEventListener('DOMContentLoaded', function() {
       submitBtn.textContent = '🔄 Creating...';
       
       try {
-        console.log('📝 Creating task via GraphQL:', { title, description, questId, priority });
+        console.log('📝 Creating task via GraphQL:', { title, description, questId, priority, deadline });
         
         // Use GraphQL client to create task
-        const result = await window.graphqlClient.createTask(title, description, questId, priority);
+        const result = await window.graphqlClient.createTask(title, description, questId, priority, deadline);
         console.log('✅ Task created successfully:', result);
         
         // Check if we actually got a task back
@@ -321,6 +383,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const title = document.getElementById('editTaskTitle').value.trim();
       const description = document.getElementById('editTaskDescription').value.trim();
       const priority = document.getElementById('editTaskPriority').value;
+      const deadline = document.getElementById('editTaskDeadline').value || null;
       const completed = document.getElementById('editTaskCompleted').value === 'true';
       
       if (!title) {
@@ -334,9 +397,9 @@ document.addEventListener('DOMContentLoaded', function() {
       submitBtn.textContent = '🔄 Updating...';
       
       try {
-        console.log('✏️ Updating task via GraphQL:', { taskId, title, description, priority, completed });
+        console.log('✏️ Updating task via GraphQL:', { taskId, title, description, priority, deadline, completed });
         
-        const data = await window.graphqlClient.updateTask(taskId, title, description, completed, priority);
+        const data = await window.graphqlClient.updateTask(taskId, title, description, completed, priority, deadline);
         console.log('✅ Task updated successfully:', data);
         
         closeEditTaskModal();
@@ -403,9 +466,22 @@ document.addEventListener('DOMContentLoaded', function() {
       const statusElement = taskItem.querySelector('.task-status');
       const completed = statusElement ? (statusElement.textContent.trim() === 'Completed') : false;
       
-      console.log('📝 Opening edit modal for task:', { taskId, title, description, priority, completed });
+      // Extract deadline if it exists
+      const deadlineElement = taskItem.querySelector('[style*="color: #fbbf24"]');
+      let deadline = null;
+      if (deadlineElement) {
+        const deadlineText = deadlineElement.textContent;
+        const dateMatch = deadlineText.match(/(\d{1,2}\/\d{1,2}\/\d{4})/);
+        if (dateMatch) {
+          // Convert from MM/DD/YYYY format to YYYY-MM-DD format for input
+          const [month, day, year] = dateMatch[1].split('/');
+          deadline = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+        }
+      }
       
-      openEditTaskModal(taskId, title, description, priority, completed);
+      console.log('📝 Opening edit modal for task:', { taskId, title, description, priority, deadline, completed });
+      
+      openEditTaskModal(taskId, title, description, priority, deadline, completed);
     });
   });
 });

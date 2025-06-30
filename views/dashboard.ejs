@@ -127,18 +127,10 @@
       </div>
 
       <div class="nav-section">
-        <div class="nav-title">Bot</div>
+        <div class="nav-title">User Analytics</div>
         <a href="/dashboard?section=bot" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'bot' ? 'active' : '' %>">
           <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 11c0-1.104.896-2 2-2s2 .896 2 2-.896 2-2 2-2-.896-2-2zm0 0V7m0 4v4m0 0c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2z\"/></svg>')"></div>
-          Bot Accessibility
-        </a>
-      </div>
-
-      <div class="nav-section">
-        <div class="nav-title">Performance</div>
-        <a href="/dashboard?section=performance" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'performance' ? 'active' : '' %>">
-          <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 17v-2a4 4 0 018 0v2m-4 4h.01M4 4h16v16H4V4z\"/></svg>')"></div>
-          Performance Breakdown
+          Bot & User Accessibility
         </a>
       </div>
 
@@ -163,13 +155,11 @@
       <%- include('partials/quests', { user, quests, tasks, allUsers }) %>
     <% } else if (typeof activeSection !== 'undefined' && activeSection === 'bot') { %>
       <%- include('partials/bot', { user }) %>
-    <% } else if (typeof activeSection !== 'undefined' && activeSection === 'performance') { %>
-      <%- include('partials/performance', { user, tasks }) %>
     <% } else { %>
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center;">
         <div style="font-size: 4rem; margin-bottom: 2rem;">🎯</div>
         <h2 style="color: #ffffff; margin-bottom: 1rem; font-size: 2rem;">Welcome to TaskQuest Dashboard</h2>
-        <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 2rem; max-width: 500px;">Select any section from the sidebar to get started with managing your tasks, quests, bot, or view your performance analytics.</p>
+        <p style="color: #64748b; font-size: 1.1rem; margin-bottom: 2rem; max-width: 500px;">Select any section from the sidebar to get started with managing your tasks, quests, and bot configuration.</p>
       </div>
     <% } %>
   </div>

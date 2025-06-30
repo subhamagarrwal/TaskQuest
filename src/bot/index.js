@@ -8,6 +8,7 @@ import helpCommand from './commands/help.js';
 import authCommand from './commands/auth.js';
 import infoCommand from './commands/info.js';
 import leaveCommand from './commands/leave.js';
+import aboutCommand from './commands/about.js';
 import messageHandler from './handlers/messageHandler.js';
 import callbackHandler from './handlers/callbackHandler.js';
 import errorHandler from './handlers/errorHandler.js';
@@ -53,6 +54,50 @@ export function startTelegramBot() {
     bot.command('auth', authCommand);
     bot.command('info', infoCommand);
     bot.command('leave', leaveCommand);
+    bot.command('about', aboutCommand);
+    bot.command('about_us', aboutCommand);
+
+    // Dynamic command handler for custom commands
+    bot.use(async (ctx, next) => {
+      if (ctx.message && ctx.message.text && ctx.message.text.startsWith('/')) {
+        const command = ctx.message.text.split(' ')[0].toLowerCase();
+        
+        // Check if this is a custom command by making API call to backend
+        try {
+          const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+          const response = await fetch(`${baseUrl}/api/bot/commands`);
+          const result = await response.json();
+          
+          if (result.success && result.commands) {
+            const customCommand = result.commands.find(cmd => 
+              cmd.command.toLowerCase() === command && cmd.status === 'active'
+            );
+            
+            if (customCommand) {
+              // Get the response for this command
+              const responsesResponse = await fetch(`${baseUrl}/api/bot/responses`);
+              const responsesResult = await responsesResponse.json();
+              
+              const commandName = command.replace('/', '');
+              let responseText = responsesResult.responses && responsesResult.responses[commandName] 
+                ? responsesResult.responses[commandName]
+                : `Response for ${command} command.\n\nThis is a custom command.`;
+              
+              // Replace placeholders if needed
+              responseText = responseText.replace('{username}', ctx.from.first_name || ctx.from.username || 'User');
+              
+              await ctx.reply(responseText, { parse_mode: 'Markdown' });
+              return; // Don't call next() so we don't continue to other handlers
+            }
+          }
+        } catch (error) {
+          console.error('Error checking custom commands:', error);
+        }
+      }
+      
+      // Continue to next middleware/handler
+      await next();
+    });
 
     // Register message and callback handlers
     bot.on('text', messageHandler);

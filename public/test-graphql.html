@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GraphQL Test</title>
+</head>
+<body>
+    <h1>TaskQuest GraphQL Test</h1>
+    <div id="status">Testing...</div>
+    <div id="result"></div>
+
+    <script>
+        async function testGraphQL() {
+            const statusDiv = document.getElementById('status');
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                // Test health endpoint first
+                console.log('Testing health endpoint...');
+                const healthResponse = await fetch('/api/health');
+                const healthData = await healthResponse.json();
+                console.log('Health check:', healthData);
+                
+                // Test GraphQL endpoint
+                console.log('Testing GraphQL endpoint...');
+                const response = await fetch('/graphql', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query: `
+                            query {
+                                users {
+                                    id
+                                    username
+                                    email
+                                }
+                            }
+                        `
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('GraphQL response:', data);
+                
+                statusDiv.innerHTML = '<span style="color: green;">✅ GraphQL endpoint is working!</span>';
+                resultDiv.innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                
+            } catch (error) {
+                console.error('Test failed:', error);
+                statusDiv.innerHTML = '<span style="color: red;">❌ Test failed: ' + error.message + '</span>';
+                resultDiv.innerHTML = '<pre style="color: red;">' + error.stack + '</pre>';
+            }
+        }
+        
+        // Run test when page loads
+        testGraphQL();
+    </script>
+</body>
+</html>

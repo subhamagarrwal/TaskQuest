@@ -45,3 +45,26 @@ export function requireAuthSSR(req, res, next) {
     return res.redirect('/');
   }
 }
+
+// Middleware for API routes that supports both Bearer token and cookie authentication
+export function requireAuthFlexible(req, res, next) {
+  let token = null;
+  
+  // Try Bearer token first, then cookie
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies && req.cookies.token) {
+    token = req.cookies.token;
+  }
+  
+  if (!token) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+  
+  try {
+    req.user = verifyJwt(token);
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
+}

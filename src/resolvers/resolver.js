@@ -67,13 +67,20 @@ const resolvers = {
           }
         }
         
-        const user = new User({ 
+        // Handle phone field - only include it if it's a non-empty string
+        const userData = { 
           username, 
           email, 
-          phone, 
           role: finalRole, 
           firebaseUid 
-        });
+        };
+        
+        // Only add phone if it's provided and not empty
+        if (phone && phone.trim() !== '') {
+          userData.phone = phone.trim();
+        }
+        
+        const user = new User(userData);
         
         await user.save();
         console.log('✅ User created successfully:', user._id, 'with role:', finalRole);

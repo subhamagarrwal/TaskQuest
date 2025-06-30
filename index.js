@@ -4,7 +4,7 @@ import { initializeApp } from 'firebase/app';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
-import { requireAuth, requireAuthSSR } from './utils/jwt.js';
+import { requireAuth, requireAuthSSR, requireAuthFlexible } from './utils/jwt.js';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import flash from 'connect-flash';
@@ -15,6 +15,7 @@ import http from 'http';
 import typeDefs from './src/schema/schema.js';
 import resolvers from './src/resolvers/resolver.js';
 import { verifyJwt } from './utils/jwt.js';
+import BotCommand from './src/models/BotCommand.js';
 // import { startTelegramBot } from './src/bot/index.js';
 
 // Load environment variables from .env file
@@ -88,12 +89,37 @@ async function startServer() {
   app.use(cookieParser()); // Parse cookies from requests
 
   // Session middleware for flash messages and user state
+  // Generate a unique server instance ID to invalidate old sessions on restart
+  const serverInstanceId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+  
   app.use(session({
     secret: process.env.SESSION_SECRET || 'taskquest_secret',
     resave: false,
     saveUninitialized: false,
-    cookie: { maxAge: 1000 * 60 * 60 * 24 } // 1 day session
+    cookie: { 
+      maxAge: 1000 * 60 * 60 * 24, // 1 day session
+      httpOnly: true, // Prevent XSS attacks
+      secure: false // Set to true in production with HTTPS
+    },
+    name: 'taskquest.sid' // Custom session name
   }));
+
+  // Middleware to invalidate sessions from previous server instances
+  app.use((req, res, next) => {
+    // Check if this is a session from a previous server instance
+    if (req.session && req.session.serverInstanceId && req.session.serverInstanceId !== serverInstanceId) {
+      console.log('🔄 Destroying session from previous server instance');
+      req.session.destroy((err) => {
+        if (err) console.error('Error destroying old session:', err);
+      });
+      res.clearCookie('taskquest.sid');
+      res.clearCookie('token');
+    } else if (req.session) {
+      // Mark session with current server instance
+      req.session.serverInstanceId = serverInstanceId;
+    }
+    next();
+  });
 
   // Flash message middleware for user notifications
   app.use(flash());
@@ -111,8 +137,78 @@ async function startServer() {
 
   // Mount GraphQL endpoint
   app.use('/graphql', cors(), express.json(), expressMiddleware(apolloServer, {
-    context: getGraphQLContext,
+    context: getGraphQLContext
   }));
+
+  // Debug endpoint to test if server is running
+  app.get('/api/health', (req, res) => {
+    res.json({ 
+      status: 'OK', 
+      timestamp: new Date().toISOString(),
+      graphql: '/graphql endpoint available'
+    });
+  });
+
+  // Bot Command Management API endpoints
+  app.get('/api/bot-commands', requireAuthFlexible, async (req, res) => {
+    try {
+      const commands = await BotCommand.find({}).sort({ category: 1, command: 1 });
+      res.json(commands);
+    } catch (error) {
+      console.error('Error fetching bot commands:', error);
+      res.status(500).json({ error: 'Failed to fetch bot commands' });
+    }
+  });
+
+  app.put('/api/bot-commands/:id', requireAuthFlexible, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { description, responseMessage, isActive } = req.body;
+      
+      const updatedCommand = await BotCommand.findByIdAndUpdate(
+        id,
+        { description, responseMessage, isActive },
+        { new: true, runValidators: true }
+      );
+
+      if (!updatedCommand) {
+        return res.status(404).json({ error: 'Bot command not found' });
+      }
+
+      res.json(updatedCommand);
+    } catch (error) {
+      console.error('Error updating bot command:', error);
+      res.status(500).json({ error: 'Failed to update bot command' });
+    }
+  });
+
+  app.post('/api/bot-commands/bulk-update', requireAuthFlexible, async (req, res) => {
+    try {
+      const { commands } = req.body;
+      
+      if (!Array.isArray(commands)) {
+        return res.status(400).json({ error: 'Commands must be an array' });
+      }
+
+      const updatePromises = commands.map(cmd => 
+        BotCommand.findOneAndUpdate(
+          { command: cmd.command },
+          { 
+            description: cmd.description,
+            responseMessage: cmd.responseMessage,
+            isActive: cmd.isActive !== undefined ? cmd.isActive : true
+          },
+          { new: true, runValidators: true }
+        )
+      );
+
+      const updatedCommands = await Promise.all(updatePromises);
+      res.json(updatedCommands);
+    } catch (error) {
+      console.error('Error bulk updating bot commands:', error);
+      res.status(500).json({ error: 'Failed to update bot commands' });
+    }
+  });
 
   // Firebase configuration for client-side authentication
   const firebaseConfig = {
@@ -133,6 +229,7 @@ async function startServer() {
   // Homepage route - Clear any existing auth state and show landing page
   app.get('/', (req, res) => {
     res.clearCookie('token'); // Clear authentication cookie
+    res.clearCookie('taskquest.sid'); // Clear custom session cookie
     if (req.session) {
       // Destroy any existing session
       req.session.destroy((err) => {
@@ -206,7 +303,7 @@ async function startServer() {
           .populate('members', 'username email')
           .lean();
           
-        console.log('✅ User added to existing quest successfully');
+        console.log('User added to existing quest successfully');
         req.flash('success', `Welcome! You've been added to the quest: ${firstQuest.title}`);
       }
       
@@ -330,94 +427,14 @@ async function startServer() {
     });
   });
 
-  // API endpoint to check for web notifications (for real-time updates)
-  app.get('/api/notifications', requireAuth, async (req, res) => {
-    try {
-      const { getWebNotifications } = await import('./src/services/notificationService.js');
-      const lastCheck = req.query.lastCheck;
-      const notifications = getWebNotifications(lastCheck);
-      
-      res.json({
-        success: true,
-        notifications,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch notifications'
-      });
-    }
-  });
-
-  // Test route for GraphQL (development only)
-  app.get('/test-graphql', (req, res) => {
-    res.send(`
-      <h1>🚀 GraphQL Endpoint Active</h1>
-      <p>GraphQL endpoint is available at: <strong>/graphql</strong></p>
-      <p>You can test queries and mutations using GraphQL Playground or any GraphQL client.</p>
-      <a href="/dashboard">Go to Dashboard</a> | 
-      <a href="/logout">Logout</a> | 
-      <a href="/">Home</a>
-    `);
-  });
-
-  // Database migration route - Remove unique index on Task.quest field
-  app.get('/migrate-task-index', async (req, res) => {
-    try {
-      console.log('🔧 Starting database migration: removing unique index on Task.quest');
-      
-      // Get the tasks collection
-      const db = mongoose.connection.db;
-      const tasksCollection = db.collection('tasks');
-
-      // List current indexes
-      const indexes = await tasksCollection.indexes();
-      console.log('📋 Current indexes:', indexes.map(i => i.name));
-
-      // Check if quest_1 unique index exists
-      const questIndex = indexes.find(index => index.name === 'quest_1');
-      
-      if (questIndex) {
-        console.log('🔍 Found unique index on quest field, removing...');
-        
-        // Drop the unique index
-        await tasksCollection.dropIndex('quest_1');
-        console.log('✅ Successfully dropped unique index on quest field');
-        
-        res.json({
-          success: true,
-          message: 'Successfully removed unique index on quest field',
-          action: 'Dropped quest_1 index',
-          note: 'You can now create multiple tasks per quest'
-        });
-      } else {
-        console.log('ℹ️ No unique index found on quest field');
-        
-        res.json({
-          success: true,
-          message: 'No unique index found on quest field',
-          action: 'No action needed',
-          indexes: indexes.map(i => ({ name: i.name, key: i.key }))
-        });
-      }
-
-    } catch (error) {
-      console.error('❌ Migration failed:', error);
-      res.status(500).json({
-        success: false,
-        error: error.message,
-        message: 'Failed to remove unique index'
-      });
-    }
-  });
-
   // Start the HTTP server (not just Express app)
   httpServer.listen(port, () => {
-    console.log(`🚀 Server is running on http://localhost:${port}`);
-    console.log(`📊 GraphQL endpoint: http://localhost:${port}/graphql`);
-    console.log('🔒 All existing sessions cleared on startup');
+    console.log('🚀 TaskQuest Server Started');
+    console.log(`📍 Server running on http://localhost:${port}`);
+    console.log(`🔧 GraphQL endpoint: http://localhost:${port}/graphql`);
+    console.log(`🆔 Server Instance ID: ${serverInstanceId}`);
+    console.log('🔓 All previous sessions have been invalidated');
+    console.log('════════════════════════════════════════════════');
   });
 }
 

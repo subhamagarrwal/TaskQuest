@@ -238,9 +238,6 @@
   }
 }
 @layer utilities {
-  .visible {
-    visibility: visible;
-  }
   .absolute {
     position: absolute;
   }
@@ -337,6 +334,9 @@
   .mb-20 {
     margin-bottom: calc(var(--spacing) * 20);
   }
+  .block {
+    display: block;
+  }
   .flex {
     display: flex;
   }
@@ -345,9 +345,6 @@
   }
   .hidden {
     display: none;
-  }
-  .inline {
-    display: inline;
   }
   .h-6 {
     height: calc(var(--spacing) * 6);

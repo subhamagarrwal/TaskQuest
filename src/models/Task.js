@@ -21,6 +21,7 @@ const taskSchema = new Schema({
         // But each task can only belong to one quest (enforced by the field itself)
     },
     priority : {type: String, enum: ['LOW', 'MEDIUM', 'HIGH'], default: 'MEDIUM'},
+    deadline: {type: Date, required: false}, // Task deadline
     createdBy: {
         type: Schema.Types.ObjectId, ref: 'User', required: true   
     }},
@@ -43,9 +44,26 @@ taskSchema.pre('save', async function(next) {
             return next(error);
         }
         
+        // Validate task deadline against quest completion date
+        if (this.deadline && this.quest) {
+            const Quest = this.model('Quest');
+            const quest = await Quest.findById(this.quest).select('completionDate');
+            
+            if (quest && quest.completionDate && this.deadline > quest.completionDate) {
+                const error = new Error('Task deadline cannot exceed quest completion date');
+                error.name = 'ValidationError';
+                return next(error);
+            }
+        }
+        
         // Sync completed field with status
         if (this.isModified('status')) {
             this.completed = this.status === 'completed';
+        }
+        
+        // Also sync status field when completed is modified
+        if (this.isModified('completed') && !this.isModified('status')) {
+            this.status = this.completed ? 'completed' : 'not_started';
         }
         
         next();

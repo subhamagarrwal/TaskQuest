@@ -32,6 +32,21 @@ class GraphQLClient {
         })
       });
 
+      // Check if response is OK
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('HTTP Error:', response.status, response.statusText, errorText);
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
+      // Check content type
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const responseText = await response.text();
+        console.error('Non-JSON response:', responseText.substring(0, 200));
+        throw new Error('Server returned non-JSON response. Check if GraphQL server is running.');
+      }
+
       const result = await response.json();
       console.log('📡 GraphQL response:', result);
       
