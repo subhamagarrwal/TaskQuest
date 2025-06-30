@@ -237,10 +237,16 @@ async function startServer() {
           console.log('Session destroy error:', err);
         }
         // Always render the homepage, even if session destroy fails
-        res.render('index', { title: 'TaskQuest' });
+        res.render('index', { 
+          title: 'TaskQuest',
+          process: { env: process.env }
+        });
       });
     } else {
-      res.render('index', { title: 'TaskQuest' });
+      res.render('index', { 
+        title: 'TaskQuest',
+        process: { env: process.env }
+      });
     }
   });
 
