@@ -78,6 +78,7 @@ router.post('/generate-user-codes', requireAuthFlexible, async (req, res) => {
         }
         
         const userCodes = [];
+        const generatedUserCodes = [];
         
         for (const email of userEmails) {
             // Find or create user
@@ -121,14 +122,35 @@ router.post('/generate-user-codes', requireAuthFlexible, async (req, res) => {
             
             const botUsername = process.env.BOT_USERNAME || 'taskquest_guardian_bot';
             const botLink = `https://t.me/${botUsername}?start=auth_${userCode}`;
+            const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
             
+            // Store for response
             userCodes.push({
                 email: user.email,
                 username: user.username,
                 userCode: userCode,
                 botLink: botLink
             });
+            
+            // Store for quest persistence - remove existing code for this user first
+            quest.generatedUserCodes = quest.generatedUserCodes.filter(code => 
+                code.userId?.toString() !== user._id.toString() && code.email !== user.email
+            );
+            
+            // Add new code entry
+            generatedUserCodes.push({
+                userId: user._id,
+                email: user.email,
+                username: user.username,
+                userCode: userCode,
+                botLink: botLink,
+                createdAt: new Date(),
+                expiresAt: expiresAt
+            });
         }
+        
+        // Store all generated codes in quest
+        quest.generatedUserCodes.push(...generatedUserCodes);
         
         await quest.save();
         
@@ -448,6 +470,33 @@ router.get('/', requireAuthFlexible, async (req, res) => {
     } catch (error) {
         console.error('Error fetching codes:', error);
         res.status(500).json({ error: 'Failed to fetch codes' });
+    }
+});
+
+// Clear all user codes for a quest
+router.post('/clear-user-codes', requireAuthFlexible, async (req, res) => {
+    try {
+        const { questId } = req.body;
+        const userId = req.user.userId || req.user._id;
+        
+        // Verify user is the creator of this quest
+        const quest = await Quest.findById(questId);
+        if (!quest || quest.creator.toString() !== userId.toString()) {
+            return res.status(403).json({ error: 'Access denied. Only quest creator can clear codes.' });
+        }
+        
+        // Clear all generated user codes
+        quest.generatedUserCodes = [];
+        await quest.save();
+        
+        res.json({
+            success: true,
+            message: 'All user codes cleared successfully'
+        });
+        
+    } catch (error) {
+        console.error('Error clearing user codes:', error);
+        res.status(500).json({ error: 'Failed to clear user codes' });
     }
 });
 

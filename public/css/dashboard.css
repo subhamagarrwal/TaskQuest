@@ -1,4 +1,4 @@
-    * {
+* {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
@@ -117,46 +117,50 @@
       justify-content: center;
       font-weight: bold;
       font-size: 1.2rem;
-    }    .nav-section {
-      margin-bottom: 2rem;
+    }    /* Simple Navigation Section */
+    .nav-section {
+      margin-bottom: 1rem;
     }
 
-    .nav-section.collapsed .nav-item:not(.nav-section-header) {
-      display: none;
-    }
-
-    .nav-section-header {
+    /* Enhanced nav items for better mobile experience */
+    .nav-item {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      cursor: pointer;
-      padding: 0.5rem 0;
-      border-bottom: 1px solid rgba(71, 85, 105, 0.2);
-      margin-bottom: 0.5rem;
+      padding: 0.75rem 1rem;
+      margin: 0.25rem 0;
+      border-radius: 8px;
+      text-decoration: none;
+      color: #e2e8f0;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      background: transparent;
+      border: 1px solid transparent;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+      min-height: 44px; /* Better touch targets for mobile */
     }
 
-    .nav-section-header .chevron {
-      width: 16px;
-      height: 16px;
+    .nav-item:hover {
+      background: rgba(100, 116, 139, 0.1);
+      color: #ffffff;
+      border-color: rgba(100, 116, 139, 0.3);
+    }
+
+    .nav-item.active {
+      background: linear-gradient(45deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.2));
+      color: #a855f7;
+      border-color: rgba(139, 92, 246, 0.3);
+      font-weight: 600;
+    }
+
+    .nav-icon {
+      width: 20px;
+      height: 20px;
       background: currentColor;
-      mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>');
       mask-size: contain;
       mask-repeat: no-repeat;
       mask-position: center;
-      transition: transform 0.3s ease;
-    }
-
-    .nav-section.collapsed .chevron {
-      transform: rotate(-90deg);
-    }
-
-    .nav-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      margin-bottom: 1rem;
-      letter-spacing: 0.5px;
+      flex-shrink: 0;
     }
 
     .nav-item {
@@ -368,50 +372,213 @@
     /* Tasks List */
     .tasks-list {
       margin-top: 2rem;
+      background: rgba(15, 23, 42, 0.4);
+      border-radius: 12px;
+      padding: 1.5rem;
+      border: 1px solid rgba(71, 85, 105, 0.3);
     }
 
     .task-item {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      transition: all 0.2s ease;
+    }
+
+    .task-item:hover {
+      border-color: #3b82f6 !important;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+    
+    .task-item:last-child {
+      margin-bottom: 0 !important;
+    }
+    
+    /* Task meta information responsiveness */
+    @media (max-width: 768px) {
+      .task-item {
+        flex-direction: column !important;
+        gap: 1rem !important;
+      }
+      
+      .task-actions {
+        width: 100% !important;
+        min-width: auto !important;
+        justify-content: space-between !important;
+        flex-wrap: wrap !important;
+      }
+      
+      .task-info {
+        margin-right: 0 !important;
+      }
+    }
+    
+    /* Statistics container improvements */
+    .statistics-container {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .metric:hover {
+      background: rgba(15, 23, 42, 0.8) !important;
+      transform: translateY(-1px);
+      transition: all 0.2s ease;
+    }
+
+    /* Users List Styles */
+    .users-list {
       background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      border-radius: 12px;
+      padding: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .user-item {
+      background: rgba(30, 41, 59, 0.8);
       border: 1px solid rgba(71, 85, 105, 0.3);
       border-radius: 8px;
       padding: 1rem;
       margin-bottom: 1rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .user-item:hover {
+      background: rgba(30, 41, 59, 1);
+      border-color: rgba(139, 92, 246, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .user-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .user-avatar-large {
+      width: 3rem;
+      height: 3rem;
+      background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+      border-radius: 50%;
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+      font-size: 1.2rem;
+      margin-right: 1rem;
+      flex-shrink: 0;
     }
 
-    .task-info h4 {
-      margin-bottom: 0.25rem;
+    .user-info-section {
+      flex: 1;
+      min-width: 0;
     }
 
-    .task-info p {
-      color: #64748b;
+    .user-info-section h4 {
+      margin: 0 0 0.25rem 0;
+      color: #e2e8f0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .user-info-section p {
+      margin: 0;
+      color: #94a3b8;
       font-size: 0.875rem;
     }
 
-    .task-status {
+    .user-role-badge {
       padding: 0.25rem 0.75rem;
       border-radius: 20px;
       font-size: 0.75rem;
       font-weight: 600;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+      display: inline-block;
     }
 
-    .status-pending {
-      background: rgba(251, 191, 36, 0.2);
-      color: #fbbf24;
+    .role-admin {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
     }
 
-    .status-completed {
+    .role-user {
       background: rgba(34, 197, 94, 0.2);
       color: #22c55e;
     }
 
-    /* Priority-based coloring for task status */
-    .task-status-priority {
+    /* Team Management Column Styles */
+    .team-members-column {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      border-radius: 16px;
+      padding: 2rem;
+      height: fit-content;
+      min-height: 400px;
+    }
+
+    .task-assignment-column {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      border-radius: 16px;
+      padding: 2rem;
+      height: fit-content;
+      min-height: 400px;
+    }
+
+    /* Task Assignment Styles */
+    .task-assignment-container {
+      background: rgba(30, 41, 59, 0.8);
+      border: 1px solid rgba(71, 85, 105, 0.3);
+      border-radius: 12px;
+      padding: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .task-assignment-card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #334155;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .task-assignment-card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .task-assignment-card h4 {
+      margin: 0 0 0.5rem 0;
+      color: #e2e8f0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .task-assignment-card p {
+      margin: 0 0 0.75rem 0;
+      color: #94a3b8;
+      font-size: 0.875rem;
+    }
+
+    /* Task Priority Styles */
+    .task-priority {
+      display: inline-block;
+      font-size: 0.75rem;
       padding: 0.25rem 0.75rem;
       border-radius: 20px;
-      font-size: 0.75rem;
       font-weight: 600;
       text-transform: uppercase;
     }
@@ -419,137 +586,721 @@
     .priority-high {
       background: rgba(239, 68, 68, 0.2);
       color: #ef4444;
-      border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
     .priority-medium {
-      background: rgba(251, 191, 36, 0.2);
-      color: #fbbf24;
-      border: 1px solid rgba(251, 191, 36, 0.3);
+      background: rgba(249, 115, 22, 0.2);
+      color: #f97316;
     }
 
     .priority-low {
       background: rgba(34, 197, 94, 0.2);
       color: #22c55e;
-      border: 1px solid rgba(34, 197, 94, 0.3);
-    }    @media (max-width: 1024px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr;
+    }
+
+    /* Modal Improvements */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: #1e293b;
+      color: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      padding: 2rem;
+      min-width: 400px;
+      max-width: 90vw;
+      max-height: 80vh;
+      overflow-y: auto;
+      text-align: center;
+      position: relative;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .modal-close-button {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: #64748b;
+      cursor: pointer;
+      padding: 0.25rem;
+      transition: color 0.2s ease;
+    }
+
+    .modal-close-button:hover {
+      color: #94a3b8;
+    }
+
+    /* Form Improvements */
+    .form-input {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      background: #334155;
+      color: #ffffff;
+      font-size: 0.9rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #e2e8f0;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .dashboard-main {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+        height: auto !important;
       }
       
-      .dashboard-main {
-        grid-template-columns: 1fr;
+      .dashboard-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1.25rem !important;
+      }
+      
+      .analytics-section {
+        height: auto !important;
+        min-height: 300px !important;
+      }
+      
+      .performance-card {
+        margin-top: 1rem !important;
       }
     }
 
     @media (max-width: 768px) {
-      body {
-        flex-direction: row;
-        overflow: hidden;
-        height: 100vh;
-      }
-
+      /* Show mobile menu toggle */
       .mobile-menu-toggle {
-        display: block;
-      }
-
-      .mobile-overlay.active {
-        display: block;
+        display: block !important;
       }
       
+      /* Hide sidebar by default on mobile */
       .sidebar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 280px;
-        height: 100vh;
-        z-index: 1000;
-        transform: translateX(-100%);
-        padding: 4rem 1.5rem 1.5rem 1.5rem;
-      }
-
-      .sidebar.active {
-        transform: translateX(0);
+        position: fixed !important;
+        left: -100% !important;
+        top: 0 !important;
+        width: 280px !important;
+        height: 100vh !important;
+        z-index: 1000 !important;
+        transition: left 0.3s ease !important;
       }
       
+      /* Show sidebar when active */
+      .sidebar.active {
+        left: 0 !important;
+      }
+      
+      /* Show overlay when sidebar is active */
+      .mobile-overlay.active {
+        display: block !important;
+      }
+      
+      /* Adjust main content */
       .main-content {
-        padding: 4rem 1rem 1rem 1rem;
-        width: 100%;
-        margin-left: 0;
-        height: 100vh;
-        overflow-y: auto;
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding-top: 4rem !important;
       }
-
-      .header h1 {
-        font-size: 1.5rem;
-      }
-
-      .user-info {
-        flex-direction: column;
-        gap: 0.5rem;
-        align-items: flex-end;
-      }
-
-      .action-buttons {
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-
-      .dashboard-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-
-      .dashboard-main {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-
-
-
-      /* Mobile accordion styles */
+      
+      /* Mobile accordion improvements */
       .nav-section {
-        margin-bottom: 1rem;
+        margin-bottom: 1rem !important;
       }
-
-      .nav-title {
-        display: none; /* Hide section titles on mobile, use accordion headers instead */
-      }
-
+      
       .nav-section-header {
-        display: flex;
-        background: rgba(71, 85, 105, 0.2);
-        border-radius: 6px;
-        padding: 0.75rem;
-        margin-bottom: 0.5rem;
+        padding: 1rem !important;
+        margin-bottom: 0.25rem !important;
+        background: rgba(51, 65, 85, 0.6) !important;
+        border-bottom: none !important;
       }
-
+      
       .nav-item {
-        padding: 0.5rem 1rem;
-        margin-bottom: 0.25rem;
-        font-size: 0.9rem;
+        min-height: 48px !important;
+        padding: 1rem !important;
+        font-size: 1rem !important;
+        margin: 0.5rem 0 !important;
       }
-
-
+      
+      .nav-title {
+        font-size: 0.875rem !important;
+      }
+      
+      .nav-icon {
+        width: 24px !important;
+        height: 24px !important;
+      }
+      
+      /* Dashboard layout adjustments */
+      .dashboard-main {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1rem !important;
+        height: auto !important;
+        padding: 0.5rem !important;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+        margin-bottom: 1.5rem !important;
+      }
+      
+      .dashboard-card {
+        padding: 1.25rem !important;
+      }
+      
+      .analytics-section {
+        height: auto !important;
+        min-height: 250px !important;
+        margin-bottom: 1rem !important;
+      }
+      
+      .performance-card {
+        height: auto !important;
+        margin: 0 !important;
+      }
+      
+      .section-header {
+        flex-direction: column !important;
+        gap: 0.75rem !important;
+        align-items: stretch !important;
+        text-align: center !important;
+      }
+      
+      .section-title {
+        font-size: 1.25rem !important;
+        margin: 0 !important;
+      }
+      
+      .btn {
+        width: 100% !important;
+        justify-self: stretch !important;
+      }
+      
+      /* Header responsive */
+      .header {
+        padding: 1rem !important;
+        flex-direction: column !important;
+        gap: 1rem !important;
+        text-align: center !important;
+      }
+      
+      .header h1 {
+        font-size: 1.5rem !important;
+        margin: 0 !important;
+      }
+      
+      .user-info {
+        justify-content: center !important;
+        align-self: center !important;
+      }
+      
+      /* Task and user lists responsive */
+      .tasks-list, .users-list {
+        max-height: 50vh !important;
+        height: auto !important;
+      }
+      
+      .task-item, .user-item {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1rem !important;
+      }
+      
+      .task-actions, .task-info {
+        margin-right: 0 !important;
+        width: 100% !important;
+      }
+      
+      .task-badges, .task-buttons {
+        justify-content: center !important;
+        flex-wrap: wrap !important;
+      }
+      
+      /* Performance metrics responsive */
+      .metric {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 0.75rem !important;
+        background: rgba(30, 41, 59, 0.3) !important;
+        border-radius: 8px !important;
+        margin-bottom: 0.75rem !important;
+      }
+      
+      .metric-icon {
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 1.25rem !important;
+      }
+      
+      .metric-info h3 {
+        font-size: 1.5rem !important;
+      }
+      
+      .metric-info p {
+        font-size: 0.8rem !important;
+      }
     }
 
     @media (max-width: 480px) {
-      .main-content {
-        padding: 4rem 0.5rem 1rem 0.5rem;
+      .dashboard-main {
+        padding: 0.25rem !important;
+        gap: 0.75rem !important;
       }
-
+      
+      .dashboard-grid {
+        gap: 0.75rem !important;
+        margin-bottom: 1rem !important;
+      }
+      
       .dashboard-card {
-        padding: 1rem;
+        padding: 1rem !important;
+        border-radius: 12px !important;
       }
+      
+      .card-header {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 0.75rem !important;
+      }
+      
+      .card-avatar {
+        align-self: center !important;
+      }
+      
+      .analytics-section {
+        padding: 1rem !important;
+        border-radius: 8px !important;
+      }
+      
+      .section-header {
+        padding: 1rem !important;
+        margin-bottom: 1rem !important;
+      }
+      
+      .section-title {
+        font-size: 1.1rem !important;
+      }
+      
+      .task-item, .user-item {
+        padding: 1rem !important;
+        margin-bottom: 0.75rem !important;
+      }
+      
+      .task-info h4, .user-info-section h4 {
+        font-size: 1rem !important;
+      }
+      
+      .task-info p, .user-info-section p {
+        font-size: 0.8rem !important;
+      }
+      
+      .btn {
+        padding: 0.5rem 1rem !important;
+        font-size: 0.875rem !important;
+      }
+      
+      .performance-card {
+        padding: 1rem !important;
+      }
+      
+      .performance-title {
+        font-size: 1.1rem !important;
+        margin-bottom: 1rem !important;
+      }
+    }
 
-      .header {
+    /* Enhanced touch targets for mobile */
+    @media (max-width: 768px) {
+      /* Improve button sizes for mobile */
+      .btn {
+        min-height: 48px !important;
+        touch-action: manipulation !important;
+      }
+      
+      /* Better spacing for mobile */
+      .main-content {
+        padding: 1rem !important;
+      }
+      
+      /* Enhanced mobile overlay */
+      .mobile-overlay.active {
+        backdrop-filter: blur(4px) !important;
+      }
+      
+      /* Better card touch interaction */
+      .dashboard-card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+      }
+      
+      .dashboard-card:active {
+        transform: scale(0.98) !important;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2) !important;
+      }
+      
+      /* Improved nav item touch feedback */
+      .nav-item {
+        position: relative !important;
+        overflow: hidden !important;
+      }
+      
+      .nav-item:active {
+        transform: scale(0.98) !important;
+      }
+      
+      /* Better form inputs on mobile */
+      input, textarea, select {
+        min-height: 44px !important;
+        font-size: 16px !important; /* Prevents zoom on iOS */
+      }
+      
+      /* Enhanced modal for mobile */
+      #taskModal, #generateUserCodesModal {
+        min-width: 320px !important;
+        margin: 1rem !important;
+        max-height: 85vh !important;
+      }
+      
+      /* Improved notification positioning for mobile */
+      .flash-notification {
+        top: 1rem !important;
+        right: 1rem !important;
+        left: 1rem !important;
+        transform: none !important;
+        width: auto !important;
+      }
+    }
+    
+    /* Tablet improvements */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+      
+      .sidebar {
+        width: 240px !important;
+      }
+      
+      .main-content {
+        padding: 1.5rem !important;
+      }
+    }
+    
+    /* Large screen optimizations */
+    @media (min-width: 1400px) {
+      .sidebar {
+        width: 320px !important;
+      }
+      
+      .main-content {
+        padding: 2.5rem !important;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+      }
+    }
+
+    /* Accessibility improvements */
+    @media (prefers-reduced-motion: reduce) {
+      .sidebar, .mobile-overlay, .hamburger, .hamburger span, .chevron, .dashboard-card, .nav-item {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+    
+    /* High contrast mode support */
+    @media (prefers-contrast: high) {
+      .sidebar {
+        border-right: 2px solid #ffffff !important;
+      }
+      
+      .nav-item {
+        border: 1px solid transparent !important;
+      }
+      
+      .nav-item.active, .nav-item:hover {
+        border-color: #ffffff !important;
+      }
+      
+      .dashboard-card {
+        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+      }
+    }
+
+    /* Additional mobile improvements for quests/team members */
+    @media (max-width: 768px) {
+      .user-item h4 {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 120px !important;
+      }
+      
+      .user-item p {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 150px !important;
+      }
+      
+      .user-item .user-role {
+        white-space: nowrap !important;
+        font-size: 0.7rem !important;
+        padding: 0.2rem 0.5rem !important;
+      }
+      
+      .user-avatar-large {
+        flex-shrink: 0 !important;
+      }
+    }
+
+    /* Team member cards on very small screens */
+    @media (max-width: 480px) {
+      .user-item {
+        flex-direction: column !important;
+        text-align: center !important;
+        align-items: center !important;
+      }
+      
+      .user-item > div {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 0.5rem !important;
+      }
+      
+      .user-item > div > div:nth-child(2) {
+        text-align: center !important;
+        width: 100% !important;
+      }
+      
+      .user-item h4,
+      .user-item p {
+        text-align: center !important;
+        white-space: normal !important;
+        max-width: none !important;
+        overflow: visible !important;
+        text-overflow: initial !important;
+      }
+      
+      .user-item .user-role {
+        align-self: center !important;
+      }
+    }
+
+    /* Force user card content visibility on ALL screen sizes */
+    .user-item h4,
+    .user-item p,
+    .user-role {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      color: inherit !important;
+    }
+    
+    .user-item h4 {
+      color: #e2e8f0 !important;
+      font-size: 1rem !important;
+      margin: 0 0 0.25rem 0 !important;
+    }
+    
+    .user-item p {
+      color: #94a3b8 !important;
+      font-size: 0.875rem !important;
+      margin: 0.25rem 0 !important;
+    }
+    
+    .user-role {
+      color: inherit !important;
+      font-size: 0.75rem !important;
+      padding: 0.25rem 0.5rem !important;
+    }
+    
+    /* Mobile specific user card fixes */
+    @media (max-width: 768px) {
+      .user-item {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+        border-radius: 12px !important;
+        padding: 1rem !important;
+        margin-bottom: 1rem !important;
+      }
+      
+      .user-item > div {
+        display: flex !important;
+        gap: 1rem !important;
+        align-items: flex-start !important;
+      }
+      
+      .user-item > div > div:nth-child(2) {
+        flex: 1 !important;
+      }
+      
+      .user-item h4 {
+        color: #e2e8f0 !important;
+        font-size: 1rem !important;
+        margin: 0 0 0.25rem 0 !important;
+        display: block !important;
+      }
+      
+      .user-item p {
+        color: #94a3b8 !important;
+        font-size: 0.875rem !important;
+        margin: 0.25rem 0 !important;
+        display: block !important;
+      }
+      
+      .user-avatar-large {
+        width: 3rem !important;
+        height: 3rem !important;
+        flex-shrink: 0 !important;
+      }
+    }
+
+    /* Task Management Header Responsiveness */
+    .task-management-container {
+      background: rgba(30, 41, 59, 0.8);
+      border-radius: 12px;
+      border: 1px solid #334155;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      min-height: 600px;
+    }
+
+    .task-management-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .task-management-title {
+      margin: 0;
+      color: #e2e8f0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .create-task-btn {
+      background: linear-gradient(45deg, #22c55e, #16a34a) !important;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: white;
+      text-decoration: none;
+      font-size: 1rem;
+      white-space: nowrap;
+      min-height: 44px;
+    }
+
+    .create-task-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(34, 197, 94, 0.3);
+    }
+
+    /* Mobile Responsive Styles for Task Management */
+    @media (max-width: 768px) {
+      .task-management-header {
         flex-direction: column;
+        align-items: stretch;
+        text-align: center;
         gap: 1rem;
-        align-items: flex-start;
       }
 
-      .user-info {
-        align-self: flex-end;
-        flex-direction: row;
+      .task-management-title {
+        font-size: 1.25rem;
+        text-align: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .create-task-btn {
+        width: 100% !important;
+        justify-content: center;
+        padding: 0.875rem 1rem !important;
+        font-size: 0.95rem !important;
+        min-height: 48px !important;
+        gap: 0.75rem;
+      }
+
+      .task-management-container {
+        padding: 1rem;
+        min-height: 500px;
+      }
+
+      .dashboard-main {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+      }
+    }
+
+    /* Small Mobile Devices */
+    @media (max-width: 480px) {
+      .create-task-btn {
+        padding: 1rem 0.75rem !important;
+        font-size: 0.9rem !important;
+        min-height: 50px !important;
+      }
+
+      .task-management-title {
+        font-size: 1.1rem;
+      }
+
+      .task-management-header {
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.75rem;
+      }
+    }
+
+    /* Large Tablet */
+    @media (max-width: 1024px) and (min-width: 769px) {
+      .create-task-btn {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.95rem;
+      }
+
+      .task-management-header {
+        gap: 0.75rem;
       }
     }

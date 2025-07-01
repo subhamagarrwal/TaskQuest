@@ -12,158 +12,200 @@
   </div>
 </div>
 
-<!-- Task Progress Cards -->
-<div class="dashboard-grid">
-  <div class="dashboard-card">
-    <div class="card-header">
-      <div class="card-avatar" style="background: linear-gradient(45deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; font-size: 2rem;">+</div>
-      <div class="card-info">
-        <h3>Create New Task</h3>
-        <p>Start a new assignment</p>
-      </div>
-    </div>
-    <button onclick="navigateToTasksAndOpenModal()" class="btn btn-primary" style="width: 100%; text-align: center;">Create Task</button>
-  </div>
-
-  <% if (typeof quests !== 'undefined' && quests && quests.length > 0) { %>
+<!-- Main Dashboard Content with responsive layout -->
+<div class="dashboard-main" style="display: block;">
+  <!-- Task Progress Cards -->
+  <div class="dashboard-grid">
     <div class="dashboard-card">
       <div class="card-header">
-        <div class="card-avatar" style="background: linear-gradient(45deg, #f59e0b, #ef4444); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">✏️</div>
+        <div class="card-avatar" style="background: linear-gradient(45deg, #3b82f6, #1d4ed8); display: flex; align-items: center; justify-content: center; font-size: 2rem;">+</div>
         <div class="card-info">
-          <h3>Edit Quest</h3>
-          <p>Modify quest details</p>
+          <h3>Create New Task</h3>
+          <p>Start a new assignment</p>
         </div>
       </div>
-      <button onclick="openQuestEditFromOverview()" class="btn btn-warning" style="width: 100%; text-align: center; background: linear-gradient(45deg, #f59e0b, #ef4444); color: #fff; border: none;">Edit Quest</button>
+      <button onclick="navigateToTasksAndOpenModal()" class="btn btn-primary" style="width: 100%; text-align: center;">Create Task</button>
     </div>
-  <% } %>
 
-  <div class="dashboard-card">
-    <div class="card-header">
-      <div class="card-avatar" style="background: linear-gradient(45deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👥</div>
-      <div class="card-info">
-        <h3>Team Members</h3>
-        <p>Assign users to tasks</p>
+    <% if (typeof quests !== 'undefined' && quests && quests.length > 0) { %>
+      <div class="dashboard-card">
+        <div class="card-header">
+          <div class="card-avatar" style="background: linear-gradient(45deg, #f59e0b, #ef4444); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">✏️</div>
+          <div class="card-info">
+            <h3>Edit Quest</h3>
+            <p>Modify quest details</p>
+          </div>
+        </div>
+        <button onclick="openQuestEditFromOverview()" class="btn btn-warning" style="width: 100%; text-align: center; background: linear-gradient(45deg, #f59e0b, #ef4444); color: #fff; border: none;">Edit Quest</button>
       </div>
-    </div>
-    <button onclick="navigateToQuestsAndOpenUserModal()" class="btn btn-secondary" style="width: 100%; text-align: center;">Team Members</button>
-  </div>
-</div>
+    <% } %>
 
-<!-- Quest Management Section -->
-<% if (typeof quests !== 'undefined' && quests && quests.length > 0) { %>
-  <div class="dashboard-grid" style="margin-top: 2rem;">
-    <div class="dashboard-card" style="grid-column: 1 / -1;">
+    <div class="dashboard-card">
       <div class="card-header">
-        <div class="card-avatar" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🎯</div>
+        <div class="card-avatar" style="background: linear-gradient(45deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👥</div>
         <div class="card-info">
-          <h3><%= quests[0].title %></h3>
-          <p><%= quests[0].description || 'Quest Description' %></p>
+          <h3>Team Members</h3>
+          <p>Assign users to tasks</p>
         </div>
       </div>
-      
-      <!-- Quest Invite Code Section -->
-      <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h4 style="margin: 0; color: #e2e8f0; display: flex; align-items: center; gap: 0.5rem;">
-            🔗 Quest Invite Code
-          </h4>
-          <div style="display: flex; gap: 0.5rem;">
-            <button onclick="generateInviteCode('<%= quests[0]._id %>')" class="btn btn-primary" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed); padding: 0.5rem 1rem; font-size: 0.875rem;">
-              🔄 Generate New Code
-            </button>
-            <button onclick="openGenerateUserCodesModal()" class="btn btn-secondary" style="background: linear-gradient(45deg, #f59e0b, #ef4444); padding: 0.5rem 1rem; font-size: 0.875rem;">
-              👥 Generate User Codes
-            </button>
+      <button onclick="navigateToQuestsAndOpenUserModal()" class="btn btn-secondary" style="width: 100%; text-align: center;">Team Members</button>
+    </div>
+  </div>
+
+  <!-- Quest Management Section -->
+  <% if (typeof quests !== 'undefined' && quests && quests.length > 0) { %>
+    <div class="dashboard-grid" style="margin-top: 2rem;">
+      <div class="dashboard-card" style="grid-column: 1 / -1;">
+        <div class="card-header">
+          <div class="card-avatar" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🎯</div>
+          <div class="card-info">
+            <h3><%= quests[0].title %></h3>
+            <p><%= quests[0].description || 'Quest Description' %></p>
           </div>
         </div>
         
-        <div id="invite-code-section-<%= quests[0]._id %>">
-          <% if (quests[0].inviteCode) { %>
-            <div style="background: #1e293b; border-radius: 8px; padding: 1rem; border: 1px solid #334155;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                <label style="color: #94a3b8; font-size: 0.875rem; font-weight: 500;">Quest Code:</label>
-                <button onclick="copyToClipboard('<%= quests[0].inviteCode %>')" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">📋 Copy</button>
-              </div>
-              <div style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 1.125rem; font-weight: 700; color: #a78bfa; background: #0f172a; padding: 0.75rem; border-radius: 6px; border: 1px solid #475569; letter-spacing: 0.1em;">
-                <%= quests[0].inviteCode %>
-              </div>
-              
-              <div style="margin-top: 1rem;">
-                <label style="color: #94a3b8; font-size: 0.875rem; font-weight: 500; display: block; margin-bottom: 0.5rem;">Bot Invitation Link:</label>
-                <div style="display: flex; gap: 0.5rem;">
-                  <input type="text" 
-                         id="bot-link-<%= quests[0]._id %>" 
-                         value="https://t.me/<%= process.env.BOT_USERNAME || 'your_bot' %>?start=auth_<%= quests[0].inviteCode %>" 
-                         readonly 
-                         style="flex: 1; padding: 0.5rem; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: #94a3b8; font-size: 0.875rem; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;">
-                  <button onclick="copyBotLink('<%= quests[0]._id %>')" class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.75rem;">📋</button>
-                  <button onclick="shareBotLink('<%= quests[0]._id %>')" class="btn btn-primary" style="background: linear-gradient(45deg, #0ea5e9, #0284c7); padding: 0.5rem; font-size: 0.75rem;">📤 Share</button>
-                </div>
-              </div>
-              
-              <% if (quests[0].inviteCodeExpires) { %>
-                <div style="margin-top: 0.75rem; color: #f59e0b; font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
-                  ⏰ Expires: <%= new Date(quests[0].inviteCodeExpires).toLocaleDateString() %> at <%= new Date(quests[0].inviteCodeExpires).toLocaleTimeString() %>
-                </div>
-              <% } %>
-              
-              <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 6px;">
-                <div style="color: #22c55e; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem;">📱 How to invite users:</div>
-                <div style="color: #94a3b8; font-size: 0.8rem;">
-                  1. Share the bot link above with team members<br>
-                  2. Users click the link to auto-join via Telegram<br>
-                  3. Or users can manually type: <code style="background: #0f172a; padding: 0.1rem 0.3rem; border-radius: 3px; color: #a78bfa;">/auth <%= quests[0].inviteCode %></code>
-                </div>
-              </div>
-              
-              <!-- User Codes Display Section -->
-              <div id="userCodesDisplay" style="display: none; margin-top: 1rem;">
-                <!-- User codes will be displayed here after generation -->
-              </div>
+        <!-- Quest Invite Code Section -->
+        <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <h4 style="margin: 0; color: #e2e8f0; display: flex; align-items: center; gap: 0.5rem;">
+              🔗 Quest Invite Code
+            </h4>
+            <div style="display: flex; gap: 0.5rem;">
+              <button onclick="generateInviteCode('<%= quests[0]._id %>')" class="btn btn-primary" style="background: linear-gradient(45deg, #8b5cf6, #7c3aed); padding: 0.5rem 1rem; font-size: 0.875rem;">
+                🔄 Generate New Code
+              </button>
+              <button onclick="openGenerateUserCodesModal()" class="btn btn-secondary" style="background: linear-gradient(45deg, #f59e0b, #ef4444); padding: 0.5rem 1rem; font-size: 0.875rem;">
+                👥 Generate User Codes
+              </button>
             </div>
-          <% } else { %>
-            <div style="text-align: center; padding: 2rem; color: #64748b;" id="no-code-message-<%= quests[0]._id %>">
-              <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔐</div>
-              <p>Generating invite code...</p>
-              <p style="font-size: 0.875rem;">Your quest is being set up with an invitation link</p>
-            </div>
-            <script>
-              // Auto-generate invite code for quests without one
-              (function() {
-                generateInviteCode('<%= quests[0]._id %>').catch(error => {
-                  console.error('Failed to auto-generate invite code:', error);
-                  document.getElementById('no-code-message-<%= quests[0]._id %>').innerHTML = `
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚠️</div>
-                    <p>Failed to generate invite code</p>
-                    <p style="font-size: 0.875rem;">Click "Generate New Code" to try again</p>
-                  `;
-                });
-              })();
-            </script>
-          <% } %>
+          </div>
+          
+          <div id="invite-code-section-<%= quests[0]._id %>">
+            <% if (quests[0].inviteCode) { %>
+              <div style="background: #1e293b; border-radius: 8px; padding: 1rem; border: 1px solid #334155;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                  <label style="color: #94a3b8; font-size: 0.875rem; font-weight: 500;">Quest Code:</label>
+                  <button onclick="copyToClipboard('<%= quests[0].inviteCode %>')" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">📋 Copy</button>
+                </div>
+                <div style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 1.125rem; font-weight: 700; color: #a78bfa; background: #0f172a; padding: 0.75rem; border-radius: 6px; border: 1px solid #475569; letter-spacing: 0.1em;">
+                  <%= quests[0].inviteCode %>
+                </div>
+                
+                <div style="margin-top: 1rem;">
+                  <label style="color: #94a3b8; font-size: 0.875rem; font-weight: 500; display: block; margin-bottom: 0.5rem;">Bot Invitation Link:</label>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <input type="text" 
+                           id="bot-link-<%= quests[0]._id %>" 
+                           value="https://t.me/<%= process.env.BOT_USERNAME || 'your_bot' %>?start=auth_<%= quests[0].inviteCode %>" 
+                           readonly 
+                           style="flex: 1; padding: 0.5rem; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: #94a3b8; font-size: 0.875rem; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;">
+                    <button onclick="copyBotLink('<%= quests[0]._id %>')" class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.75rem;">📋</button>
+                    <button onclick="shareBotLink('<%= quests[0]._id %>')" class="btn btn-primary" style="background: linear-gradient(45deg, #0ea5e9, #0284c7); padding: 0.5rem; font-size: 0.75rem;">📤 Share</button>
+                  </div>
+                </div>
+                
+                <% if (quests[0].inviteCodeExpires) { %>
+                  <div style="margin-top: 0.75rem; color: #f59e0b; font-size: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                    ⏰ Expires: <%= new Date(quests[0].inviteCodeExpires).toLocaleDateString() %> at <%= new Date(quests[0].inviteCodeExpires).toLocaleTimeString() %>
+                  </div>
+                <% } %>
+                
+                <div style="margin-top: 1rem; padding: 0.75rem; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 6px;">
+                  <div style="color: #22c55e; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.25rem;">📱 How to invite users:</div>
+                  <div style="color: #94a3b8; font-size: 0.8rem;">
+                    1. Share the bot link above with team members<br>
+                    2. Users click the link to auto-join via Telegram<br>
+                    3. Or users can manually type: <code style="background: #0f172a; padding: 0.1rem 0.3rem; border-radius: 3px; color: #a78bfa;">/auth <%= quests[0].inviteCode %></code>
+                  </div>
+                </div>
+                
+                <!-- User Codes Display Section -->
+                <div id="userCodesDisplay" style="<% if (quests[0].validUserCodes && quests[0].validUserCodes.length > 0) { %>display: block;<% } else { %>display: none;<% } %> margin-top: 1rem;">
+                  <% if (quests[0].validUserCodes && quests[0].validUserCodes.length > 0) { %>
+                    <div style="background: #1e293b; border-radius: 8px; padding: 1rem; border: 1px solid #334155;">
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <label style="color: #94a3b8; font-size: 0.875rem; font-weight: 500;">👥 User Authentication Codes (24h validity):</label>
+                        <button onclick="clearUserCodes()" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">✕ Clear</button>
+                      </div>
+                      
+                      <% quests[0].validUserCodes.forEach((userCode, index) => { %>
+                        <div style="background: #0f172a; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; border: 1px solid #475569;">
+                          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <div>
+                              <div style="color: #e2e8f0; font-weight: 600; margin-bottom: 0.25rem;">👤 <%= userCode.username %></div>
+                              <div style="color: #94a3b8; font-size: 0.8rem;"><%= userCode.email %></div>
+                            </div>
+                            <button onclick="copyToClipboard('<%= userCode.userCode %>')" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">📋 Copy Code</button>
+                          </div>
+                          
+                          <div style="margin-bottom: 0.75rem;">
+                            <label style="color: #94a3b8; font-size: 0.75rem; margin-bottom: 0.25rem; display: block;">🔑 User Code:</label>
+                            <div style="font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace; font-size: 1rem; font-weight: 700; color: #22c55e; background: #064e3b; padding: 0.5rem; border-radius: 4px; border: 1px solid #059669;">
+                              <%= userCode.userCode %>
+                            </div>
+                          </div>
+                          
+                          <div style="margin-bottom: 0.75rem;">
+                            <label style="color: #94a3b8; font-size: 0.75rem; margin-bottom: 0.25rem; display: block;">🤖 Telegram Bot Link:</label>
+                            <div style="display: flex; gap: 0.5rem;">
+                              <input type="text" 
+                                     id="user-bot-link-<%= index %>" 
+                                     value="<%= userCode.botLink %>" 
+                                     readonly 
+                                     style="flex: 1; padding: 0.5rem; background: #0f172a; border: 1px solid #475569; border-radius: 4px; color: #94a3b8; font-size: 0.75rem; font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;">
+                              <button onclick="copyUserBotLink(<%= index %>)" class="btn btn-secondary" style="padding: 0.5rem; font-size: 0.75rem;">📋</button>
+                              <button onclick="shareUserBotLink(<%= index %>)" class="btn btn-primary" style="background: linear-gradient(45deg, #0ea5e9, #0284c7); padding: 0.5rem; font-size: 0.75rem;">📤</button>
+                            </div>
+                          </div>
+                          
+                          <div style="color: #f59e0b; font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                            ⏰ Expires: <%= userCode.expiresAt ? new Date(userCode.expiresAt).toLocaleDateString() : 'N/A' %> at <%= userCode.expiresAt ? new Date(userCode.expiresAt).toLocaleTimeString() : 'N/A' %>
+                          </div>
+                        </div>
+                      <% }) %>
+                      
+                      <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 6px; padding: 0.75rem; margin-top: 1rem;">
+                        <div style="color: #22c55e; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.25rem;">📱 How users can authenticate:</div>
+                        <div style="color: #94a3b8; font-size: 0.75rem;">
+                          1. Share the individual bot links above with each team member<br>
+                          2. Users click their link to auto-join via Telegram<br>
+                          3. Or users can manually type their code: <code style="background: #0f172a; padding: 0.1rem 0.3rem; border-radius: 3px; color: #22c55e;">/auth [their_code]</code><br>
+                          4. User codes expire in 24 hours for security
+                        </div>
+                      </div>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+            <% } else { %>
+              <div style="text-align: center; padding: 2rem; color: #64748b;" id="no-code-message-<%= quests[0]._id %>">
+                <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔐</div>
+                <p>Generating invite code...</p>
+                <p style="font-size: 0.875rem;">Your quest is being set up with an invitation link</p>
+              </div>
+              <script>
+                // Auto-generate invite code for quests without one
+                (function() {
+                  generateInviteCode('<%= quests[0]._id %>').catch(error => {
+                    console.error('Failed to auto-generate invite code:', error);
+                    document.getElementById('no-code-message-<%= quests[0]._id %>').innerHTML = `
+                      <div style="font-size: 2rem; margin-bottom: 0.5rem;">⚠️</div>
+                      <p>Failed to generate invite code</p>
+                      <p style="font-size: 0.875rem;">Click "Generate New Code" to try again</p>
+                    `;
+                  });
+                })();
+              </script>
+            <% } %>
+          </div>
         </div>
-      </div>
-      
-      <!-- Quest Stats -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin-top: 1rem;">
-        <div style="text-align: center; padding: 0.75rem; background: rgba(59, 130, 246, 0.1); border-radius: 8px;">
-          <div style="font-size: 1.25rem; font-weight: 700; color: #3b82f6;"><%= quests[0].members ? quests[0].members.length : 0 %></div>
-          <div style="font-size: 0.75rem; color: #94a3b8;">Members</div>
-        </div>
-        <div style="text-align: center; padding: 0.75rem; background: rgba(34, 197, 94, 0.1); border-radius: 8px;">
-          <div style="font-size: 1.25rem; font-weight: 700; color: #22c55e;"><%= quests[0].progress || 0 %>%</div>
-          <div style="font-size: 0.75rem; color: #94a3b8;">Progress</div>
-        </div>
-        <div style="text-align: center; padding: 0.75rem; background: rgba(249, 115, 22, 0.1); border-radius: 8px;">
-          <div style="font-size: 1.25rem; font-weight: 700; color: #f97316;"><%= tasks ? tasks.filter(t => t.quest && t.quest._id.toString() === quests[0]._id.toString()).length : 0 %></div>
-          <div style="font-size: 0.75rem; color: #94a3b8;">Tasks</div>
-        </div>
+        
+        <!-- Quest Stats -->
       </div>
     </div>
-  </div>
-<% } %>
-
+  <% } %>
+</div>
+<!-- End dashboard-main wrapper -->
 
 <script>
 // Overview navigation functions to link buttons to existing components
@@ -531,6 +573,32 @@ function clearUserCodes() {
   const userCodesDisplay = document.getElementById('userCodesDisplay');
   userCodesDisplay.style.display = 'none';
   userCodesDisplay.innerHTML = '';
+  
+  // Also clear from the backend
+  <% if (typeof quests !== 'undefined' && quests && quests.length > 0) { %>
+    clearUserCodesFromBackend('<%= quests[0]._id %>');
+  <% } %>
+}
+
+// Function to clear user codes from backend
+async function clearUserCodesFromBackend(questId) {
+  try {
+    const response = await fetch('/api/codes/clear-user-codes', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ questId })
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+      showNotification('✅ User codes cleared successfully!', 'success');
+    }
+  } catch (error) {
+    console.error('Error clearing user codes:', error);
+    showNotification('❌ Failed to clear user codes', 'error');
+  }
 }
 
 // Function to copy user bot link

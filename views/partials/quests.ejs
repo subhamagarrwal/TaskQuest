@@ -99,38 +99,33 @@
     text-align: center !important;
   }
   
-  /* Mobile user items - Keep horizontal layout but make more compact */
+  /* Mobile user items - Simplified approach */
   .user-item {
     padding: 1rem !important;
     margin-bottom: 0.75rem !important;
   }
   
-  .user-item > div {
-    gap: 0.75rem !important;
-    align-items: center !important;
-  }
-  
-  .user-item > div > div:nth-child(2) {
-    flex: 1 !important;
-    min-width: 0 !important;
-  }
-  
   .user-item h4 {
-    font-size: 0.9rem !important;
-    margin: 0 !important;
+    font-size: 1rem !important;
+    margin: 0 0 0.25rem 0 !important;
+    color: #e2e8f0 !important;
   }
   
   .user-item p {
-    font-size: 0.8rem !important;
-    margin: 0.2rem 0 !important;
-    word-break: break-word !important;
+    font-size: 0.875rem !important;
+    margin: 0.25rem 0 !important;
+    color: #94a3b8 !important;
+  }
+  
+  .user-role {
+    font-size: 0.75rem !important;
+    padding: 0.25rem 0.5rem !important;
   }
   
   .user-avatar-large {
     width: 2.5rem !important;
     height: 2.5rem !important;
     font-size: 1rem !important;
-    flex-shrink: 0 !important;
   }
   
   /* Mobile task assignment cards */
@@ -648,91 +643,76 @@
           <div style="color: #94a3b8; font-size: 0.875rem;">Assign tasks to team members</div>
         </div>
         
-        <!-- Task Assignment Interface -->
-        <div class="task-assignment-container" style="background: #1e293b; border-radius: 12px; padding: 1.5rem; border: 1px solid #334155; flex: 1; display: flex; flex-direction: column; min-height: 0;">
-          
-          <!-- Available Tasks Header -->
-          <div style="flex-shrink: 0;">
-            <h3 style="color: #e2e8f0; margin-bottom: 1rem; font-size: 1.1rem;">📋 Available Tasks</h3>
-          </div>
-
-          <!-- Available Tasks - Scrollable Container -->
-          <div style="flex: 1; overflow-y: auto; min-height: 0; padding-right: 0.5rem;">
-            <% if (typeof tasks !== 'undefined' && tasks && tasks.length > 0) { %>
-              <div class="tasks-grid" style="display: grid; gap: 1rem;">
-                <% tasks.forEach(task => { %>
-                  <div class="task-assignment-card" 
-                       data-task-id="<%= task._id.toString() %>"
-                       style="background: #334155; border-radius: 8px; padding: 1rem; border: 1px solid #475569; cursor: pointer; transition: all 0.2s; flex-shrink: 0;"
-                       onmouseover="this.style.borderColor='#3b82f6'"
-                       onmouseout="this.style.borderColor='#475569'">
-                    <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 0.5rem;">
-                      <h4 style="margin: 0; color: #e2e8f0; font-size: 1rem;"><%= task.title %></h4>
-                      <span class="priority-badge priority-<%= task.priority || 'MEDIUM' %>" 
-                            style="font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: 12px; font-weight: 600; 
-                                   background: <%= task.priority === 'HIGH' ? 'rgba(239, 68, 68, 0.2); color: #ef4444' : 
-                                                  task.priority === 'LOW' ? 'rgba(34, 197, 94, 0.2); color: #22c55e' : 
-                                                  'rgba(249, 115, 22, 0.2); color: #f97316' %>;">
+        <!-- Task Assignment List - Scrollable -->
+        <div class="tasks-list" style="flex: 1; overflow-y: auto; min-height: 0; padding-right: 0.5rem;">
+          <% if (typeof tasks !== 'undefined' && tasks && tasks.length > 0) { %>
+            <% tasks.forEach(task => { %>
+              <div class="task-assignment-card" 
+                   data-task-id="<%= task._id.toString() %>"
+                   style="background: #1e293b; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #334155; flex-shrink: 0; cursor: pointer; transition: all 0.2s;"
+                   onmouseover="this.style.borderColor='#3b82f6'"
+                   onmouseout="this.style.borderColor='#334155'">
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                  <div style="background: linear-gradient(45deg, #3b82f6, #2563eb); color: white; width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.2rem; flex-shrink: 0;">
+                    📋
+                  </div>
+                  <div style="flex: 1;">
+                    <h4 style="margin: 0; color: #e2e8f0;"><%= task.title %></h4>
+                    <p style="margin: 0.25rem 0; color: #94a3b8; font-size: 0.875rem;">
+                      <%= task.description ? (task.description.length > 60 ? task.description.substring(0, 60) + '...' : task.description) : 'No description' %>
+                    </p>
+                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                      <span class="task-priority priority-<%= (task.priority || 'MEDIUM').toLowerCase() %>" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600;">
                         <%= task.priority || 'MEDIUM' %>
                       </span>
-                    </div>
-                    <p style="margin: 0 0 0.75rem 0; color: #94a3b8; font-size: 0.875rem; line-height: 1.4;">
-                      <%= task.description ? (task.description.length > 80 ? task.description.substring(0, 80) + '...' : task.description) : 'No description' %>
-                    </p>
-                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 0.75rem;">
                       <span style="font-size: 0.75rem; color: #64748b;">
                         <%= task.completed ? '✅ Completed' : '⏳ Pending' %>
                       </span>
-                      <span style="font-size: 0.75rem; color: #64748b;">
-                        <%= new Date(task.createdAt).toLocaleDateString() %>
-                      </span>
-                    </div>
-                    <div style="display: flex; justify-content: between; align-items: center;">
-                      <div style="font-size: 0.75rem; color: #94a3b8;">
-                        <% if (task.assignedTo) { %>
-                          <span style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 0.2rem 0.5rem; border-radius: 8px;">
-                            👤 <%= task.assignedTo.username %>
-                          </span>
-                        <% } else { %>
-                          <span style="background: rgba(107, 114, 128, 0.2); color: #9ca3af; padding: 0.2rem 0.5rem; border-radius: 8px;">
-                            🚫 Unassigned
-                          </span>
-                        <% } %>
-                      </div>
-                      <button class="assign-task-btn" 
-                              data-task-id="<%= task._id.toString() %>"
-                              data-task-title="<%= task.title %>"
-                              style="background: linear-gradient(45deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 6px; padding: 0.4rem 0.8rem; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
-                        🎯 Assign
-                      </button>
                     </div>
                   </div>
-                <% }) %>
+                  <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end;">
+                    <% if (task.assignedTo) { %>
+                      <span style="background: rgba(59, 130, 246, 0.2); color: #60a5fa; padding: 0.25rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600;">
+                        👤 <%= task.assignedTo.username %>
+                      </span>
+                    <% } else { %>
+                      <span style="background: rgba(107, 114, 128, 0.2); color: #9ca3af; padding: 0.25rem 0.75rem; border-radius: 8px; font-size: 0.75rem; font-weight: 600;">
+                        🚫 Unassigned
+                      </span>
+                    <% } %>
+                    <button class="assign-task-btn" 
+                            data-task-id="<%= task._id.toString() %>"
+                            data-task-title="<%= task.title %>"
+                            style="background: linear-gradient(45deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 6px; padding: 0.4rem 0.8rem; font-size: 0.75rem; cursor: pointer; font-weight: 600;">
+                      🎯 Assign
+                    </button>
+                  </div>
+                </div>
               </div>
-            <% } else { %>
-              <div style="text-align: center; padding: 2rem; background: #334155; border-radius: 8px; border: 2px dashed #475569; flex-shrink: 0;">
-                <div style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.6;">📋</div>
-                <h4 style="color: #e2e8f0; margin-bottom: 0.5rem;">No Tasks Available</h4>
-                <p style="color: #94a3b8; margin-bottom: 1.5rem;">Create tasks in the Tasks section before assigning them to team members.</p>
-                <a href="/dashboard?section=tasks" style="display: inline-block; background: linear-gradient(45deg, #3b82f6, #2563eb); color: white; text-decoration: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 600;">
-                  📝 Create Tasks
-                </a>
-              </div>
-            <% } %>
-          </div>
+            <% }) %>
+          <% } else { %>
+            <div style="text-align: center; padding: 3rem; background: #1e293b; border-radius: 12px; border: 2px dashed #475569; flex-shrink: 0;">
+              <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.6;">📋</div>
+              <h3 style="color: #e2e8f0; margin-bottom: 0.5rem;">No Tasks Available</h3>
+              <p style="color: #94a3b8; margin-bottom: 2rem;">Create tasks in the Tasks section before assigning them to team members.</p>
+              <a href="/dashboard?section=tasks" style="display: inline-block; background: linear-gradient(45deg, #3b82f6, #2563eb); color: white; text-decoration: none; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 600; font-size: 1rem;">
+                📝 Create First Task
+              </a>
+            </div>
+          <% } %>
+        </div>
 
-          <!-- Quick Task Stats - Fixed at bottom -->
-          <div style="margin-top: 1.5rem; background: #334155; border-radius: 8px; padding: 1rem; border: 1px solid #475569; flex-shrink: 0;">
-            <h4 style="margin: 0 0 1rem 0; color: #e2e8f0; font-size: 0.95rem;">📊 Quick Stats</h4>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-              <div style="text-align: center;">
-                <div style="font-size: 1.25rem; font-weight: 700; color: #3b82f6;"><%= tasks ? tasks.length : 0 %></div>
-                <div style="font-size: 0.75rem; color: #9ca3af;">Total Tasks</div>
-              </div>
-              <div style="text-align: center;">
-                <div style="font-size: 1.25rem; font-weight: 700; color: #22c55e;"><%= tasks ? tasks.filter(t => t.assignedTo).length : 0 %></div>
-                <div style="font-size: 0.75rem; color: #9ca3af;">Assigned</div>
-              </div>
+        <!-- Task Assignment Stats -->
+        <div style="margin-top: 1.5rem; background: #1e293b; border-radius: 8px; padding: 1rem; border: 1px solid #334155; flex-shrink: 0;">
+          <h3 style="margin: 0 0 1rem 0; color: #e2e8f0; font-size: 1rem;">📊 Assignment Overview</h3>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+            <div style="text-align: center;">
+              <div style="font-size: 1.25rem; font-weight: 700; color: #3b82f6;"><%= tasks ? tasks.length : 0 %></div>
+              <div style="font-size: 0.75rem; color: #9ca3af;">Total Tasks</div>
+            </div>
+            <div style="text-align: center;">
+              <div style="font-size: 1.25rem; font-weight: 700; color: #22c55e;"><%= tasks ? tasks.filter(t => t.assignedTo).length : 0 %></div>
+              <div style="font-size: 0.75rem; color: #9ca3af;">Assigned</div>
             </div>
           </div>
         </div>

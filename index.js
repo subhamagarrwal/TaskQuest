@@ -273,6 +273,19 @@ async function startServer() {
           .populate('creator', 'username email')
           .populate('members', 'username email')
           .lean();
+          
+        // Filter out expired user codes and add them to each quest
+        quests = quests.map(quest => {
+          if (quest.generatedUserCodes && quest.generatedUserCodes.length > 0) {
+            const now = new Date();
+            quest.validUserCodes = quest.generatedUserCodes.filter(code => 
+              !code.expiresAt || code.expiresAt > now
+            );
+          } else {
+            quest.validUserCodes = [];
+          }
+          return quest;
+        });
       }
       
       // If user has no quests but quests exist in the system, add user to the first quest
@@ -306,6 +319,19 @@ async function startServer() {
           .populate('creator', 'username email')
           .populate('members', 'username email')
           .lean();
+          
+        // Filter out expired user codes
+        quests = quests.map(quest => {
+          if (quest.generatedUserCodes && quest.generatedUserCodes.length > 0) {
+            const now = new Date();
+            quest.validUserCodes = quest.generatedUserCodes.filter(code => 
+              !code.expiresAt || code.expiresAt > now
+            );
+          } else {
+            quest.validUserCodes = [];
+          }
+          return quest;
+        });
           
         console.log('User added to existing quest successfully');
         req.flash('success', `Welcome! You've been added to the quest: ${firstQuest.title}`);

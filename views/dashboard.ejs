@@ -107,43 +107,36 @@
         <span style="font-weight: 600; font-size: 1.2rem;">TaskQuest</span>
       </div>    
       
-      <div class="nav-section">
-        <div class="nav-title">Overview</div>
+      <!-- Simple Navigation -->
+      <nav style="display: flex; flex-direction: column; gap: 0.5rem;">
         <a href="/dashboard?section=overview" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'overview' ? 'active' : '' %>">
           <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z\"/></svg>')"></div>
-          Overview
+          📊 Overview
         </a>
-      </div>
 
-      <div class="nav-section">
-        <div class="nav-title">Tasks</div>
         <a href="/dashboard?section=tasks" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'tasks' ? 'active' : '' %>">
           <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2\"/></svg>')"></div>
-          Manage Tasks
+          ✅ Tasks
         </a>
-      </div>
 
-      <div class="nav-section">
-        <div class="nav-title">Team</div>
         <a href="/dashboard?section=quests" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'quests' ? 'active' : '' %>">
           <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-1.5l-6-3-6 3a1 1 0 000 1.732l6 3 6-3a1 1 0 000-1.732z\"/></svg>')"></div>
-          Team Members
+          👥 Team Members
         </a>
-      </div>
 
-      <div class="nav-section">
-        <div class="nav-title">User Analytics</div>
         <a href="/dashboard?section=bot" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'bot' ? 'active' : '' %>">
-          <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 11c0-1.104.896-2 2-2s2 .896 2 2-.896 2-2 2-2-.896-2-2zm0 0V7m0 4v4m0 0c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2z\"/></svg>')"></div>
-          Bot & User Accessibility
+          <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 11c0-1.104.896-2 2-2s2 .896 2 2-.896 2 2-2 2 .896 2 2zm0 0V7m0 4v4m0 0c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2z\"/></svg>')"></div>
+          🤖 Bot Analytics
+        </a>
+      </nav>
         </a>
       </div>
 
-      <div class="nav-section" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
-        <div class="nav-title" style="color: #ef4444;">Logout</div>
+      <div class="nav-section" id="logoutSection" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+        <div class="nav-title" style="color: #ef4444;">🚪 Logout</div>
         <a href="/logout" class="nav-item" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444;">
           <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 002 2h3a2 2 0 002-2v-1m0-8V7a2 2 0 00-2-2h-3a2 2 0 00-2 2v1\"/></svg>'); background-color: #ef4444;"></div>
-          🚪 Logout
+          Logout
         </a>
       </div>
 

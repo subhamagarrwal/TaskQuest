@@ -115,102 +115,121 @@
 </div>
 
 <!-- Task Management Section -->
-<div class="dashboard-main">
-  <div class="analytics-section">
-    <div class="section-header">
-      <h2 class="section-title">Task Management</h2>
-      <button onclick="openTaskModal()" class="btn btn-primary" style="background: linear-gradient(45deg, #22c55e, #16a34a);">📝 Create Task</button>
+<div class="dashboard-main" style="display: grid; grid-template-columns: 1fr 320px; gap: 2rem;">
+  <!-- Main Task Management Container -->
+  <div class="task-management-container">
+    <!-- Task Management Header with Create Button -->
+    <div class="task-management-header">
+      <h2 class="task-management-title">Task Management</h2>
+      <button onclick="openTaskModal()" class="btn btn-primary create-task-btn">
+        📝 Create Task
+      </button>
     </div>
     
-    <!-- Task Filters -->
-    <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-      <select class="filter-dropdown">
-        <option>All Tasks</option>
-        <option>Pending</option>
-        <option>Completed</option>
-        <option>In Progress</option>
-      </select>
-      <select class="filter-dropdown">
-        <option>All Priorities</option>
-        <option>High Priority</option>
-        <option>Medium Priority</option>
-        <option>Low Priority</option>
-      </select>
-    </div>
-
-    <!-- Tasks List -->
-    <div class="tasks-list">
+    <!-- Tasks List - Inside the container -->
+    <div class="tasks-list" style="flex: 1; overflow-y: auto; min-height: 0;">
       <% if (tasks && tasks.length > 0) { %>
         <% tasks.forEach(task => { %>
-          <div class="task-item" data-task-id="<%= task._id ? task._id.toString() : task.id %>">
-            <div class="task-info">
-              <h4><%= task.title %></h4>
-              <p><%= task.description || 'No description' %></p>
-              <% if (task.deadline) { %>
-                <div style="color: #fbbf24; font-size: 0.875rem; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
-                  <span>⏰</span>
-                  <span>Deadline: <%= new Date(task.deadline).toLocaleDateString() %></span>
+          <div class="task-item" data-task-id="<%= task._id ? task._id.toString() : task.id %>" data-status="<%= (task.completed || task.status === 'completed') ? 'completed' : 'pending' %>" data-priority="<%= task.priority || 'MEDIUM' %>" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(71, 85, 105, 0.3); border-radius: 8px; padding: 1.25rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s ease;">
+            <div class="task-info" style="flex: 1; margin-right: 1rem;">
+              <h4 style="margin: 0 0 0.5rem 0; color: #e2e8f0; font-size: 1.1rem; font-weight: 600;"><%= task.title %></h4>
+              <p style="margin: 0 0 0.75rem 0; color: #94a3b8; font-size: 0.875rem; line-height: 1.4;"><%= task.description || 'No description' %></p>
+              
+              <!-- Task Meta Information -->
+              <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem;">
+                <% if (task.deadline) { %>
+                  <div style="color: #fbbf24; font-size: 0.75rem; display: flex; align-items: center; gap: 0.25rem;">
+                    <span>⏰</span>
+                    <span>Deadline: <%= new Date(task.deadline).toLocaleDateString() %></span>
+                  </div>
+                <% } %>
+                <div style="font-size: 0.75rem; color: #64748b; display: flex; align-items: center; gap: 0.25rem;">
+                  <span>🎯</span>
+                  <span>Quest: <%= task.quest && task.quest.title ? task.quest.title : 'Unknown Quest' %></span>
                 </div>
-              <% } %>
-              <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                <span style="font-size: 0.75rem; color: #64748b;">
-                  Quest: <%= task.quest && task.quest.title ? task.quest.title : 'Unknown Quest' %>
-                </span>
+                <% if (task.assignedTo) { %>
+                  <div style="font-size: 0.75rem; color: #60a5fa; display: flex; align-items: center; gap: 0.25rem;">
+                    <span>👤</span>
+                    <span><%= task.assignedTo.username %></span>
+                  </div>
+                <% } %>
               </div>
             </div>
-            <div style="display: flex; gap: 0.5rem; align-items: center;">
-              <div class="task-status-priority priority-<%= (task.priority || 'MEDIUM').toLowerCase() %>">
+            
+            <!-- Task Actions - All on one line -->
+            <div class="task-actions" style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
+              <!-- Priority Badge -->
+              <span class="task-priority" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 12px; font-weight: 600; <%= (task.priority || 'MEDIUM') === 'HIGH' ? 'background: rgba(239, 68, 68, 0.2); color: #ef4444;' : (task.priority || 'MEDIUM') === 'LOW' ? 'background: rgba(34, 197, 94, 0.2); color: #22c55e;' : 'background: rgba(249, 115, 22, 0.2); color: #f97316;' %>">
                 <%= task.priority || 'MEDIUM' %>
-              </div>
-              <div class="task-status <%= (task.completed || task.status === 'completed') ? 'status-completed' : 'status-pending' %>">
+              </span>
+              
+              <!-- Status Badge -->
+              <span class="task-status" style="font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 12px; font-weight: 600; <%= (task.completed || task.status === 'completed') ? 'background: rgba(34, 197, 94, 0.2); color: #22c55e;' : 'background: rgba(249, 115, 22, 0.2); color: #f97316;' %>">
                 <%= (task.completed || task.status === 'completed') ? 'Completed' : 'Pending' %>
-              </div>
-              <button class="btn btn-secondary edit-task-btn" data-task-id="<%= task._id ? task._id.toString() : task.id %>" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Edit</button>
-              <button class="btn btn-secondary delete-task-btn" data-task-id="<%= task._id ? task._id.toString() : task.id %>" style="padding: 0.25rem 0.75rem; font-size: 0.75rem;">Delete</button>
+              </span>
+              
+              <!-- Action Buttons -->
+              <button class="btn edit-task-btn" data-task-id="<%= task._id ? task._id.toString() : task.id %>" style="padding: 0.5rem 0.75rem; font-size: 0.75rem; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                ✏️ Edit
+              </button>
+              
+              <button class="btn delete-task-btn" data-task-id="<%= task._id ? task._id.toString() : task.id %>" style="padding: 0.5rem 0.75rem; font-size: 0.75rem; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                🗑️ Delete
+              </button>
             </div>
           </div>
         <% }) %>
       <% } else { %>
-        <div class="task-item">
-          <div class="task-info">
-            <h4>No tasks found</h4>
-            <p>Create your first task to get started</p>
+        <div class="task-item" style="text-align: center; padding: 3rem;">
+          <div style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.6;">📝</div>
+          <div class="task-info" style="margin-right: 0;">
+            <h4 style="margin-bottom: 1rem;">No tasks found</h4>
+            <p style="margin-bottom: 2rem;">Create your first task to get started with project management</p>
+            <button onclick="openTaskModal()" class="btn btn-primary" style="background: linear-gradient(45deg, #22c55e, #16a34a); padding: 0.75rem 2rem; font-size: 1rem;">📝 Create First Task</button>
           </div>
-          <button onclick="openTaskModal()" class="btn btn-primary" style="background: linear-gradient(45deg, #22c55e, #16a34a);">Create Task</button>
         </div>
       <% } %>
     </div>
   </div>
 
-  <!-- Task Statistics -->
-  <div class="performance-card">
-    <h2 class="performance-title">Task Statistics</h2>
-    <div class="metric">
-      <div class="metric-icon">📝</div>
-      <div class="metric-info">
-        <h3><%= tasks ? tasks.length : 0 %></h3>
-        <p>total tasks</p>
-      </div>
-    </div>
-    <div class="metric">
-      <div class="metric-icon">✅</div>
-      <div class="metric-info">
-        <h3><%= tasks ? tasks.filter(t => t.completed || t.status === 'completed').length : 0 %></h3>
-        <p>completed</p>
-      </div>
-    </div>
-    <div class="metric">
-      <div class="metric-icon">⏳</div>
-      <div class="metric-info">
-        <h3><%= tasks ? tasks.filter(t => !t.completed && t.status !== 'completed').length : 0 %></h3>
-        <p>pending</p>
-      </div>
-    </div>
-    <div class="metric">
-      <div class="metric-icon">📊</div>
-      <div class="metric-info">
-        <h3><%= tasks && tasks.length > 0 ? Math.round((tasks.filter(t => t.completed || t.status === 'completed').length / tasks.length) * 100) : 0 %>%</h3>
-        <p>completion rate</p>
+  <!-- Task Statistics - Properly Contained -->
+  <div class="analytics-section" style="height: fit-content;">
+    <div class="statistics-container" style="background: rgba(30, 41, 59, 0.8); border-radius: 12px; padding: 1.5rem; border: 1px solid #334155;">
+      <h2 style="margin: 0 0 1.5rem 0; color: #e2e8f0; font-size: 1.25rem; font-weight: 700; text-align: center;">Task Statistics</h2>
+      
+      <!-- Statistics Grid -->
+      <div style="display: grid; gap: 1rem;">
+        <div class="metric" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(15, 23, 42, 0.5); border-radius: 8px; border: 1px solid rgba(71, 85, 105, 0.3);">
+          <div class="metric-icon" style="width: 40px; height: 40px; background: rgba(59, 130, 246, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">📝</div>
+          <div class="metric-info" style="flex: 1;">
+            <h3 style="margin: 0; font-size: 1.5rem; font-weight: 700; color: #e2e8f0;"><%= tasks ? tasks.length : 0 %></h3>
+            <p style="margin: 0; color: #94a3b8; font-size: 0.875rem;">total tasks</p>
+          </div>
+        </div>
+        
+        <div class="metric" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(15, 23, 42, 0.5); border-radius: 8px; border: 1px solid rgba(71, 85, 105, 0.3);">
+          <div class="metric-icon" style="width: 40px; height: 40px; background: rgba(34, 197, 94, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">✅</div>
+          <div class="metric-info" style="flex: 1;">
+            <h3 style="margin: 0; font-size: 1.5rem; font-weight: 700; color: #e2e8f0;"><%= tasks ? tasks.filter(t => t.completed || t.status === 'completed').length : 0 %></h3>
+            <p style="margin: 0; color: #94a3b8; font-size: 0.875rem;">completed</p>
+          </div>
+        </div>
+        
+        <div class="metric" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(15, 23, 42, 0.5); border-radius: 8px; border: 1px solid rgba(71, 85, 105, 0.3);">
+          <div class="metric-icon" style="width: 40px; height: 40px; background: rgba(249, 115, 22, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">⏳</div>
+          <div class="metric-info" style="flex: 1;">
+            <h3 style="margin: 0; font-size: 1.5rem; font-weight: 700; color: #e2e8f0;"><%= tasks ? tasks.filter(t => !t.completed && t.status !== 'completed').length : 0 %></h3>
+            <p style="margin: 0; color: #94a3b8; font-size: 0.875rem;">pending</p>
+          </div>
+        </div>
+        
+        <div class="metric" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(15, 23, 42, 0.5); border-radius: 8px; border: 1px solid rgba(71, 85, 105, 0.3);">
+          <div class="metric-icon" style="width: 40px; height: 40px; background: rgba(139, 92, 246, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">📊</div>
+          <div class="metric-info" style="flex: 1;">
+            <h3 style="margin: 0; font-size: 1.5rem; font-weight: 700; color: #e2e8f0;"><%= tasks && tasks.length > 0 ? Math.round((tasks.filter(t => t.completed || t.status === 'completed').length / tasks.length) * 100) : 0 %>%</h3>
+            <p style="margin: 0; color: #94a3b8; font-size: 0.875rem;">completion rate</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -493,7 +512,7 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         console.log('✏️ Updating task via GraphQL:', { taskId, title, description, priority, deadline, completed });
         
-        const data = await window.graphqlClient.updateTask(taskId, title, description, completed, priority, deadline);
+        const data = await window.graphqlClient.updateTask(taskId, title, description, completed, priority, deadline, null);
         console.log('✅ Task updated successfully:', data);
         
         closeEditTaskModal();

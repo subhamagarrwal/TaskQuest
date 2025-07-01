@@ -408,7 +408,7 @@ const resolvers = {
     },
     
     // Update an existing task (cannot change quest assignment)
-    updateTask: async (_, { id, title, description, completed, priority, assignedTo }) => {
+    updateTask: async (_, { id, title, description, completed, priority, assignedTo, deadline }) => {
       // Explicitly exclude quest from updates to prevent quest reassignment
       const updateFields = {};
       if (title !== undefined) updateFields.title = title;
@@ -416,6 +416,7 @@ const resolvers = {
       if (completed !== undefined) updateFields.completed = completed;
       if (priority !== undefined) updateFields.priority = priority;
       if (assignedTo !== undefined) updateFields.assignedTo = assignedTo;
+      if (deadline !== undefined) updateFields.deadline = deadline;
       
       const updatedTask = await Task.findByIdAndUpdate(
         id,

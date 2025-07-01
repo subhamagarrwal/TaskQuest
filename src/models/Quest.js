@@ -24,6 +24,16 @@ const questSchema = new Schema({
     // Add invite code fields
     inviteCode: { type: String, unique: true, sparse: true },
     inviteCodeExpires: { type: Date },
+    // Store generated user codes for persistence
+    generatedUserCodes: [{
+        userId: { type: Schema.Types.ObjectId, ref: 'User' },
+        email: String,
+        username: String,
+        userCode: String,
+        botLink: String,
+        createdAt: { type: Date, default: Date.now },
+        expiresAt: { type: Date }
+    }],
     maxMembers: { type: Number, default: null }, // null = unlimited
     isActive: { type: Boolean, default: true }
 }, {

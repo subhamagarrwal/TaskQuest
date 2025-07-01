@@ -258,15 +258,16 @@ class GraphQLClient {
     return this.request(query, variables);
   }
 
-  async updateTask(id, title, description, completed, priority, assignedTo) {
+  async updateTask(id, title, description, completed, priority, deadline, assignedTo) {
     const query = `
-      mutation UpdateTask($id: ID!, $title: String, $description: String, $completed: Boolean, $priority: Priority, $assignedTo: ID) {
-        updateTask(id: $id, title: $title, description: $description, completed: $completed, priority: $priority, assignedTo: $assignedTo) {
+      mutation UpdateTask($id: ID!, $title: String, $description: String, $completed: Boolean, $priority: Priority, $deadline: String, $assignedTo: ID) {
+        updateTask(id: $id, title: $title, description: $description, completed: $completed, priority: $priority, deadline: $deadline, assignedTo: $assignedTo) {
           id
           title
           description
           completed
           priority
+          deadline
           assignedTo {
             id
             username
@@ -290,6 +291,7 @@ class GraphQLClient {
       description,
       completed,
       priority,
+      deadline: deadline || null,
       assignedTo: assignedTo ? String(assignedTo) : undefined
     };
     
