@@ -28,11 +28,12 @@ async function connectDB() {
       socketTimeoutMS: 45000, // 45 seconds
       connectTimeoutMS: 30000, // 30 seconds
       maxPoolSize: 10, // Maintain up to 10 socket connections
-      serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-      bufferMaxEntries: 0, // Disable mongoose buffering
-      bufferCommands: false, // Disable mongoose buffering
     });
+    console.log('✅ Connected to MongoDB');
+  } catch (error) {
+    console.error('❌ MongoDB connection error:', error);
+    process.exit(1); // Exit if can't connect to database
+  }
     console.log('✅ Connected to MongoDB');
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
@@ -508,25 +509,6 @@ async function startServer() {
     console.log('════════════════════════════════════════════════');
   });
 }
-
-/*
-   * Health & Monitoring Endpoints for Render Deployment:
-   * 
-   * /ping - Simple ping/pong response (fastest)
-   * /warmup - Warmup endpoint to prevent cold starts
-   * /api/health - Basic health check with system info
-   * /api/health/detailed - Comprehensive health check with DB test
-   * 
-   * For Render cold start prevention, set up external monitoring:
-   * 1. Use UptimeRobot, Pingdom, or similar service
-   * 2. Ping /warmup or /ping every 5-10 minutes
-   * 3. Set up monitoring on /api/health/detailed for alerts
-   * 
-   * Example monitoring URLs:
-   * - https://your-app.onrender.com/ping
-   * - https://your-app.onrender.com/warmup
-   * - https://your-app.onrender.com/api/health/detailed
-   */
 
 // Start the server
 startServer().catch(error => {
