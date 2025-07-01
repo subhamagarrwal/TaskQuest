@@ -16,7 +16,6 @@ import typeDefs from './src/schema/schema.js';
 import resolvers from './src/resolvers/resolver.js';
 import { verifyJwt } from './utils/jwt.js';
 import BotCommand from './src/models/BotCommand.js';
-// import { startTelegramBot } from './src/bot/index.js';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -24,10 +23,20 @@ dotenv.config();
 // MongoDB connection function
 async function connectDB() {
   try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/taskquest");
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 30000, // 30 seconds
+      socketTimeoutMS: 45000, // 45 seconds
+      connectTimeoutMS: 30000, // 30 seconds
+      maxPoolSize: 10, // Maintain up to 10 socket connections
+      serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
+      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
+      bufferMaxEntries: 0, // Disable mongoose buffering
+      bufferCommands: false, // Disable mongoose buffering
+    });
     console.log('✅ Connected to MongoDB');
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
+    process.exit(1); // Exit if can't connect to database
   }
 }
 
