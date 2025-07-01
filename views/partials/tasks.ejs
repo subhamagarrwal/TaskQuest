@@ -14,7 +14,7 @@
 
 <!-- Task Creation Modal Popup -->
 <div id="taskModalOverlay" style="position: fixed; inset: 0; background: rgba(30,41,59,0.8); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center;">
-  <div id="taskModal" style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 400px; max-width: 90vw; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
+  <div id="taskModal" style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 400px; max-width: 90vw; max-height: 80vh; overflow-y: auto; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
     <button onclick="closeTaskModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.25rem;">&times;</button>
     <div style="font-size: 3rem; margin-bottom: 1rem;">📝</div>
     <div style="font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; color: #ffffff;">Create New Task</div>
@@ -41,8 +41,20 @@
       </div>
       <div style="margin-bottom: 1rem;">
         <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Deadline</label>
-        <input type="date" name="deadline" id="taskDeadline" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+        <input type="date" name="deadline" id="taskDeadline" min="" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
         <div id="deadlineWarning" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.25rem;">Task deadline cannot exceed quest completion date</div>
+        <div id="pastDateWarning" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.25rem;">Task deadline cannot be in the past</div>
+      </div>
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Assign To *</label>
+        <select name="assignedTo" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+          <option value="">Select user...</option>
+          <% if (typeof allUsers !== 'undefined' && allUsers && allUsers.length > 0) { %>
+            <% allUsers.forEach(userItem => { %>
+              <option value="<%= userItem._id.toString() %>"><%= userItem.username %> (<%= userItem.email %>)</option>
+            <% }); %>
+          <% } %>
+        </select>
       </div>
       <div style="margin-bottom: 1.5rem;">
         <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Priority</label>
@@ -59,7 +71,7 @@
 
 <!-- Task Edit Modal Popup -->
 <div id="editTaskModalOverlay" style="position: fixed; inset: 0; background: rgba(30,41,59,0.8); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center;">
-  <div id="editTaskModal" style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 400px; max-width: 90vw; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
+  <div id="editTaskModal" style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 400px; max-width: 90vw; max-height: 80vh; overflow-y: auto; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
     <button onclick="closeEditTaskModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.25rem;">&times;</button>
     <div style="font-size: 3rem; margin-bottom: 1rem;">✏️</div>
     <div style="font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; color: #ffffff;">Edit Task</div>
@@ -76,7 +88,8 @@
       </div>
       <div style="margin-bottom: 1rem;">
         <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Deadline</label>
-        <input type="date" id="editTaskDeadline" name="deadline" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+        <input type="date" id="editTaskDeadline" name="deadline" min="" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
+        <div id="editPastDateWarning" style="display: none; color: #ef4444; font-size: 0.8rem; margin-top: 0.25rem;">Task deadline cannot be in the past</div>
       </div>
       <div style="margin-bottom: 1rem;">
         <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Priority</label>
@@ -226,37 +239,104 @@ function openEditTaskModal(taskId, title, description, priority, deadline, compl
   document.getElementById('editTaskModalOverlay').style.display = 'flex';
 }
 
-// Deadline validation function
+// Set minimum date to today and validate deadlines
+function initializeDateValidation() {
+  const deadlineInput = document.getElementById('taskDeadline');
+  const editDeadlineInput = document.getElementById('editTaskDeadline');
+  const today = new Date().toISOString().split('T')[0];
+  
+  if (deadlineInput) {
+    deadlineInput.min = today;
+  }
+  
+  if (editDeadlineInput) {
+    editDeadlineInput.min = today;
+  }
+}
+
+// Enhanced deadline validation function
 function updateDeadlineLimit() {
   const questSelect = document.getElementById('questSelect');
   const deadlineInput = document.getElementById('taskDeadline');
   const warningDiv = document.getElementById('deadlineWarning');
+  const pastDateWarning = document.getElementById('pastDateWarning');
+  const today = new Date().toISOString().split('T')[0];
   
-  if (questSelect && deadlineInput) {
-    const selectedOption = questSelect.selectedOptions[0];
-    if (selectedOption && selectedOption.dataset.completionDate) {
-      const questCompletionDate = selectedOption.dataset.completionDate;
-      deadlineInput.max = questCompletionDate;
-      
-      // Check current value against limit
-      if (deadlineInput.value && deadlineInput.value > questCompletionDate) {
-        warningDiv.style.display = 'block';
-        deadlineInput.style.borderColor = '#ef4444';
-      } else {
-        warningDiv.style.display = 'none';
-        deadlineInput.style.borderColor = '#475569';
+  if (deadlineInput) {
+    let hasError = false;
+    
+    // Check if date is in the past
+    if (deadlineInput.value && deadlineInput.value < today) {
+      pastDateWarning.style.display = 'block';
+      deadlineInput.style.borderColor = '#ef4444';
+      hasError = true;
+    } else {
+      pastDateWarning.style.display = 'none';
+    }
+    
+    // Check against quest completion date
+    if (questSelect && deadlineInput.value) {
+      const selectedOption = questSelect.selectedOptions[0];
+      if (selectedOption && selectedOption.dataset.completionDate) {
+        const questCompletionDate = selectedOption.dataset.completionDate;
+        deadlineInput.max = questCompletionDate;
+        
+        if (deadlineInput.value > questCompletionDate) {
+          warningDiv.style.display = 'block';
+          deadlineInput.style.borderColor = '#ef4444';
+          hasError = true;
+        } else {
+          warningDiv.style.display = 'none';
+        }
       }
+    }
+    
+    // Reset border color if no errors
+    if (!hasError) {
+      deadlineInput.style.borderColor = '#475569';
     }
   }
 }
 
 // Add deadline validation to deadline input
 document.addEventListener('DOMContentLoaded', function() {
+  // Initialize date validation
+  initializeDateValidation();
+  
   const deadlineInput = document.getElementById('taskDeadline');
+  const editDeadlineInput = document.getElementById('editTaskDeadline');
+  
   if (deadlineInput) {
     deadlineInput.addEventListener('change', updateDeadlineLimit);
+    deadlineInput.addEventListener('input', updateDeadlineLimit);
+  }
+  
+  if (editDeadlineInput) {
+    editDeadlineInput.addEventListener('change', function() {
+      validateEditTaskDeadline();
+    });
+    editDeadlineInput.addEventListener('input', function() {
+      validateEditTaskDeadline();
+    });
   }
 });
+
+// Validate edit task deadline
+function validateEditTaskDeadline() {
+  const editDeadlineInput = document.getElementById('editTaskDeadline');
+  const editPastDateWarning = document.getElementById('editPastDateWarning');
+  const today = new Date().toISOString().split('T')[0];
+  
+  if (editDeadlineInput) {
+    if (editDeadlineInput.value && editDeadlineInput.value < today) {
+      editPastDateWarning.style.display = 'block';
+      editDeadlineInput.style.borderColor = '#ef4444';
+    } else {
+      editPastDateWarning.style.display = 'none';
+      editDeadlineInput.style.borderColor = '#475569';
+    }
+  }
+}
 
 // Allow closing modals with Escape key
 document.addEventListener('keydown', function(e) {
@@ -299,6 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const description = this.description.value.trim();
       const priority = this.priority.value;
       const questId = this.questId.value;
+      const assignedTo = this.assignedTo.value;
       const deadline = this.deadline.value || null;
       
       // Validate required fields
@@ -312,8 +393,21 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       
-      // Validate deadline against quest completion date
+      if (!assignedTo) {
+        alert('Please select a user to assign this task to!');
+        return;
+      }
+      
+      // Validate deadline against quest completion date and past dates
       if (deadline) {
+        const today = new Date().toISOString().split('T')[0];
+        
+        // Check if deadline is in the past
+        if (deadline < today) {
+          alert('Task deadline cannot be in the past!');
+          return;
+        }
+        
         const questSelect = document.getElementById('questSelect');
         const selectedOption = questSelect.selectedOptions[0];
         if (selectedOption && selectedOption.dataset.completionDate) {
@@ -332,10 +426,10 @@ document.addEventListener('DOMContentLoaded', function() {
       submitBtn.textContent = '🔄 Creating...';
       
       try {
-        console.log('📝 Creating task via GraphQL:', { title, description, questId, priority, deadline });
+        console.log('📝 Creating task via GraphQL:', { title, description, questId, priority, assignedTo, deadline });
         
         // Use GraphQL client to create task
-        const result = await window.graphqlClient.createTask(title, description, questId, priority, deadline);
+        const result = await window.graphqlClient.createTask(title, description, questId, priority, assignedTo, deadline);
         console.log('✅ Task created successfully:', result);
         
         // Check if we actually got a task back

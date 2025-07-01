@@ -4,6 +4,7 @@ import { initializeApp } from 'firebase/app';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
+import codesRoutes from './routes/codes.js';
 import { requireAuth, requireAuthSSR, requireAuthFlexible } from './utils/jwt.js';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
@@ -24,7 +25,7 @@ dotenv.config();
 // MongoDB connection function
 async function connectDB() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
+    await mongoose.connect("mongodb://127.0.0.1:27017/taskquest");
     console.log('✅ Connected to MongoDB');
   } catch (error) {
     console.error('❌ MongoDB connection error:', error);
@@ -134,6 +135,9 @@ async function startServer() {
 
   // Mount authentication routes
   app.use('/api/auth', authRoutes);
+  
+  // Mount codes management routes
+  app.use('/api/codes', codesRoutes);
 
   // Mount GraphQL endpoint
   app.use('/graphql', cors(), express.json(), expressMiddleware(apolloServer, {
@@ -237,16 +241,10 @@ async function startServer() {
           console.log('Session destroy error:', err);
         }
         // Always render the homepage, even if session destroy fails
-        res.render('index', { 
-          title: 'TaskQuest',
-          process: { env: process.env }
-        });
+        res.render('index', { title: 'TaskQuest' });
       });
     } else {
-      res.render('index', { 
-        title: 'TaskQuest',
-        process: { env: process.env }
-      });
+      res.render('index', { title: 'TaskQuest' });
     }
   });
 

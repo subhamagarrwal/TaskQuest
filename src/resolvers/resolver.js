@@ -337,13 +337,14 @@ const resolvers = {
       return await Quest.findByIdAndDelete(id);
     },
     // Create a new task
-    createTask: async (_, { title, description, assignedTo, questId, priority, createdBy }) => {
+    createTask: async (_, { title, description, assignedTo, questId, priority, deadline, createdBy }) => {
       console.log('📝 createTask resolver called with:', {
         title,
         description,
         assignedTo: typeof assignedTo + ' - ' + assignedTo,
         questId: typeof questId + ' - ' + questId,
         priority,
+        deadline,
         createdBy: typeof createdBy + ' - ' + createdBy
       });
       
@@ -354,6 +355,7 @@ const resolvers = {
           assignedTo,
           quest: questId, // Each task belongs to exactly one quest
           priority,
+          deadline: deadline ? new Date(deadline) : null,
           createdBy
         });
         

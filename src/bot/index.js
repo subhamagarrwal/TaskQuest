@@ -57,10 +57,19 @@ export function startTelegramBot() {
     bot.command('about', aboutCommand);
     bot.command('about_us', aboutCommand);
 
+    console.log('🤖 Bot commands registered: /start, /tasks, /task, /update, /help, /auth, /info, /leave, /about');
+
     // Dynamic command handler for custom commands
     bot.use(async (ctx, next) => {
       if (ctx.message && ctx.message.text && ctx.message.text.startsWith('/')) {
         const command = ctx.message.text.split(' ')[0].toLowerCase();
+        
+        // Skip built-in commands
+        const builtInCommands = ['/start', '/tasks', '/task', '/update', '/help', '/auth', '/info', '/leave', '/about', '/about_us'];
+        if (builtInCommands.includes(command)) {
+          await next();
+          return;
+        }
         
         // Check if this is a custom command by making API call to backend
         try {

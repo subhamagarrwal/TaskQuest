@@ -28,6 +28,59 @@ Get your quest code from your admin or TaskQuest dashboard.`;
     const incompleteTasks = allTasks.filter(task => !task.completed && task.status !== 'completed');
     const completedTasks = allTasks.filter(task => task.completed || task.status === 'completed');
 
+    // Special handling for admins
+    if (allTasks.length === 0 && user.role === 'ADMIN') {
+      // Show admin overview instead of "no tasks"
+      const questTasks = await Task.find({ quest: { $in: user.questsIn } })
+        .populate('assignedTo', 'username')
+        .populate('quest', 'title');
+      
+      let message = `👑 *Admin Dashboard*\n\n`;
+      
+      if (questTasks.length === 0) {
+        message += `📝 No tasks created yet in your quest.\n\n`;
+        message += `💡 Create tasks via the TaskQuest dashboard and assign them to your team members.`;
+      } else {
+        const questTasksIncomplete = questTasks.filter(task => !task.completed && task.status !== 'completed');
+        const questTasksCompleted = questTasks.filter(task => task.completed || task.status === 'completed');
+        
+        message += `📊 *Quest Overview:*\n`;
+        message += `📝 Total Tasks: ${questTasks.length}\n`;
+        message += `⏳ Pending: ${questTasksIncomplete.length}\n`;
+        message += `✅ Completed: ${questTasksCompleted.length}\n`;
+        message += `📈 Progress: ${Math.round((questTasksCompleted.length / questTasks.length) * 100)}%\n\n`;
+        
+        if (questTasksIncomplete.length > 0) {
+          message += `🔥 *Recent Pending Tasks:*\n`;
+          questTasksIncomplete.slice(0, 3).forEach((task, index) => {
+            const priority = task.priority === 'HIGH' ? '🔴' : task.priority === 'MEDIUM' ? '🟡' : '🟢';
+            message += `${priority} ${task.title}\n`;
+            message += `👤 Assigned to: ${task.assignedTo?.username || 'Unassigned'}\n\n`;
+          });
+          
+          if (questTasksIncomplete.length > 3) {
+            message += `...and ${questTasksIncomplete.length - 3} more\n\n`;
+          }
+        }
+        
+        message += `💼 *As admin, you can:*\n`;
+        message += `• Create new tasks via dashboard\n`;
+        message += `• Assign tasks to team members\n`;
+        message += `• Monitor team progress\n\n`;
+        message += `🌐 Access your dashboard to manage tasks`;
+      }
+      
+      await ctx.reply(message, { 
+        parse_mode: 'Markdown',
+        reply_markup: {
+          inline_keyboard: [[
+            { text: '🌐 Open Dashboard', url: `${process.env.FRONTEND_URL || 'http://localhost:4000'}/dashboard` }
+          ]]
+        }
+      });
+      return;
+    }
+
     if (allTasks.length === 0) {
       await ctx.reply('📝 No tasks assigned to you at the moment.');
       return;

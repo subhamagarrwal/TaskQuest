@@ -214,10 +214,10 @@ class GraphQLClient {
   }
 
   // Task operations
-  async createTask(title, description, questId, priority = 'MEDIUM', assignedTo) {
+  async createTask(title, description, questId, priority = 'MEDIUM', assignedTo, deadline = null) {
     const query = `
-      mutation CreateTask($title: String!, $description: String, $questId: ID!, $priority: Priority, $assignedTo: ID!, $createdBy: ID!) {
-        createTask(title: $title, description: $description, questId: $questId, priority: $priority, assignedTo: $assignedTo, createdBy: $createdBy) {
+      mutation CreateTask($title: String!, $description: String, $questId: ID!, $priority: Priority, $assignedTo: ID!, $deadline: String, $createdBy: ID!) {
+        createTask(title: $title, description: $description, questId: $questId, priority: $priority, assignedTo: $assignedTo, deadline: $deadline, createdBy: $createdBy) {
           id
           title
           description
@@ -249,6 +249,7 @@ class GraphQLClient {
       questId: String(questId),
       priority: String(priority),
       assignedTo: String(assignedTo || userId),
+      deadline: deadline || null,
       createdBy: String(userId)
     };
     

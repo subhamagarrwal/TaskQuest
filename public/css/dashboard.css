@@ -296,57 +296,7 @@
       gap: 2rem;
     }
 
-    .analytics-section {
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(71, 85, 105, 0.3);
-      border-radius: 16px;
-      padding: 2rem;
-    }
 
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    .section-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-
-    .filter-dropdown {
-      background: rgba(71, 85, 105, 0.3);
-      border: 1px solid rgba(71, 85, 105, 0.5);
-      border-radius: 8px;
-      padding: 0.5rem 1rem;
-      color: #ffffff;
-      cursor: pointer;
-    }
-
-    .chart-container {
-      height: 300px;
-      background: rgba(71, 85, 105, 0.1);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #64748b;
-    }
-
-    /* Performance Card */
-    .performance-card {
-      background: linear-gradient(135deg, #84cc16, #65a30d);
-      border-radius: 16px;
-      padding: 2rem;
-    }
-
-    .performance-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-    }
 
     .metric {
       display: flex;
@@ -555,13 +505,7 @@
         gap: 1rem;
       }
 
-      .analytics-section {
-        padding: 1.5rem;
-      }
 
-      .performance-card {
-        padding: 1.5rem;
-      }
 
       /* Mobile accordion styles */
       .nav-section {
@@ -586,9 +530,7 @@
         font-size: 0.9rem;
       }
 
-      .chart-container {
-        height: 200px;
-      }
+
     }
 
     @media (max-width: 480px) {

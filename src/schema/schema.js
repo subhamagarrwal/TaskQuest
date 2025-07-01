@@ -52,6 +52,7 @@ type Task {
   assignedTo: User!
   quest: Quest!
   priority: Priority!
+  deadline: String
   createdBy: User!
   createdAt: String!
   updatedAt: String!
@@ -86,7 +87,7 @@ type Mutation {
   createQuest(title: String!, description: String, completionDate: String, creatorId: ID!): Quest!
   updateQuest(id: ID!, title: String, description: String, completionDate: String, members: [ID!]): Quest!
   deleteQuest(id: ID!): Quest!
-  createTask(title: String!, description: String, assignedTo: ID!, questId: ID!, priority: Priority, createdBy: ID!): Task!
+  createTask(title: String!, description: String, assignedTo: ID!, questId: ID!, priority: Priority, deadline: String, createdBy: ID!): Task!
   updateTask(id: ID!, title: String, description: String, completed: Boolean, priority: Priority, assignedTo: ID): Task!
   deleteTask(id: ID!): Task!
   generateQuestInviteCode(questId: ID!, expiresInHours: Int, maxMembers: Int): InviteCodeResponse!

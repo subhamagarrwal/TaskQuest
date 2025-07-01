@@ -16,7 +16,16 @@ const callbackHandler = async (ctx) => {
         switch (true) {
             // Start command callbacks
             case callbackData === 'start_auth':
-                await authCommand(ctx);
+                setUserWaitingForQuestCode(userId);
+                await ctx.editMessageText(
+                    '🔑 *TaskQuest Authentication*\n\n' +
+                    'Please send your authentication code in the next message.\n\n' +
+                    '**Examples:**\n' +
+                    '• `ADM123ABC` - Admin code\n' +
+                    '• `USR456DEF` - User code\n\n' +
+                    '💡 Get your code from your quest admin or TaskQuest dashboard.',
+                    { parse_mode: 'Markdown' }
+                );
                 break;
             case callbackData === 'start_tasks':
                 await tasksCommand(ctx);
@@ -38,6 +47,14 @@ const callbackHandler = async (ctx) => {
                     '❓ *Authentication Help*\n\nYour quest administrator should have provided you with an invite code. If you don\'t have one, please contact them.\n\nUse /auth to try again.',
                     { parse_mode: 'Markdown' }
                 );
+                break;
+
+            // Post-authentication callbacks
+            case callbackData === 'view_tasks':
+                await tasksCommand(ctx);
+                break;
+            case callbackData === 'view_profile':
+                await infoCommand(ctx);
                 break;
 
             // Task callbacks
