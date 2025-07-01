@@ -16,11 +16,6 @@
         email: '<%= user.email %>',
         role: '<%= user.role %>'
       };
-      
-      // Set current quest ID if available
-      <% if (typeof quests !== 'undefined' && quests && quests.length > 0) { %>
-        window.currentQuestId = '<%= quests[0]._id.toString() %>';
-      <% } %>
     </script>
 </head>
 <body>
@@ -107,36 +102,43 @@
         <span style="font-weight: 600; font-size: 1.2rem;">TaskQuest</span>
       </div>    
       
-      <!-- Simple Navigation -->
-      <nav style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <div class="nav-section">
+        <div class="nav-title">Overview</div>
         <a href="/dashboard?section=overview" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'overview' ? 'active' : '' %>">
           <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z\"/></svg>')"></div>
-          📊 Overview
-        </a>
-
-        <a href="/dashboard?section=tasks" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'tasks' ? 'active' : '' %>">
-          <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2\"/></svg>')"></div>
-          ✅ Tasks
-        </a>
-
-        <a href="/dashboard?section=quests" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'quests' ? 'active' : '' %>">
-          <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-1.5l-6-3-6 3a1 1 0 000 1.732l6 3 6-3a1 1 0 000-1.732z\"/></svg>')"></div>
-          👥 Team Members
-        </a>
-
-        <a href="/dashboard?section=bot" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'bot' ? 'active' : '' %>">
-          <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 11c0-1.104.896-2 2-2s2 .896 2 2-.896 2 2-2 2 .896 2 2zm0 0V7m0 4v4m0 0c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2z\"/></svg>')"></div>
-          🤖 Bot Analytics
-        </a>
-      </nav>
+          Overview
         </a>
       </div>
 
-      <div class="nav-section" id="logoutSection" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
-        <div class="nav-title" style="color: #ef4444;">🚪 Logout</div>
+      <div class="nav-section">
+        <div class="nav-title">Tasks</div>
+        <a href="/dashboard?section=tasks" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'tasks' ? 'active' : '' %>">
+          <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2\"/></svg>')"></div>
+          Manage Tasks
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-title">Team</div>
+        <a href="/dashboard?section=quests" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'quests' ? 'active' : '' %>">
+          <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-1.5l-6-3-6 3a1 1 0 000 1.732l6 3 6-3a1 1 0 000-1.732z\"/></svg>')"></div>
+          Team Members
+        </a>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-title">User Analytics</div>
+        <a href="/dashboard?section=bot" class="nav-item <%= typeof activeSection !== 'undefined' && activeSection === 'bot' ? 'active' : '' %>">
+          <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M12 11c0-1.104.896-2 2-2s2 .896 2 2-.896 2-2 2-2-.896-2-2zm0 0V7m0 4v4m0 0c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2z\"/></svg>')"></div>
+          Bot & User Accessibility
+        </a>
+      </div>
+
+      <div class="nav-section" style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+        <div class="nav-title" style="color: #ef4444;">Logout</div>
         <a href="/logout" class="nav-item" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444;">
           <div class="nav-icon" style="mask-image: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" fill=\"none\" viewBox=\"0 0 24 24\" stroke=\"currentColor\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 002 2h3a2 2 0 002-2v-1m0-8V7a2 2 0 00-2-2h-3a2 2 0 00-2 2v1\"/></svg>'); background-color: #ef4444;"></div>
-          Logout
+          🚪 Logout
         </a>
       </div>
 
@@ -255,40 +257,8 @@
             const data = await window.graphqlClient.createQuest(title, description, completionDate);
             console.log('✅ Quest created successfully:', data);
             
-            // Generate admin code for the new quest
-            if (data && data.createQuest && data.createQuest.id) {
-              try {
-                console.log('🔑 Generating admin code for new quest...');
-                const codeResponse = await fetch('/api/codes/generate-quest-code', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1]}`
-                  },
-                  body: JSON.stringify({ questId: data.createQuest.id })
-                });
-                
-                const codeResult = await codeResponse.json();
-                
-                if (codeResponse.ok) {
-                  console.log('✅ Admin code generated:', codeResult);
-                  
-                  // Show success modal with admin code
-                  showQuestCreatedModal(data.createQuest, codeResult);
-                } else {
-                  console.warn('⚠️ Quest created but admin code generation failed:', codeResult.error);
-                  // Still show success, but mention code generation issue
-                  window.location.reload();
-                }
-              } catch (codeError) {
-                console.warn('⚠️ Quest created but admin code generation failed:', codeError);
-                // Still show success, but reload without code modal
-                window.location.reload();
-              }
-            } else {
-              // Success - reload the page to show the new quest
-              window.location.reload();
-            }
+            // Success - reload the page to show the new quest
+            window.location.reload();
             
           } catch (error) {
             console.error('❌ Error creating quest:', error);
@@ -307,72 +277,6 @@
         });
       }
     });
-
-    // Show quest created modal with admin code
-    function showQuestCreatedModal(quest, codeResult) {
-      const modal = document.createElement('div');
-      modal.style.cssText = 'position: fixed; inset: 0; background: rgba(30,41,59,0.8); backdrop-filter: blur(8px); z-index: 10001; display: flex; align-items: center; justify-content: center;';
-      
-      modal.innerHTML = `
-        <div style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 500px; max-width: 90vw; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
-          <div style="font-size: 3rem; margin-bottom: 1rem;">🎉</div>
-          <div style="font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; color: #ffffff;">Quest Created Successfully!</div>
-          <div style="margin-bottom: 1.5rem; color: #94a3b8;">Your quest "${quest.title}" has been created and your admin code is ready.</div>
-          
-          <div style="background: #334155; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; border-left: 4px solid #8b5cf6;">
-            <h4 style="color: #8b5cf6; margin-bottom: 1rem;">👑 Your Admin Code</h4>
-            <div style="font-family: monospace; font-size: 1.5rem; color: #e2e8f0; font-weight: bold; margin-bottom: 1rem; letter-spacing: 2px;">${codeResult.adminCode}</div>
-            <button onclick="copyToClipboard('${codeResult.adminCode}'); this.textContent='✅ Copied!'; setTimeout(() => this.textContent='📋 Copy Code', 2000)" class="btn btn-primary" style="background: #8b5cf6; margin-bottom: 1rem;">📋 Copy Code</button>
-            
-            <div style="text-align: left;">
-              <small style="color: #94a3b8; display: block; margin-bottom: 0.5rem;">Telegram Bot Link:</small>
-              <div style="background: #1e293b; padding: 0.75rem; border-radius: 6px; word-break: break-all;">
-                <a href="${codeResult.botLink}" target="_blank" style="color: #60a5fa; font-size: 0.9rem;">${codeResult.botLink}</a>
-              </div>
-              <button onclick="copyToClipboard('${codeResult.botLink}'); this.textContent='✅ Copied!'; setTimeout(() => this.textContent='📋 Copy Link', 2000)" class="btn btn-secondary" style="margin-top: 0.5rem; font-size: 0.8rem;">📋 Copy Link</button>
-            </div>
-          </div>
-          
-          <div style="background: rgba(59, 130, 246, 0.1); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; border: 1px solid rgba(59, 130, 246, 0.3);">
-            <h4 style="color: #60a5fa; margin-bottom: 0.5rem; font-size: 1rem;">📱 Next Steps:</h4>
-            <ol style="text-align: left; color: #94a3b8; font-size: 0.9rem; margin: 0; padding-left: 1.2rem;">
-              <li>Open Telegram and search for the TaskQuest bot</li>
-              <li>Click "Start" or use the bot link above</li>
-              <li>Choose "Register as Admin"</li>
-              <li>Enter your admin code when prompted</li>
-              <li>Add team members and generate user codes in the Team section!</li>
-            </ol>
-          </div>
-          
-          <div style="display: flex; gap: 1rem;">
-            <button onclick="this.closest('div').parentElement.remove(); window.location.href='/dashboard?section=quests'" class="btn btn-primary" style="flex: 1; background: linear-gradient(45deg, #22c55e, #16a34a);">
-              👥 Manage Team
-            </button>
-            <button onclick="this.closest('div').parentElement.remove(); window.location.reload()" class="btn btn-secondary" style="flex: 1; background: #64748b;">
-              ✅ Continue
-            </button>
-          </div>
-        </div>
-      `;
-      
-      document.body.appendChild(modal);
-    }
-
-    // Helper function for copying to clipboard
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        console.log('📋 Copied to clipboard:', text);
-      }).catch(err => {
-        console.error('❌ Failed to copy to clipboard:', err);
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-      });
-    }
 
     // Mobile menu functionality
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');

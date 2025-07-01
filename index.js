@@ -4,7 +4,6 @@ import { initializeApp } from 'firebase/app';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
-import codesRoutes from './routes/codes.js';
 import { requireAuth, requireAuthSSR, requireAuthFlexible } from './utils/jwt.js';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
@@ -135,21 +134,80 @@ async function startServer() {
 
   // Mount authentication routes
   app.use('/api/auth', authRoutes);
-  
-  // Mount codes management routes
-  app.use('/api/codes', codesRoutes);
 
   // Mount GraphQL endpoint
   app.use('/graphql', cors(), express.json(), expressMiddleware(apolloServer, {
     context: getGraphQLContext
   }));
 
-  // Debug endpoint to test if server is running
+  // Health check endpoint for monitoring and keeping Render warm
   app.get('/api/health', (req, res) => {
     res.json({ 
       status: 'OK', 
       timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      memory: process.memoryUsage(),
+      version: process.version,
+      environment: process.env.NODE_ENV || 'development',
+      serverInstanceId: serverInstanceId,
       graphql: '/graphql endpoint available'
+    });
+  });
+
+  // Comprehensive health check that tests database connectivity
+  app.get('/api/health/detailed', async (req, res) => {
+    const healthCheck = {
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || 'development',
+      serverInstanceId: serverInstanceId,
+      checks: {
+        database: 'unknown',
+        memory: 'ok',
+        uptime: 'ok'
+      }
+    };
+
+    try {
+      // Test database connection
+      await mongoose.connection.db.admin().ping();
+      healthCheck.checks.database = 'connected';
+    } catch (error) {
+      healthCheck.checks.database = 'disconnected';
+      healthCheck.status = 'ERROR';
+      console.error('Database health check failed:', error);
+    }
+
+    // Check memory usage
+    const memUsage = process.memoryUsage();
+    const memUsedMB = Math.round(memUsage.heapUsed / 1024 / 1024);
+    healthCheck.checks.memory = memUsedMB > 500 ? 'high' : 'ok';
+    healthCheck.memory = {
+      used: `${memUsedMB}MB`,
+      total: `${Math.round(memUsage.heapTotal / 1024 / 1024)}MB`
+    };
+
+    // Check uptime
+    const uptimeHours = process.uptime() / 3600;
+    healthCheck.checks.uptime = uptimeHours > 24 ? 'long' : 'ok';
+
+    const statusCode = healthCheck.status === 'OK' ? 200 : 503;
+    res.status(statusCode).json(healthCheck);
+  });
+
+  // Simple ping endpoint for external monitoring services
+  app.get('/ping', (req, res) => {
+    res.status(200).send('pong');
+  });
+
+  // Warmup endpoint that can be called to prevent cold starts
+  app.get('/warmup', (req, res) => {
+    console.log('🔥 Warmup request received at', new Date().toISOString());
+    res.json({ 
+      status: 'warm',
+      timestamp: new Date().toISOString(),
+      message: 'Server is warm and ready'
     });
   });
 
@@ -273,19 +331,6 @@ async function startServer() {
           .populate('creator', 'username email')
           .populate('members', 'username email')
           .lean();
-          
-        // Filter out expired user codes and add them to each quest
-        quests = quests.map(quest => {
-          if (quest.generatedUserCodes && quest.generatedUserCodes.length > 0) {
-            const now = new Date();
-            quest.validUserCodes = quest.generatedUserCodes.filter(code => 
-              !code.expiresAt || code.expiresAt > now
-            );
-          } else {
-            quest.validUserCodes = [];
-          }
-          return quest;
-        });
       }
       
       // If user has no quests but quests exist in the system, add user to the first quest
@@ -319,19 +364,6 @@ async function startServer() {
           .populate('creator', 'username email')
           .populate('members', 'username email')
           .lean();
-          
-        // Filter out expired user codes
-        quests = quests.map(quest => {
-          if (quest.generatedUserCodes && quest.generatedUserCodes.length > 0) {
-            const now = new Date();
-            quest.validUserCodes = quest.generatedUserCodes.filter(code => 
-              !code.expiresAt || code.expiresAt > now
-            );
-          } else {
-            quest.validUserCodes = [];
-          }
-          return quest;
-        });
           
         console.log('User added to existing quest successfully');
         req.flash('success', `Welcome! You've been added to the quest: ${firstQuest.title}`);
@@ -467,6 +499,25 @@ async function startServer() {
     console.log('════════════════════════════════════════════════');
   });
 }
+
+/*
+   * Health & Monitoring Endpoints for Render Deployment:
+   * 
+   * /ping - Simple ping/pong response (fastest)
+   * /warmup - Warmup endpoint to prevent cold starts
+   * /api/health - Basic health check with system info
+   * /api/health/detailed - Comprehensive health check with DB test
+   * 
+   * For Render cold start prevention, set up external monitoring:
+   * 1. Use UptimeRobot, Pingdom, or similar service
+   * 2. Ping /warmup or /ping every 5-10 minutes
+   * 3. Set up monitoring on /api/health/detailed for alerts
+   * 
+   * Example monitoring URLs:
+   * - https://your-app.onrender.com/ping
+   * - https://your-app.onrender.com/warmup
+   * - https://your-app.onrender.com/api/health/detailed
+   */
 
 // Start the server
 startServer().catch(error => {
