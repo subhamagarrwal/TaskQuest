@@ -34,11 +34,6 @@ async function connectDB() {
     console.error('❌ MongoDB connection error:', error);
     process.exit(1); // Exit if can't connect to database
   }
-    console.log('✅ Connected to MongoDB');
-  } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
-    process.exit(1); // Exit if can't connect to database
-  }
 }
 
 // Initialize Express application
