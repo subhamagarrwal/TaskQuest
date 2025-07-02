@@ -22,10 +22,16 @@ import BotCommand from './src/models/BotCommand.js';
 // Load environment variables from .env file
 dotenv.config();
 
+console.log('🔍 Environment check:');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+console.log('MONGO_URI exists:', !!process.env.MONGO_URI);
+console.log('MONGO_URI prefix:', process.env.MONGO_URI ? process.env.MONGO_URI.substring(0, 20) + '...' : 'undefined');
+
 // MongoDB connection function
 async function connectDB() {
   try {
-    await mongoose.connect( "mongodb://127.0.0.1:27017/taskquest", {
+    await mongoose.connect( process.env.MONGO_URI, {
       serverSelectionTimeoutMS: 30000, // 30 seconds
       socketTimeoutMS: 45000, // 45 seconds
       connectTimeoutMS: 30000, // 30 seconds
