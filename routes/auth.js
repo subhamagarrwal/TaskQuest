@@ -104,13 +104,21 @@ router.post('/firebase', async (req, res) => {
       await user.save();
     }
     
-    const jwtToken = signJwt({ userId: user._id, email: user.email });
+    const jwtToken = signJwt({ userId: user._id, email: user.email, role: user.role });
     
-    // Set cookie for SSR routes
+    // Set httpOnly cookie for SSR routes (secure server-side access)
     res.cookie('token', jwtToken, { 
       httpOnly: true, 
       secure: process.env.NODE_ENV === 'production',
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+    
+    // Set a separate cookie for client-side GraphQL access (not httpOnly)
+    res.cookie('clientToken', jwtToken, { 
+      httpOnly: false, 
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      sameSite: 'strict' // Prevent CSRF attacks
     });
     
     res.json({ token: jwtToken, user });

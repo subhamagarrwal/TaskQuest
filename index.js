@@ -46,14 +46,18 @@ const httpServer = http.createServer(app);
 const getGraphQLContext = async ({ req }) => {
   let user = null;
   
-  // Try to get user from JWT token
-  const token = req.headers.authorization?.replace('Bearer ', '') || req.cookies?.token;
+  // Try to get user from JWT token - check multiple sources
+  const authHeader = req.headers.authorization?.replace('Bearer ', '');
+  const httpOnlyToken = req.cookies?.token;
+  const clientToken = req.cookies?.clientToken;
+  
+  const token = authHeader || clientToken || httpOnlyToken;
   
   if (token) {
     try {
       user = verifyJwt(token);
     } catch (error) {
-      console.log('Invalid token in GraphQL context:', error.message);
+      console.log('❌ GraphQL Context - Invalid token:', error.message);
     }
   }
   
@@ -150,6 +154,116 @@ async function startServer() {
   
   // Mount codes routes
   app.use('/api/codes', codesRoutes);
+
+  // Simple API endpoint to get quest members (like quests.ejs does)
+  app.get('/api/quest/:questId/members', requireAuthFlexible, async (req, res) => {
+    try {
+      const { questId } = req.params;
+      console.log('📊 Fetching quest members for questId:', questId);
+      
+      const Quest = (await import('./src/models/Quest.js')).default;
+      const User = (await import('./src/models/User.js')).default;
+      
+      // Get quest with populated members
+      const quest = await Quest.findById(questId).populate('members', '_id username email').lean();
+      
+      if (!quest) {
+        return res.status(404).json({ error: 'Quest not found' });
+      }
+      
+      // Check for duplicates in the raw database data
+      const rawQuest = await Quest.findById(questId).lean();
+      const originalMembersCount = rawQuest.members.length;
+      const uniqueMemberIds = [...new Set(rawQuest.members.map(id => id.toString()))];
+      
+      // If we found duplicates, clean them up
+      if (uniqueMemberIds.length !== originalMembersCount) {
+        console.log(`🧹 Found ${originalMembersCount - uniqueMemberIds.length} duplicate members in quest, cleaning up...`);
+        
+        const mongoose = (await import('mongoose')).default;
+        await Quest.findByIdAndUpdate(questId, {
+          members: uniqueMemberIds.map(id => new mongoose.Types.ObjectId(id))
+        });
+        
+        console.log(`✅ Cleaned up ${originalMembersCount - uniqueMemberIds.length} duplicate members`);
+        
+        // Re-fetch the quest with cleaned data
+        const cleanedQuest = await Quest.findById(questId).populate('members', '_id username email').lean();
+        quest.members = cleanedQuest.members;
+      }
+      
+      // Also get all users in the system for comparison
+      const allUsers = await User.find({}, '_id username email').lean();
+      
+      console.log('📊 Quest members after cleanup:', quest.members.length);
+      console.log('📊 All users in system:', allUsers.length);
+      
+      console.log('✅ Final quest members:');
+      quest.members.forEach((member, index) => {
+        console.log(`   ${index + 1}. ${member.username} (${member.email}) - ID: ${member._id}`);
+      });
+      
+      console.log('📊 All users for reference:');
+      allUsers.forEach((user, index) => {
+        const inQuest = quest.members.some(m => m._id.toString() === user._id.toString());
+        console.log(`   ${index + 1}. ${user.username} (${user.email}) - ID: ${user._id} ${inQuest ? '✅ IN QUEST' : '❌ NOT IN QUEST'}`);
+      });
+      
+      res.json({ 
+        success: true, 
+        members: quest.members,
+        questTitle: quest.title,
+        totalUsersInSystem: allUsers.length,
+        questMembersCount: quest.members.length,
+        duplicatesRemoved: originalMembersCount - quest.members.length
+      });
+      
+    } catch (error) {
+      console.error('❌ Error fetching quest members:', error);
+      res.status(500).json({ error: 'Failed to fetch quest members' });
+    }
+  });
+
+  // Temporary cleanup endpoint to remove duplicate members from quests
+  app.post('/api/quest/:questId/cleanup-members', requireAuthFlexible, async (req, res) => {
+    try {
+      const { questId } = req.params;
+      console.log('🧹 Cleaning up duplicate members for questId:', questId);
+      
+      const Quest = (await import('./src/models/Quest.js')).default;
+      
+      const quest = await Quest.findById(questId);
+      
+      if (!quest) {
+        return res.status(404).json({ error: 'Quest not found' });
+      }
+      
+      console.log('📊 Original members array length:', quest.members.length);
+      console.log('📊 Original members:', quest.members);
+      
+      // Remove duplicates by converting ObjectIds to strings and using Set
+      const uniqueMemberIds = [...new Set(quest.members.map(id => id.toString()))];
+      const mongoose = (await import('mongoose')).default;
+      quest.members = uniqueMemberIds.map(id => new mongoose.Types.ObjectId(id));
+      
+      console.log('✅ Cleaned members array length:', quest.members.length);
+      console.log('✅ Cleaned members:', quest.members);
+      
+      await quest.save();
+      
+      res.json({ 
+        success: true, 
+        message: 'Duplicate members removed',
+        originalCount: quest.members.length + (uniqueMemberIds.length - quest.members.length),
+        cleanedCount: quest.members.length,
+        removedDuplicates: (quest.members.length + (uniqueMemberIds.length - quest.members.length)) - quest.members.length
+      });
+      
+    } catch (error) {
+      console.error('❌ Error cleaning up quest members:', error);
+      res.status(500).json({ error: 'Failed to cleanup quest members' });
+    }
+  });
 
   // Mount GraphQL endpoint
   app.use('/graphql', cors(), express.json(), expressMiddleware(apolloServer, {
@@ -500,6 +614,7 @@ async function startServer() {
   // Logout route - Clear session and cookies, redirect to home
   app.get('/logout', (req, res) => {
     res.clearCookie('token');
+    res.clearCookie('clientToken');
     req.session.destroy(() => {
       res.redirect('/');
     });

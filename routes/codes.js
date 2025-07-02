@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from 'mongoose';
 import User from '../src/models/User.js';
 import Quest from '../src/models/Quest.js';
 import { requireAuthFlexible } from '../utils/jwt.js';
@@ -21,10 +22,12 @@ router.post('/generate-quest-code', requireAuthFlexible, async (req, res) => {
         const { questId } = req.body;
         const userId = req.user.userId || req.user._id;
         
-        // Verify user is the creator of this quest
+        // Verify user is the creator of this quest OR is an admin
         const quest = await Quest.findById(questId);
-        if (!quest || quest.creator.toString() !== userId.toString()) {
-            return res.status(403).json({ error: 'Access denied. Only quest creator can generate codes.' });
+        const currentUser = await User.findById(userId);
+        
+        if (!quest || (quest.creator.toString() !== userId.toString() && currentUser.role !== 'ADMIN')) {
+            return res.status(403).json({ error: 'Access denied. Only quest creator or admin can generate codes.' });
         }
         
         // Generate admin code for quest if it doesn't exist
@@ -71,11 +74,72 @@ router.post('/generate-user-codes', requireAuthFlexible, async (req, res) => {
         const { questId, userEmails } = req.body;
         const userId = req.user.userId || req.user._id;
         
-        // Verify user is the creator of this quest
-        const quest = await Quest.findById(questId).populate('members', 'username email linkCode linkCodeExpires questsIn');
-        if (!quest || quest.creator.toString() !== userId.toString()) {
-            return res.status(403).json({ error: 'Access denied. Only quest creator can generate user codes.' });
+        console.log('🔑 Generate user codes request:', { 
+            questId, 
+            questIdType: typeof questId,
+            questIdLength: questId ? questId.length : 0,
+            userEmails, 
+            userId, 
+            userRoleFromJWT: req.user.role,
+            userIdFromJWT: req.user.userId 
+        });
+        
+        // Validate questId format
+        if (!questId) {
+            console.log('❌ Missing questId in request');
+            return res.status(400).json({ error: 'Quest ID is required' });
         }
+        
+        if (!mongoose.Types.ObjectId.isValid(questId)) {
+            console.log('❌ Invalid questId format:', questId);
+            return res.status(400).json({ error: 'Invalid quest ID format' });
+        }
+        
+        // Verify user is the creator of this quest OR is an admin
+        console.log('🔍 Searching for quest with ID:', questId);
+        const quest = await Quest.findById(questId).populate('members', 'username email linkCode linkCodeExpires questsIn');
+        const currentUser = await User.findById(userId);
+        
+        if (!quest) {
+            console.log('❌ Quest not found:', questId);
+            return res.status(404).json({ error: 'Quest not found' });
+        }
+        
+        if (!currentUser) {
+            console.log('❌ Current user not found:', userId);
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Convert ObjectIds to strings for comparison
+        const questCreatorId = quest.creator.toString();
+        const currentUserId = userId.toString();
+        const isCreator = questCreatorId === currentUserId;
+        const isAdmin = currentUser.role === 'ADMIN';
+        
+        console.log('🎯 Quest and user info:', { 
+          questExists: !!quest, 
+          questCreator: questCreatorId, 
+          currentUserId: currentUserId,
+          currentUserRole: currentUser.role,
+          userRoleFromJWT: req.user.role,
+          isCreator: isCreator,
+          isAdmin: isAdmin,
+          hasPermission: isCreator || isAdmin
+        });
+        
+        // Use database role, not JWT role (for compatibility with existing sessions)
+        if (!isCreator && !isAdmin) {
+            console.log('❌ Access denied for user:', { 
+                userId: currentUserId, 
+                questCreator: questCreatorId, 
+                userRole: currentUser.role,
+                isCreator: isCreator,
+                isAdmin: isAdmin
+            });
+            return res.status(403).json({ error: 'Access denied. Only quest creator or admin can generate user codes.' });
+        }
+        
+        console.log('✅ Permission granted for user:', { isCreator, isAdmin });
         
         const userCodes = [];
         const generatedUserCodes = [];

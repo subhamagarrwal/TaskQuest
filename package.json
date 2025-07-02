@@ -55,6 +55,7 @@
     "telegraf": "^4.16.3"
   },
   "devDependencies": {
-    "concurrently": "^9.2.0"
+    "concurrently": "^9.2.0",
+    "nodemon": "^3.1.10"
   }
 }

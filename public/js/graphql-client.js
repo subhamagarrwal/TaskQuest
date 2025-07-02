@@ -6,10 +6,26 @@ class GraphQLClient {
 
   // Get auth token from cookies
   getAuthToken() {
-    const token = document.cookie
+    console.log('🍪 All cookies:', document.cookie);
+    
+    // Try clientToken first (accessible from JS), then fall back to token (if somehow accessible)
+    const clientToken = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('clientToken='))
+      ?.split('=')[1];
+      
+    const token = clientToken || document.cookie
       .split('; ')
       .find(row => row.startsWith('token='))
       ?.split('=')[1];
+    
+    if (!token) {
+      console.warn('⚠️ No authentication token found in cookies');
+      console.log('🍪 Available cookies:', document.cookie.split('; ').map(c => c.split('=')[0]));
+    } else {
+      console.log('✅ Found auth token, length:', token.length, 'source:', clientToken ? 'clientToken' : 'token');
+    }
+    
     return token;
   }
 
@@ -26,6 +42,7 @@ class GraphQLClient {
           'Content-Type': 'application/json',
           ...(token && { 'Authorization': `Bearer ${token}` })
         },
+        credentials: 'include',
         body: JSON.stringify({
           query,
           variables
@@ -36,7 +53,17 @@ class GraphQLClient {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('HTTP Error:', response.status, response.statusText, errorText);
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        
+        // Provide more specific error messages
+        if (response.status === 401) {
+          throw new Error('Authentication required. Please log in again.');
+        } else if (response.status === 403) {
+          throw new Error('Access denied. You do not have permission to perform this action.');
+        } else if (response.status === 400) {
+          throw new Error('Bad request. Please check your input and try again.');
+        } else {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
       }
 
       // Check content type

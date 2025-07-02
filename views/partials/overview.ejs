@@ -218,59 +218,6 @@
   </div>
 </div>
 
-<!-- User Code Generation Modal -->
-<div id="userCodeModalOverlay" style="position: fixed; inset: 0; background: rgba(30,41,59,0.8); backdrop-filter: blur(8px); z-index: 10000; display: none; align-items: center; justify-content: center;">
-  <div id="userCodeModal" style="background: #1e293b; color: #ffffff; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.4); padding: 2rem; min-width: 500px; max-width: 90vw; max-height: 80vh; overflow-y: auto; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.1);">
-    <button onclick="closeUserCodeModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; color: #64748b; cursor: pointer; padding: 0.25rem;">&times;</button>
-    <div style="font-size: 3rem; margin-bottom: 1rem;">🔑</div>
-    <div style="font-weight: 700; font-size: 1.4rem; margin-bottom: 0.5rem; color: #ffffff;">Generate User Codes</div>
-    <div style="margin-bottom: 1.5rem; color: #94a3b8;">Select team members to generate individual access codes for. Codes expire in 24 hours.</div>
-    
-    <!-- Loading state -->
-    <div id="userCodeModalLoading" style="display: none;">
-      <div style="color: #94a3b8; margin: 2rem 0;">Loading team members...</div>
-    </div>
-    
-    <!-- User selection form -->
-    <div id="userCodeModalContent" style="text-align: left; display: none;">
-      <div style="margin-bottom: 1.5rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <label style="color: #e2e8f0; font-weight: 500;">Select Team Members:</label>
-          <div style="display: flex; gap: 0.5rem;">
-            <button type="button" onclick="selectAllUsers(true)" style="padding: 0.25rem 0.5rem; background: #059669; color: white; border: none; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Select All</button>
-            <button type="button" onclick="selectAllUsers(false)" style="padding: 0.25rem 0.5rem; background: #dc2626; color: white; border: none; border-radius: 4px; font-size: 0.75rem; cursor: pointer;">Clear All</button>
-          </div>
-        </div>
-        <div id="userSelectionList" style="max-height: 300px; overflow-y: auto; border: 1px solid #475569; border-radius: 8px; padding: 0.5rem; background: #334155;">
-          <!-- User checkboxes will be populated here -->
-        </div>
-      </div>
-      
-      <div style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: 8px;">
-        <div style="color: #f97316; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">⚠️ Important:</div>
-        <div style="color: #94a3b8; font-size: 0.8rem;">
-          • Generating new codes will clear any existing codes for selected users<br>
-          • Each user gets a unique 6-character code that expires in 24 hours<br>
-          • Users can join via bot link or by typing: <code style="background: #0f172a; padding: 0.1rem 0.3rem; border-radius: 3px; color: #a78bfa;">/auth [CODE]</code>
-        </div>
-      </div>
-      
-      <div style="display: flex; gap: 1rem;">
-        <button type="button" onclick="closeUserCodeModal()" style="flex: 1; padding: 0.75rem; background: #64748b; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">Cancel</button>
-        <button type="button" onclick="generateSelectedUserCodes()" style="flex: 1; padding: 0.75rem; background: linear-gradient(45deg, #f59e0b, #ef4444); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer;">🔑 Generate Codes</button>
-      </div>
-    </div>
-    
-    <!-- Empty state -->
-    <div id="userCodeModalEmpty" style="display: none; text-align: center; color: #94a3b8; margin: 2rem 0;">
-      <div style="font-size: 2rem; margin-bottom: 1rem;">👥</div>
-      <p>No team members found.</p>
-      <p style="font-size: 0.875rem;">Add team members to your quest first before generating user codes.</p>
-      <button type="button" onclick="closeUserCodeModal()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: #64748b; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Close</button>
-    </div>
-  </div>
-</div>
-
 <!-- Main Dashboard -->
 <div class="dashboard-main">
   <!-- Analytics -->
@@ -440,165 +387,138 @@ async function generateInviteCode(questId, expiresInHours = 24) {
   }
 }
 
-// Generate user codes function - now opens modal instead of generating all codes
-async function generateUserCodes(questId) {
-  // Open the user selection modal instead of generating all codes
-  await openUserCodeModal(questId);
-}
-
-// User Code Modal Functions
-let currentQuestId = null;
-let currentQuestMembers = [];
-
-// Open user code generation modal
+// Simplified User Code Modal - Single function handles everything
 async function openUserCodeModal(questId) {
+  const modal = document.getElementById('userCodeModalOverlay');
+  const loading = document.getElementById('userCodeModalLoading');
+  const content = document.getElementById('userCodeModalContent');
+  const empty = document.getElementById('userCodeModalEmpty');
+  
   try {
-    currentQuestId = questId;
+    console.log('🔑 Opening user code modal for quest:', questId);
     
-    // Show modal and loading state
-    document.getElementById('userCodeModalOverlay').style.display = 'flex';
-    document.getElementById('userCodeModalLoading').style.display = 'block';
-    document.getElementById('userCodeModalContent').style.display = 'none';
-    document.getElementById('userCodeModalEmpty').style.display = 'none';
+    // Show modal with loading state
+    modal.style.display = 'flex';
+    loading.style.display = 'block';
+    content.style.display = 'none';
+    empty.style.display = 'none';
     
-    // Fetch quest members
-    const query = `
-      query GetQuestMembers($questId: ID!) {
-        quest(id: $questId) {
-          members {
-            _id
-            username
-            email
-          }
-        }
-      }
-    `;
+    // Fetch quest members directly from database (like quests.ejs does)
+    const response = await fetch(`/api/quest/${questId}/members`, {
+      method: 'GET',
+      credentials: 'include'
+    });
     
-    const response = await window.graphqlClient.request(query, { questId });
-    
-    if (response.quest && response.quest.members) {
-      currentQuestMembers = response.quest.members;
-      
-      if (currentQuestMembers.length === 0) {
-        // Show empty state
-        document.getElementById('userCodeModalLoading').style.display = 'none';
-        document.getElementById('userCodeModalEmpty').style.display = 'block';
-      } else {
-        // Populate user selection list
-        populateUserSelectionList(currentQuestMembers);
-        document.getElementById('userCodeModalLoading').style.display = 'none';
-        document.getElementById('userCodeModalContent').style.display = 'block';
-      }
-    } else {
-      throw new Error('Failed to fetch quest members');
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
     
-  } catch (error) {
-    console.error('Error opening user code modal:', error);
-    showNotification('❌ Failed to load team members: ' + error.message, 'error');
-    closeUserCodeModal();
-  }
-}
-
-// Populate user selection list with checkboxes
-function populateUserSelectionList(members) {
-  const container = document.getElementById('userSelectionList');
-  
-  let html = '';
-  members.forEach(member => {
-    html += `
+    const result = await response.json();
+    const members = result.members || [];
+    
+    console.log('📊 Quest members loaded:', members.length);
+    
+    if (members.length === 0) {
+      // Show empty state
+      loading.style.display = 'none';
+      empty.style.display = 'block';
+      return;
+    }
+    
+    // Build member list HTML
+    const memberListHtml = members.map(member => `
       <div style="display: flex; align-items: center; padding: 0.75rem; margin-bottom: 0.5rem; background: #1e293b; border-radius: 6px; border: 1px solid #475569;">
         <input type="checkbox" 
-               id="user-${member._id}" 
                value="${member.email}" 
                style="margin-right: 0.75rem; transform: scale(1.2);" 
                checked>
-        <label for="user-${member._id}" style="flex: 1; cursor: pointer; color: #e2e8f0;">
+        <div style="flex: 1; color: #e2e8f0;">
           <div style="font-weight: 600;">${member.username}</div>
           <div style="font-size: 0.8rem; color: #94a3b8;">${member.email}</div>
-        </label>
+        </div>
       </div>
+    `).join('');
+    
+    // Update modal content
+    document.getElementById('userSelectionList').innerHTML = memberListHtml;
+    
+    // Store questId for later use
+    modal.dataset.questId = questId;
+    
+    // Show content
+    loading.style.display = 'none';
+    content.style.display = 'block';
+    
+  } catch (error) {
+    console.error('❌ Error loading members:', error);
+    
+    // Show error in empty state
+    loading.style.display = 'none';
+    empty.innerHTML = `
+      <div style="font-size: 2rem; margin-bottom: 1rem;">⚠️</div>
+      <p>Error loading team members</p>
+      <p style="font-size: 0.875rem; color: #ef4444;">${error.message}</p>
+      <button type="button" onclick="closeUserCodeModal()" style="margin-top: 1rem; padding: 0.75rem 1.5rem; background: #64748b; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Close</button>
     `;
-  });
-  
-  container.innerHTML = html;
-}
-
-// Select/deselect all users
-function selectAllUsers(selectAll) {
-  const checkboxes = document.querySelectorAll('#userSelectionList input[type="checkbox"]');
-  checkboxes.forEach(checkbox => {
-    checkbox.checked = selectAll;
-  });
+    empty.style.display = 'block';
+    
+    showNotification('❌ Failed to load team members: ' + error.message, 'error');
+  }
 }
 
 // Generate codes for selected users
 async function generateSelectedUserCodes() {
-  try {
-    // Get selected user emails
-    const checkboxes = document.querySelectorAll('#userSelectionList input[type="checkbox"]:checked');
-    const selectedEmails = Array.from(checkboxes).map(cb => cb.value);
-    
-    if (selectedEmails.length === 0) {
-      showNotification('⚠️ Please select at least one team member', 'error');
-      return;
-    }
-    
-    console.log('🔑 Generating user codes for selected members:', selectedEmails);
-    
-    // Close modal first
-    closeUserCodeModal();
-    
-    // Call the existing generateUserCodes function but with selected emails
-    await generateUserCodesForEmails(currentQuestId, selectedEmails);
-    
-  } catch (error) {
-    console.error('❌ Error generating selected user codes:', error);
-    showNotification('❌ Failed to generate user codes: ' + error.message, 'error');
+  const modal = document.getElementById('userCodeModalOverlay');
+  const questId = modal.dataset.questId;
+  
+  // Get selected emails
+  const checkboxes = document.querySelectorAll('#userSelectionList input[type="checkbox"]:checked');
+  const selectedEmails = Array.from(checkboxes).map(cb => cb.value);
+  
+  if (selectedEmails.length === 0) {
+    showNotification('⚠️ Please select at least one team member', 'error');
+    return;
   }
-}
-
-// Generate user codes for specific emails
-async function generateUserCodesForEmails(questId, userEmails) {
+  
   try {
-    console.log('🔑 Generating user codes for quest:', questId, 'emails:', userEmails);
+    console.log('🔑 Generating codes for:', selectedEmails);
     
+    // Close modal and show loading notification
+    closeUserCodeModal();
+    showNotification('⏳ Generating user codes...', 'info');
+    
+    // Call API
     const response = await fetch('/api/codes/generate-user-codes', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        questId: questId,
-        userEmails: userEmails
-      })
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ questId, userEmails: selectedEmails })
     });
-
+    
     const result = await response.json();
     
     if (!response.ok) {
-      throw new Error(result.error || 'Failed to generate user codes');
+      throw new Error(result.error || 'Failed to generate codes');
     }
     
-    console.log('✅ User codes generated:', result);
-    
-    // Display the generated user codes in the UI
+    // Display codes in UI
     displayUserCodes(questId, result.userCodes);
-    
-    // Show success message
-    showNotification(`✅ Generated ${result.userCodes.length} user codes successfully!`, 'success');
+    showNotification(`✅ Generated ${result.userCodes.length} codes successfully!`, 'success');
     
   } catch (error) {
-    console.error('❌ Error generating user codes:', error);
-    showNotification('❌ Failed to generate user codes: ' + error.message, 'error');
+    console.error('❌ Error generating codes:', error);
+    showNotification('❌ Failed to generate codes: ' + error.message, 'error');
   }
 }
 
-// Close user code modal
+// Simple helper functions
+function selectAllUsers(selectAll) {
+  const checkboxes = document.querySelectorAll('#userSelectionList input[type="checkbox"]');
+  checkboxes.forEach(cb => cb.checked = selectAll);
+}
+
 function closeUserCodeModal() {
   document.getElementById('userCodeModalOverlay').style.display = 'none';
-  currentQuestId = null;
-  currentQuestMembers = [];
 }
 
 // Display user codes in the UI

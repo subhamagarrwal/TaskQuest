@@ -5,35 +5,51 @@ import Task from '../models/Task.js';
 const resolvers = {
   Query: {
     // Fetch all users
-    users: async () => {
+    users: async (_, __, { user }) => {
+      if (!user) {
+        throw new Error('Authentication required');
+      }
       return await User.find();
     },
     // Fetch a single user by ID
-    user: async (_, { id }) => {
+    user: async (_, { id }, { user }) => {
+      if (!user) {
+        throw new Error('Authentication required');
+      }
       return await User.findById(id);
     },
     // Fetch all quests
-    quests: async () => {
+    quests: async (_, __, { user }) => {
+      if (!user) {
+        throw new Error('Authentication required');
+      }
       return await Quest.find()
         .populate('creator', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
         .populate('members', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
-        .populate('createdBy', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
         .populate('tasks');
     },
     // Fetch a single quest by ID
-    quest: async (_, { id }) => {
+    quest: async (_, { id }, { user }) => {
+      if (!user) {
+        throw new Error('Authentication required');
+      }
       return await Quest.findById(id)
         .populate('creator', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
         .populate('members', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
-        .populate('createdBy', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
         .populate('tasks');
     },
     // Fetch all tasks
-    tasks: async () => {
+    tasks: async (_, __, { user }) => {
+      if (!user) {
+        throw new Error('Authentication required');
+      }
       return await Task.find();
     },
     // Fetch a single task by ID
-    task: async (_, { id }) => {
+    task: async (_, { id }, { user }) => {
+      if (!user) {
+        throw new Error('Authentication required');
+      }
       return await Task.findById(id);
     },
   },
@@ -84,6 +100,26 @@ const resolvers = {
         
         await user.save();
         console.log('✅ User created successfully:', user._id, 'with role:', finalRole);
+        
+        // Auto-add new users to existing quest (if any)
+        if (!isFirstUser) { // Don't auto-add the first user (admin) since they'll create the quest
+          const existingQuests = await Quest.find({});
+          if (existingQuests.length > 0) {
+            const existingQuest = existingQuests[0]; // Assuming only one quest per system
+            
+            // Add user to quest's members if not already there
+            if (!existingQuest.members.some(memberId => memberId.toString() === user._id.toString())) {
+              existingQuest.members.push(user._id);
+              await existingQuest.save();
+              console.log('✅ Auto-added new user to existing quest:', existingQuest.title);
+            }
+            
+            // Add quest to user's questsIn array
+            user.questsIn = [existingQuest._id];
+            await user.save();
+            console.log('✅ Added quest to user\'s questsIn array');
+          }
+        }
         
         // Serialize ObjectId to string for GraphQL
         const result = {
