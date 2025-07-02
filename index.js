@@ -4,9 +4,11 @@ import { initializeApp } from 'firebase/app';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
+import codesRoutes from './routes/codes.js';
 import { requireAuth, requireAuthSSR, requireAuthFlexible } from './utils/jwt.js';
 import cookieParser from 'cookie-parser';
 import session from 'express-session';
+import MongoStore from 'connect-mongo';
 import flash from 'connect-flash';
 import { ApolloServer } from '@apollo/server';
 import { expressMiddleware } from '@apollo/server/express4';
@@ -23,7 +25,7 @@ dotenv.config();
 // MongoDB connection function
 async function connectDB() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
+    await mongoose.connect( "mongodb://127.0.0.1:27017/taskquest", {
       serverSelectionTimeoutMS: 30000, // 30 seconds
       socketTimeoutMS: 45000, // 45 seconds
       connectTimeoutMS: 30000, // 30 seconds
@@ -101,10 +103,16 @@ async function startServer() {
     secret: process.env.SESSION_SECRET || 'taskquest_secret',
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({
+      client: mongoose.connection.getClient(),
+      dbName: 'taskquest',
+      collectionName: 'sessions',
+      ttl: 24 * 60 * 60 // 1 day in seconds
+    }),
     cookie: { 
       maxAge: 1000 * 60 * 60 * 24, // 1 day session
       httpOnly: true, // Prevent XSS attacks
-      secure: false // Set to true in production with HTTPS
+      secure: process.env.NODE_ENV === 'production' // Use secure cookies in production
     },
     name: 'taskquest.sid' // Custom session name
   }));
@@ -139,6 +147,9 @@ async function startServer() {
 
   // Mount authentication routes
   app.use('/api/auth', authRoutes);
+  
+  // Mount codes routes
+  app.use('/api/codes', codesRoutes);
 
   // Mount GraphQL endpoint
   app.use('/graphql', cors(), express.json(), expressMiddleware(apolloServer, {

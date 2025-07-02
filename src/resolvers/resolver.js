@@ -180,7 +180,6 @@ const resolvers = {
           const populatedQuest = await Quest.findById(existingQuest._id)
             .populate('creator', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
             .populate('members', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
-            .populate('createdBy', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
             .populate('tasks');
           
           // Serialize for GraphQL
@@ -195,9 +194,9 @@ const resolvers = {
               ...member.toObject(),
               id: member._id.toString()
             })),
-            createdBy: {
-              ...populatedQuest.createdBy.toObject(),
-              id: populatedQuest.createdBy._id.toString()
+            creator: {
+              ...populatedQuest.creator.toObject(),
+              id: populatedQuest.creator._id.toString()
             },
             completionDate: populatedQuest.completionDate ? populatedQuest.completionDate.toISOString() : null,
             inviteCodeExpires: populatedQuest.inviteCodeExpires ? populatedQuest.inviteCodeExpires.toISOString() : null
@@ -211,7 +210,6 @@ const resolvers = {
           title,
           description,
           creator: creatorId,
-          createdBy: creatorId,
           members: [creatorId],
           tasks: [],
           inviteCode: inviteCode,
@@ -241,7 +239,6 @@ const resolvers = {
         const populatedQuest = await Quest.findById(quest._id)
           .populate('creator', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
           .populate('members', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
-          .populate('createdBy', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
           .populate('tasks');
         
         // Serialize for GraphQL
@@ -256,9 +253,9 @@ const resolvers = {
             ...member.toObject(),
             id: member._id.toString()
           })),
-          createdBy: {
-            ...populatedQuest.createdBy.toObject(),
-            id: populatedQuest.createdBy._id.toString()
+          creator: {
+            ...populatedQuest.creator.toObject(),
+            id: populatedQuest.creator._id.toString()
           },
           completionDate: populatedQuest.completionDate ? populatedQuest.completionDate.toISOString() : null,
           inviteCodeExpires: populatedQuest.inviteCodeExpires ? populatedQuest.inviteCodeExpires.toISOString() : null
@@ -297,7 +294,6 @@ const resolvers = {
         const populatedQuest = await Quest.findById(updatedQuest._id)
           .populate('creator', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
           .populate('members', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
-          .populate('createdBy', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
           .populate('tasks');
         
         // Serialize for GraphQL
@@ -312,9 +308,9 @@ const resolvers = {
             ...member.toObject(),
             id: member._id.toString()
           })),
-          createdBy: {
-            ...populatedQuest.createdBy.toObject(),
-            id: populatedQuest.createdBy._id.toString()
+          creator: {
+            ...populatedQuest.creator.toObject(),
+            id: populatedQuest.creator._id.toString()
           },
           completionDate: populatedQuest.completionDate ? populatedQuest.completionDate.toISOString() : null,
           inviteCodeExpires: populatedQuest.inviteCodeExpires ? populatedQuest.inviteCodeExpires.toISOString() : null

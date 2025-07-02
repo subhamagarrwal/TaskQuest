@@ -35,7 +35,6 @@ type Quest {
   creator: User!
   members: [User!]!
   tasks: [Task!]!
-  createdBy: User!
   inviteCode: String
   inviteCodeExpires: String
   maxMembers: Int

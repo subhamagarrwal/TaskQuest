@@ -72,7 +72,7 @@ router.post('/generate-user-codes', requireAuthFlexible, async (req, res) => {
         const userId = req.user.userId || req.user._id;
         
         // Verify user is the creator of this quest
-        const quest = await Quest.findById(questId);
+        const quest = await Quest.findById(questId).populate('members', 'username email linkCode linkCodeExpires questsIn');
         if (!quest || quest.creator.toString() !== userId.toString()) {
             return res.status(403).json({ error: 'Access denied. Only quest creator can generate user codes.' });
         }
@@ -80,7 +80,24 @@ router.post('/generate-user-codes', requireAuthFlexible, async (req, res) => {
         const userCodes = [];
         const generatedUserCodes = [];
         
-        for (const email of userEmails) {
+        // If no userEmails provided, generate codes for all existing quest members
+        let emailsToProcess = userEmails;
+        if (!emailsToProcess || emailsToProcess.length === 0) {
+            emailsToProcess = quest.members.map(member => member.email);
+        }
+        
+        // If still no emails to process, return an appropriate message
+        if (!emailsToProcess || emailsToProcess.length === 0) {
+            return res.json({
+                success: true,
+                questId: quest._id,
+                questTitle: quest.title,
+                userCodes: [],
+                message: 'No quest members found. Add team members first to generate codes.'
+            });
+        }
+        
+        for (const email of emailsToProcess) {
             // Find or create user
             let user = await User.findOne({ email });
             

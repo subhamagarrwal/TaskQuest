@@ -1682,5 +1682,19 @@ document.addEventListener('DOMContentLoaded', function() {
   if (window.location.search.includes('section=quests')) {
     setTimeout(updateCodesDisplay, 1000); // Delay to ensure DOM is ready
   }
+  
+  // Check if we should open the Generate User Codes modal (when coming from overview)
+  if (sessionStorage.getItem('openGenerateUserCodesModal') === 'true') {
+    sessionStorage.removeItem('openGenerateUserCodesModal');
+    console.log('🔑 Opening Generate User Codes modal from overview navigation');
+    // Small delay to ensure DOM is ready
+    setTimeout(() => {
+      if (typeof openGenerateUserCodesModal === 'function') {
+        openGenerateUserCodesModal();
+      } else {
+        console.error('openGenerateUserCodesModal function not found');
+      }
+    }, 1500); // Longer delay to ensure all scripts are loaded
+  }
 });
 </script>
