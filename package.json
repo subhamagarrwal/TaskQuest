@@ -9,7 +9,7 @@
     "dev": "concurrently \"npm run watch\" \"npm run dev-server\"",
     "dev-server": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "echo 'Build step completed - CSS will be built at runtime'",
+    "build": "npm install && echo 'Build step completed - dependencies installed'",
     "watch": "npx tailwindcss -i styles.css -o dist/styles.css --watch",
     "all": "concurrently 'npm run watch' 'npm run dev'",
     "prod": "node index.js",
