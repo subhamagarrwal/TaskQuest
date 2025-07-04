@@ -5,11 +5,11 @@ TaskQuest is a multi-faceted task management platform that organizes work into q
 ## Screenshots
 
 ### Admin Dashboard & User Management
-![Admin Side](./screenshots/admin-side.png)
+![Admin Side](./screenshots/admin-side.jpg)
 *Admin interface showing quest management, user controls, task assignment, and comprehensive dashboard features*
 
 ### Telegram Bot - User Authentication & Task Management  
-![User Authentication & Tasks](./screenshots/telegram-bot-interface.png)
+![User Authentication & Tasks](./screenshots/telegram-bot-interface.jpg)
 *Complete Telegram bot workflow: authentication with codes, task viewing, quest details, and task completion*
 
 **Key Bot Features Shown:**
