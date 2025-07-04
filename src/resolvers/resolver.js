@@ -190,54 +190,12 @@ const resolvers = {
       console.log('🎯 Creating quest with:', { title, description, completionDate, creatorId });
       
       try {
-        // Check if a quest already exists in the system
-        const existingQuests = await Quest.find({});
-        if (existingQuests.length > 0) {
-          // Instead of throwing an error, add the creator to the existing quest
-          const existingQuest = existingQuests[0];
-          console.log('📋 Quest already exists, adding user to existing quest:', existingQuest.title);
-          
-          // Add creator to the quest's members if not already there
-          if (!existingQuest.members.some(memberId => memberId.toString() === creatorId.toString())) {
-            existingQuest.members.push(creatorId);
-            await existingQuest.save();
-          }
-          
-          // Add quest to the creator's questsIn array
-          await User.findByIdAndUpdate(
-            creatorId,
-            { $addToSet: { questsIn: existingQuest._id } },
-            { new: true }
-          );
-          
-          console.log('✅ User added to existing quest:', existingQuest._id);
-          
-          // Populate the quest with user data before returning
-          const populatedQuest = await Quest.findById(existingQuest._id)
-            .populate('creator', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
-            .populate('members', 'id username email role performanceScore questsIn firebaseUid createdAt updatedAt')
-            .populate('tasks');
-          
-          // Serialize for GraphQL
-          return {
-            ...populatedQuest.toObject(),
-            id: populatedQuest._id.toString(),
-            creator: {
-              ...populatedQuest.creator.toObject(),
-              id: populatedQuest.creator._id.toString()
-            },
-            members: populatedQuest.members.map(member => ({
-              ...member.toObject(),
-              id: member._id.toString()
-            })),
-            creator: {
-              ...populatedQuest.creator.toObject(),
-              id: populatedQuest.creator._id.toString()
-            },
-            completionDate: populatedQuest.completionDate ? populatedQuest.completionDate.toISOString() : null,
-            inviteCodeExpires: populatedQuest.inviteCodeExpires ? populatedQuest.inviteCodeExpires.toISOString() : null
-          };
+        // Validate that the creator exists
+        const creator = await User.findById(creatorId);
+        if (!creator) {
+          throw new Error('Creator not found');
         }
+        console.log('✅ Creator validated:', creator.username);
         
         // Generate unique invite code automatically
         const inviteCode = Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -289,10 +247,6 @@ const resolvers = {
             ...member.toObject(),
             id: member._id.toString()
           })),
-          creator: {
-            ...populatedQuest.creator.toObject(),
-            id: populatedQuest.creator._id.toString()
-          },
           completionDate: populatedQuest.completionDate ? populatedQuest.completionDate.toISOString() : null,
           inviteCodeExpires: populatedQuest.inviteCodeExpires ? populatedQuest.inviteCodeExpires.toISOString() : null
         };

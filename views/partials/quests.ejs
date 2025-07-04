@@ -1,3 +1,33 @@
+<!-- Quest Data and Filtering -->
+<script>
+// Embed quest data for JavaScript access
+window.questsData = <%- JSON.stringify(quests) %>;
+window.allUsersData = <%- JSON.stringify(allUsers) %>;
+
+// Helper function to get quest-specific users
+function getQuestMembers(questId) {
+  if (!questId) {
+    console.warn('⚠️ No quest ID provided to getQuestMembers');
+    return [];
+  }
+  
+  const quest = window.questsData.find(q => q._id === questId);
+  if (!quest) {
+    console.warn('⚠️ Quest not found:', questId);
+    return [];
+  }
+  
+  console.log('🔍 Quest members for quest', questId, ':', quest.questMembers || quest.members || []);
+  return quest.questMembers || quest.members || [];
+}
+
+// Helper function to get quest ID from URL
+function getQuestIdFromURL() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('questId');
+}
+</script>
+
 <!-- Custom Scrollbar Styles -->
 <style>
 /* Custom scrollbar for webkit browsers */
@@ -570,37 +600,57 @@
       
       <!-- Users List - Scrollable -->
       <div class="users-list" style="flex: 1; overflow-y: auto; min-height: 0; padding-right: 0.5rem;">
-        <% if (typeof allUsers !== 'undefined' && allUsers && allUsers.length > 0) { %>
-          <% allUsers.forEach(userItem => { %>
+        <% 
+        // Get the first quest (since we're showing per-quest isolation)
+        const currentQuest = quests && quests.length > 0 ? quests[0] : null;
+        const questMembers = currentQuest ? (currentQuest.questMembers || currentQuest.members || []) : [];
+        
+        // Debug logging for quest members
+        console.log('🔍 DEBUG - Quest data:', {
+          hasQuests: !!quests,
+          questsLength: quests ? quests.length : 0,
+          currentQuest: currentQuest ? { id: currentQuest._id, title: currentQuest.title } : null,
+          questMembersLength: questMembers.length,
+          questMembersData: questMembers.map(m => ({
+            id: m._id || m.id,
+            username: m.username,
+            email: m.email,
+            role: m.role,
+            hasAllFields: !!(m._id && m.username && m.email && m.role)
+          }))
+        });
+        %>
+        <% if (questMembers && questMembers.length > 0) { %>
+          <% questMembers.forEach(userItem => { %>
             <div class="user-item" data-user-id="<%= userItem._id ? userItem._id.toString() : userItem.id %>" style="background: #1e293b; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #334155; flex-shrink: 0;">
               <div style="display: flex; gap: 1rem; align-items: center;">
                 <div class="user-avatar-large edit-user-avatar" 
-                     data-user-id="<%= userItem._id ? userItem._id.toString() : userItem.id %>"
-                     data-user-username="<%= userItem.username %>"
-                     data-user-email="<%= userItem.email %>"
+                     data-user-id="<%= userItem._id ? userItem._id.toString() : (userItem.id || '') %>"
+                     data-user-username="<%= userItem.username || '' %>"
+                     data-user-email="<%= userItem.email || '' %>"
                      data-user-phone="<%= userItem.phone || '' %>"
-                     data-user-role="<%= userItem.role %>"
-                     style="background: linear-gradient(45deg, <%= userItem.role === 'ADMIN' ? '#8b5cf6, #7c3aed' : '#3b82f6, #2563eb' %>); color: white; width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.2rem; cursor: pointer; transition: all 0.2s; position: relative;"
+                     data-user-role="<%= userItem.role || 'USER' %>"
+                     style="background: linear-gradient(45deg, <%= (userItem.role === 'ADMIN') ? '#8b5cf6, #7c3aed' : '#3b82f6, #2563eb' %>); color: white; width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.2rem; cursor: pointer; transition: all 0.2s; position: relative;"
                      onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.3)'"
                      onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'"
                      title="Click to edit user details">
-                  <%= userItem.username ? userItem.username.charAt(0).toUpperCase() : 'U' %>
+                  <%= (userItem.username && userItem.username.length > 0) ? userItem.username.charAt(0).toUpperCase() : 'U' %>
                   <div style="position: absolute; bottom: -2px; right: -2px; background: #ffffff; border-radius: 50%; width: 1rem; height: 1rem; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: #64748b;">✏️</div>
                 </div>
                 <div style="flex: 1;">
-                  <h4 style="margin: 0; color: #e2e8f0;"><%= userItem.username %></h4>
-                  <p style="margin: 0.25rem 0; color: #94a3b8; font-size: 0.875rem;"><%= userItem.email %></p>
+                  <h4 style="margin: 0; color: #e2e8f0;"><%= userItem.username || 'Unknown User' %></h4>
+                  <p style="margin: 0.25rem 0; color: #94a3b8; font-size: 0.875rem;"><%= userItem.email || 'No email' %></p>
                   <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                    <span class="user-role role-<%= userItem.role.toLowerCase() %>" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600; background: <%= userItem.role === 'ADMIN' ? 'rgba(139, 92, 246, 0.2); color: #a78bfa' : 'rgba(59, 130, 246, 0.2); color: #60a5fa' %>;">
-                      <%= userItem.role === 'ADMIN' ? '👑 Admin' : '👤 User' %>
+                    <span class="user-role role-<%= (userItem.role || 'USER').toLowerCase() %>" style="font-size: 0.75rem; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600; background: <%= (userItem.role === 'ADMIN') ? 'rgba(139, 92, 246, 0.2); color: #a78bfa' : 'rgba(59, 130, 246, 0.2); color: #60a5fa' %>;">
+                      <%= (userItem.role === 'ADMIN') ? '👑 Admin' : '👤 User' %>
                     </span>
                     <span style="font-size: 0.75rem; color: #64748b;">
-                      Joined: <%= new Date(userItem.createdAt).toLocaleDateString() %>
+                      Joined: <%= userItem.createdAt ? new Date(userItem.createdAt).toLocaleDateString() : 'Unknown' %>
                     </span>
                   </div>
                 </div>
-                <% if (user && user.role === 'ADMIN' && userItem._id.toString() !== user._id.toString()) { %>
-                  <button class="btn btn-secondary delete-user-btn" data-user-id="<%= userItem._id.toString() %>" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; background: #dc2626;">Remove</button>
+                <% if (user && user.role === 'ADMIN' && userItem._id && userItem._id.toString() !== user._id.toString()) { %>
+                  <button class="btn btn-secondary delete-user-btn" data-user-id="<%= userItem._id ? userItem._id.toString() : (userItem.id || '') %>" style="padding: 0.25rem 0.75rem; font-size: 0.75rem; background: #dc2626;">Remove</button>
                 <% } %>
               </div>
             </div>
@@ -622,11 +672,11 @@
         <h3 style="margin: 0 0 1rem 0; color: #e2e8f0; font-size: 1rem;">📊 Team Overview</h3>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
           <div style="text-align: center;">
-            <div style="font-size: 1.25rem; font-weight: 700; color: #3b82f6;"><%= allUsers ? allUsers.length : 0 %></div>
+            <div style="font-size: 1.25rem; font-weight: 700; color: #3b82f6;"><%= questMembers ? questMembers.length : 0 %></div>
             <div style="font-size: 0.75rem; color: #9ca3af;">Total Members</div>
           </div>
           <div style="text-align: center;">
-            <div style="font-size: 1.25rem; font-weight: 700; color: #a78bfa;"><%= allUsers ? allUsers.filter(u => u.role === 'ADMIN').length : 0 %></div>
+            <div style="font-size: 1.25rem; font-weight: 700; color: #a78bfa;"><%= questMembers ? questMembers.filter(u => u.role === 'ADMIN').length : 0 %></div>
             <div style="font-size: 0.75rem; color: #9ca3af;">Admins</div>
           </div>
         </div>
@@ -733,8 +783,8 @@
       <div style="margin-bottom: 1rem;">
         <label style="display: block; margin-bottom: 0.5rem; color: #e2e8f0; font-weight: 500;">Select Team Members</label>
         <div id="userCodesCheckboxes" style="max-height: 200px; overflow-y: auto; background: #334155; border-radius: 8px; padding: 1rem; border: 1px solid #475569;">
-          <% if (typeof allUsers !== 'undefined' && allUsers && allUsers.length > 0) { %>
-            <% allUsers.forEach(userItem => { %>
+          <% if (questMembers && questMembers.length > 0) { %>
+            <% questMembers.forEach(userItem => { %>
               <% if (userItem.role !== 'ADMIN') { %>
                 <label style="display: flex; align-items: center; padding: 0.5rem; margin-bottom: 0.5rem; background: #1e293b; border-radius: 6px; cursor: pointer;" 
                        onmouseover="this.style.background='#475569'" 
@@ -785,8 +835,8 @@
         <select id="assignToUser" name="assignedTo" required style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #ffffff; font-size: 0.9rem;">
           <option value="">-- Select a team member --</option>
           <option value="UNASSIGN">🚫 Assign to None (Unassign)</option>
-          <% if (typeof allUsers !== 'undefined' && allUsers && allUsers.length > 0) { %>
-            <% allUsers.forEach(userItem => { %>
+          <% if (questMembers && questMembers.length > 0) { %>
+            <% questMembers.forEach(userItem => { %>
               <option value="<%= userItem._id ? userItem._id.toString() : userItem.id %>">
                 <%= userItem.username %> (<%= userItem.role === 'ADMIN' ? '👑 Admin' : '👤 User' %>)
               </option>
@@ -902,10 +952,17 @@ document.addEventListener('DOMContentLoaded', function() {
       submitBtn.textContent = '🔄 Adding Member...';
       
       try {
-        console.log('👤 Creating user via GraphQL:', { username, email, phone, role });
+        // Get the current quest ID (if we have quest data)
+        let questId = null;
+        if (window.questsData && window.questsData.length > 0) {
+          questId = window.questsData[0]._id; // Use first quest for now
+          console.log('🎯 Adding user to quest:', questId);
+        }
         
-        // Use GraphQL client to create user
-        const data = await window.graphqlClient.createUser(username, email, phone, role);
+        console.log('👤 Creating user via GraphQL:', { username, email, phone, role, questId });
+        
+        // Use GraphQL client to create user (with questId if available)
+        const data = await window.graphqlClient.createUser(username, email, phone, role, questId);
         console.log('✅ User created successfully:', data);
         
         // Show success message with role information

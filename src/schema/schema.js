@@ -80,7 +80,7 @@ type Query {
 }
 
 type Mutation {
-  createUser(username: String!, email: String!, phone: String, role: Role!, firebaseUid: String): User!
+  createUser(username: String!, email: String!, phone: String, role: Role!, firebaseUid: String, questId: ID): User!
   updateUser(id: ID!, username: String, email: String, phone: String, firebaseUid: String): User!
   deleteUser(id: ID!): User!
   createQuest(title: String!, description: String, completionDate: String, creatorId: ID!): Quest!

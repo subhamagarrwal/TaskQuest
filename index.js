@@ -75,6 +75,14 @@ async function startServer() {
   // MongoDB connection
   await connectDB();
   
+  // Ensure connection is ready before proceeding
+  console.log('🔗 Verifying MongoDB connection...');
+  await mongoose.connection.db.admin().ping();
+  console.log('✅ MongoDB connection verified');
+  
+  // Small delay to ensure everything is ready
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
   // Initialize Telegram bot
   try {
     const { startTelegramBot } = await import('./src/bot/index.js');
@@ -109,16 +117,27 @@ async function startServer() {
   // Generate a unique server instance ID to invalidate old sessions on restart
   const serverInstanceId = Date.now().toString(36) + Math.random().toString(36).substr(2);
   
-  app.use(session({
-    secret: process.env.SESSION_SECRET || 'taskquest_secret',
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
+  // Create session store with error handling
+  let sessionStore;
+  try {
+    sessionStore = MongoStore.create({
       client: mongoose.connection.getClient(),
       dbName: 'taskquest',
       collectionName: 'sessions',
       ttl: 24 * 60 * 60 // 1 day in seconds
-    }),
+    });
+    console.log('✅ Session store created successfully');
+  } catch (error) {
+    console.error('❌ Error creating session store:', error);
+    console.log('ℹ️ Using memory store as fallback');
+    sessionStore = undefined; // Use default memory store
+  }
+  
+  app.use(session({
+    secret: process.env.SESSION_SECRET || 'taskquest_secret',
+    resave: false,
+    saveUninitialized: true, // Changed to true to ensure session exists
+    store: sessionStore,
     cookie: { 
       maxAge: 1000 * 60 * 60 * 24, // 1 day session
       httpOnly: true, // Prevent XSS attacks
@@ -127,31 +146,62 @@ async function startServer() {
     name: 'taskquest.sid' // Custom session name
   }));
 
-  // Middleware to invalidate sessions from previous server instances
+  // Middleware to ensure session exists and handle server instance changes
   app.use((req, res, next) => {
-    // Check if this is a session from a previous server instance
-    if (req.session && req.session.serverInstanceId && req.session.serverInstanceId !== serverInstanceId) {
-      console.log('🔄 Destroying session from previous server instance');
-      req.session.destroy((err) => {
-        if (err) console.error('Error destroying old session:', err);
+    // Ensure session exists before proceeding
+    if (!req.session) {
+      console.error('❌ Session not available, regenerating...');
+      return req.session.regenerate((err) => {
+        if (err) {
+          console.error('Failed to regenerate session:', err);
+          return next(err);
+        }
+        req.session.serverInstanceId = serverInstanceId;
+        next();
       });
-      res.clearCookie('taskquest.sid');
-      res.clearCookie('token');
-    } else if (req.session) {
+    }
+    
+    // Check if this is a session from a previous server instance
+    if (req.session.serverInstanceId && req.session.serverInstanceId !== serverInstanceId) {
+      console.log('🔄 Destroying session from previous server instance');
+      return req.session.destroy((err) => {
+        if (err) console.error('Error destroying old session:', err);
+        // Clear cookies and redirect to home to get a fresh session
+        res.clearCookie('taskquest.sid');
+        res.clearCookie('token');
+        return res.redirect('/');
+      });
+    } else {
       // Mark session with current server instance
       req.session.serverInstanceId = serverInstanceId;
+      next();
     }
-    next();
   });
 
   // Flash message middleware for user notifications
   app.use(flash());
 
-  // Make flash messages available in all EJS templates
+  // Make flash messages available in all EJS templates with robust error handling
   app.use((req, res, next) => {
-    res.locals.success = req.flash('success');
-    res.locals.error = req.flash('error');
-    res.locals.info = req.flash('info');
+    try {
+      // Ensure session and flash are available before calling
+      if (req.session && typeof req.flash === 'function') {
+        res.locals.success = req.flash('success') || [];
+        res.locals.error = req.flash('error') || [];
+        res.locals.info = req.flash('info') || [];
+      } else {
+        console.warn('⚠️ Session or flash not available, using defaults');
+        res.locals.success = [];
+        res.locals.error = [];
+        res.locals.info = [];
+      }
+    } catch (error) {
+      console.error('❌ Flash middleware error:', error);
+      // Provide default empty arrays if flash fails
+      res.locals.success = [];
+      res.locals.error = [];
+      res.locals.info = [];
+    }
     next();
   });
 
@@ -448,6 +498,7 @@ async function startServer() {
       // Import models dynamically to avoid circular dependency issues
       const User = (await import('./src/models/User.js')).default;
       const Quest = (await import('./src/models/Quest.js')).default;
+      const mongoose = (await import('mongoose')).default;
       
       // Find the authenticated user by their JWT userId
       let user = await User.findById(req.user.userId || req.user._id).lean();
@@ -460,50 +511,23 @@ async function startServer() {
       const allQuests = await Quest.find({}).lean();
       console.log(`📊 Total quests in system: ${allQuests.length}`);
       
-      // Fetch quests assigned to this user
+      // Fetch quests assigned to this user ONLY - no auto-linking
       let quests = [];
       if (user.questsIn && user.questsIn.length > 0) {
         quests = await Quest.find({ _id: { $in: user.questsIn } })
-          .populate('creator', 'username email')
-          .populate('members', 'username email')
+          .populate('creator', 'username email role')
+          .populate('members', 'username email role createdAt')
           .lean();
       }
       
-      // If user has no quests but quests exist in the system, add user to the first quest
-      if (quests.length === 0 && allQuests.length > 0) {
-        console.log('🔧 User has no quests but quests exist. Adding user to first available quest...');
-        
-        const firstQuest = allQuests[0];
-        
-        // Add user to the quest's members if not already there
-        if (!firstQuest.members.some(memberId => memberId.toString() === user._id.toString())) {
-          await Quest.findByIdAndUpdate(
-            firstQuest._id,
-            { $addToSet: { members: user._id } }
-          );
-        }
-        
-        // Add quest to user's questsIn array if not already there
-        if (!user.questsIn || !user.questsIn.some(questId => questId.toString() === firstQuest._id.toString())) {
-          await User.findByIdAndUpdate(
-            user._id,
-            { $addToSet: { questsIn: firstQuest._id } }
-          );
-          
-          // Update user object for rendering
-          user.questsIn = user.questsIn || [];
-          user.questsIn.push(firstQuest._id);
-        }
-        
-        // Re-fetch quests for the user
-        quests = await Quest.find({ _id: { $in: user.questsIn || [firstQuest._id] } })
-          .populate('creator', 'username email')
-          .populate('members', 'username email')
-          .lean();
-          
-        console.log('User added to existing quest successfully');
-        req.flash('success', `Welcome! You've been added to the quest: ${firstQuest.title}`);
-      }
+      console.log('🚫 REMOVED AUTO-LINKING: Users are now only associated with quests they are explicitly added to');
+      console.log('📊 User quest membership:', {
+        userId: user._id,
+        username: user.username,
+        questsInArray: user.questsIn || [],
+        actualQuestsFound: quests.length,
+        totalQuestsInSystem: allQuests.length
+      });
       
       // Debug: Log quests data
       console.log('📊 Dashboard Debug Info:');
@@ -518,8 +542,8 @@ async function startServer() {
       // Allow skipping the modal with ?skipModal=true query parameter for testing
       const skipModal = req.query.skipModal === 'true';
       
-      // Only show create quest prompt if NO quests exist in the entire system
-      const showCreateQuestPrompt = !skipModal && allQuests.length === 0;
+      // Show create quest prompt if user has no quests assigned to them
+      const showCreateQuestPrompt = !skipModal && quests.length === 0;
       
       // Fetch tasks related to the user
       const Task = (await import('./src/models/Task.js')).default;
@@ -552,18 +576,59 @@ async function startServer() {
       // Fetch all users for team member management
       let allUsers = [];
       try {
+        console.log('🔍 USER FILTERING DEBUG - Start');
+        console.log('🔍 Current user ID:', user._id);
+        console.log('🔍 Current user role:', user.role);
+        console.log('🔍 Current user questsIn:', user.questsIn);
+        
         if (user.role === 'ADMIN') {
-          // Admins can see all users in the system
-          allUsers = await User.find({})
-            .select('username email role questsIn createdAt phone') // Select necessary fields including phone
+          console.log('🔍 ADMIN PATH: Fetching users from current admin\'s quests only');
+          
+          // Get quests where current admin is the creator or member
+          const adminQuests = await Quest.find({
+            $or: [
+              { creator: user._id },
+              { members: user._id }
+            ]
+          }).select('_id title members').lean();
+          
+          console.log('🔍 Admin\'s quests:', adminQuests.map(q => ({ id: q._id, title: q.title, memberCount: q.members.length })));
+          
+          if (adminQuests.length > 0) {
+            // Get all unique member IDs from admin's quests
+            const memberIds = new Set();
+            adminQuests.forEach(quest => {
+              quest.members.forEach(memberId => {
+                memberIds.add(memberId.toString());
+              });
+            });
+            
+            console.log('🔍 Unique member IDs from admin\'s quests:', Array.from(memberIds));
+            
+            // Only show users who are members of admin's quests
+            allUsers = await User.find({
+              _id: { $in: Array.from(memberIds) }
+            })
+            .select('username email role questsIn createdAt phone')
             .populate('questsIn', 'title')
             .sort({ createdAt: -1 })
             .lean();
             
-          console.log('👥 Admin: Fetched all users:', allUsers.length, 'users found');
+            console.log('� FINAL ADMIN USERS - Count:', allUsers.length);
+            allUsers.forEach((u, index) => {
+              console.log(`🔍   ${index + 1}. ${u.username} (${u.email}) - ID: ${u._id}`);
+              console.log(`🔍      Quests: ${u.questsIn.map(q => q.title).join(', ')}`);
+            });
+          } else {
+            console.log('🔍 Admin has no quests, showing empty list');
+            allUsers = [];
+          }
+            
         } else {
+          console.log('🔍 NON-ADMIN PATH: Regular user filtering');
           // Regular users can see users who share quests with them, plus themselves
           const userQuestIds = user.questsIn || [];
+          console.log('🔍 User quest IDs:', userQuestIds);
           
           if (userQuestIds.length > 0) {
             // Find users who are part of the same quests as the current user
@@ -578,6 +643,12 @@ async function startServer() {
             .sort({ createdAt: -1 })
             .lean();
             
+            console.log('🔍 FINAL NON-ADMIN USERS - Count:', allUsers.length);
+            allUsers.forEach((u, index) => {
+              console.log(`🔍   ${index + 1}. ${u.username} (${u.email}) - ID: ${u._id}`);
+              console.log(`🔍      Quests: ${u.questsIn.map(q => q.title).join(', ')}`);
+            });
+            
             console.log('👥 User: Fetched team members:', allUsers.length, 'users found');
           } else {
             console.log('👥 Current user has no quests, showing only themselves');
@@ -585,29 +656,53 @@ async function startServer() {
             allUsers = [user];
           }
         }
+        console.log('🔍 USER FILTERING DEBUG - End');
       } catch (userError) {
         console.warn('⚠️ Error fetching users:', userError.message);
         // Continue with empty users array
       }
       
-      // Set welcome message only once per session
-      if (!req.session.welcomeShown) {
-        req.flash('success', `Welcome back, ${user.username || 'User'}! 🚀`);
-        req.session.welcomeShown = true;
+      // Set welcome message only once per session with proper session checks
+      if (req.session && typeof req.flash === 'function' && !req.session.welcomeShown) {
+        try {
+          req.flash('success', `Welcome back, ${user.username || 'User'}! 🚀`);
+          req.session.welcomeShown = true;
+        } catch (flashError) {
+          console.warn('⚠️ Could not set welcome flash message:', flashError.message);
+        }
       }
       
       // Render dashboard with real user data and quest creation prompt if needed
+      // Process quests to include their specific members for proper quest isolation
+      const questsWithMembers = quests.map(quest => {
+        console.log('🔍 Processing quest for member isolation:', {
+          questId: quest._id,
+          questTitle: quest.title,
+          membersCount: quest.members ? quest.members.length : 0,
+          memberDetails: quest.members ? quest.members.map(m => ({ id: m._id, username: m.username })) : []
+        });
+        
+        return {
+          ...quest,
+          questMembers: quest.members || [] // These are already populated from the query
+        };
+      });
+      
       res.render('dashboard', {
         user,
         tasks,
-        quests,
-        allUsers, // Pass all users for user management
+        quests: questsWithMembers,
+        allUsers, // Keep for backwards compatibility, but template should use quest.questMembers
         activeSection: req.query.section || null,
         showCreateQuestPrompt // This will trigger the modal popup if no quests exist
       });
     } catch (err) {
       console.error('Error loading dashboard:', err);
-      req.flash('error', 'Failed to load dashboard.');
+      try {
+        req.flash('error', 'Failed to load dashboard.');
+      } catch (flashError) {
+        console.warn('⚠️ Could not set error flash message:', flashError.message);
+      }
       res.redirect('/');
     }
   });

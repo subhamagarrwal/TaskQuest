@@ -95,10 +95,10 @@ class GraphQLClient {
   }
 
   // User operations
-  async createUser(username, email, phone, role) {
+  async createUser(username, email, phone, role, questId = null) {
     const query = `
-      mutation CreateUser($username: String!, $email: String!, $phone: String, $role: Role!) {
-        createUser(username: $username, email: $email, phone: $phone, role: $role) {
+      mutation CreateUser($username: String!, $email: String!, $phone: String, $role: Role!, $questId: ID) {
+        createUser(username: $username, email: $email, phone: $phone, role: $role, questId: $questId) {
           id
           username
           email
@@ -114,7 +114,8 @@ class GraphQLClient {
       username: String(username),
       email: String(email),
       phone: phone ? String(phone) : null,
-      role: String(role)
+      role: String(role),
+      questId: questId ? String(questId) : null
     };
     
     console.log('👤 Creating user with variables:', variables);
