@@ -29,17 +29,15 @@ const messageHandler = async (ctx) => {
       if (text && (text.startsWith('ADM') || text.startsWith('USR') || text.length >= 6)) {
         console.log(`🔑 Detected potential auth code: ${text}`);
         // Treat this as an auth command with the code
-        const mockMessage = {
-          text: `/auth ${text.trim()}`
-        };
-        
-        const mockCtx = {
-          ...ctx,
-          message: mockMessage
-        };
+        // Modify the message text directly on the context
+        const originalText = ctx.message.text;
+        ctx.message.text = `/auth ${text.trim()}`;
         
         console.log(`📤 Calling authCommand with code: ${text}`);
-        await authCommand(mockCtx);
+        await authCommand(ctx);
+        
+        // Restore original text (optional, for logging purposes)
+        ctx.message.text = originalText;
         return;
       }
 

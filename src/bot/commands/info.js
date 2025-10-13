@@ -98,22 +98,33 @@ export default async function infoCommand(ctx) {
         profileMessage += `\n💡 **Quick Actions:**\n`;
         if (user.role === 'ADMIN') {
             profileMessage += `• /tasks - View admin dashboard\n`;
-            profileMessage += `• [Dashboard](${process.env.FRONTEND_URL || 'http://localhost:4000'}/dashboard) - Manage quests\n`;
+            
+            // Only show dashboard link if we have a valid public URL
+            const dashboardUrl = process.env.FRONTEND_URL;
+            if (dashboardUrl && !dashboardUrl.includes('localhost')) {
+                profileMessage += `• [Dashboard](${dashboardUrl}/dashboard) - Manage quests\n`;
+            }
         } else {
             profileMessage += `• /tasks - View your tasks\n`;
         }
         profileMessage += `• /help - Available commands\n`;
 
+        // Build inline keyboard
+        const keyboard = [[{ text: '📋 View Tasks', callback_data: 'view_tasks' }]];
+        
+        // Only add dashboard URL button if we have a valid public URL (not localhost)
+        const dashboardUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
+        if (user.role === 'ADMIN' && dashboardUrl && !dashboardUrl.includes('localhost')) {
+            keyboard.push([{ 
+                text: '🎯 Quest Dashboard', 
+                url: `${dashboardUrl}/dashboard` 
+            }]);
+        }
+
         await ctx.reply(profileMessage, { 
             parse_mode: 'Markdown',
             reply_markup: {
-                inline_keyboard: [
-                    [{ text: '📋 View Tasks', callback_data: 'view_tasks' }],
-                    ...(user.role === 'ADMIN' ? [[{ 
-                        text: '🎯 Quest Dashboard', 
-                        url: `${process.env.FRONTEND_URL || 'http://localhost:4000'}/dashboard` 
-                    }]] : [])
-                ]
+                inline_keyboard: keyboard
             }
         });
         
