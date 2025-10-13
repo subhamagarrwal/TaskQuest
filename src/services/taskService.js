@@ -68,22 +68,37 @@ export const getUserRole = async (userId) => {
 };
 
 // Function to remove user from quest
-export const removeUserFromQuest = async (userId) => {
+export const removeUserFromQuest = async (telegramId) => {
   try {
-    // Remove user from all tasks
+    // Find user by Telegram ID first to get their MongoDB ObjectId
+    const user = await User.findOne({ telegramId: telegramId.toString() });
+    
+    if (!user) {
+      return false;
+    }
+    
+    // Get the user's quest(s) to update
+    const questIds = user.questsIn || [];
+    
+    // Remove user from all tasks (using the MongoDB ObjectId)
     await Task.updateMany(
-      { assignedTo: userId },
-      { $pull: { assignedTo: userId } }
+      { assignedTo: user._id },
+      { $unset: { assignedTo: "" } }
     );
     
-    // Remove user from quest
-    const user = await User.findOne({ telegramId: userId });
-    if (user) {
-      user.quests = [];
-      await user.save();
-      return true;
+    // Remove user from quest members
+    if (questIds.length > 0) {
+      await Quest.updateMany(
+        { _id: { $in: questIds } },
+        { $pull: { members: user._id } }
+      );
     }
-    return false;
+    
+    // Clear user's quest list
+    user.questsIn = [];
+    await user.save();
+    
+    return true;
   } catch (error) {
     throw new Error('Error removing user from quest: ' + error.message);
   }

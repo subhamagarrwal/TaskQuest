@@ -1,5 +1,6 @@
 import User from '../../models/User.js';
 import Task from '../../models/Task.js';
+import { escapeMarkdown } from '../utils/markdown.js';
 
 export default async function tasksCommand(ctx) {
   const telegramUserId = ctx.from.id;
@@ -9,15 +10,15 @@ export default async function tasksCommand(ctx) {
     const user = await User.findOne({ telegramId: telegramUserId.toString() });
     
     if (!user || !user.telegramLinked) {
-      const message = `📋 *Your Tasks*
+      const message = `📋 <b>Your Tasks</b>
 
 🔗 To view your tasks, you need to authenticate with a quest code first.
 
-Please use: \`/auth <quest-code>\`
+Please use: <code>/auth &lt;quest-code&gt;</code>
 
 Get your quest code from your admin or TaskQuest dashboard.`;
 
-      await ctx.reply(message, { parse_mode: 'Markdown' });
+      await ctx.reply(message, { parse_mode: 'HTML' });
       return;
     }    // Fetch user's tasks - separate completed and incomplete
     const allTasks = await Task.find({ assignedTo: user._id })
@@ -35,7 +36,7 @@ Get your quest code from your admin or TaskQuest dashboard.`;
         .populate('assignedTo', 'username')
         .populate('quest', 'title');
       
-      let message = `👑 *Admin Dashboard*\n\n`;
+      let message = `👑 <b>Admin Dashboard</b>\n\n`;
       
       if (questTasks.length === 0) {
         message += `📝 No tasks created yet in your quest.\n\n`;
@@ -44,18 +45,20 @@ Get your quest code from your admin or TaskQuest dashboard.`;
         const questTasksIncomplete = questTasks.filter(task => !task.completed && task.status !== 'completed');
         const questTasksCompleted = questTasks.filter(task => task.completed || task.status === 'completed');
         
-        message += `📊 *Quest Overview:*\n`;
+        message += `📊 <b>Quest Overview:</b>\n`;
         message += `📝 Total Tasks: ${questTasks.length}\n`;
         message += `⏳ Pending: ${questTasksIncomplete.length}\n`;
         message += `✅ Completed: ${questTasksCompleted.length}\n`;
         message += `📈 Progress: ${Math.round((questTasksCompleted.length / questTasks.length) * 100)}%\n\n`;
         
         if (questTasksIncomplete.length > 0) {
-          message += `🔥 *Recent Pending Tasks:*\n`;
+          message += `🔥 <b>Recent Pending Tasks:</b>\n`;
           questTasksIncomplete.slice(0, 3).forEach((task, index) => {
             const priority = task.priority === 'HIGH' ? '🔴' : task.priority === 'MEDIUM' ? '🟡' : '🟢';
-            message += `${priority} ${task.title}\n`;
-            message += `👤 Assigned to: ${task.assignedTo?.username || 'Unassigned'}\n\n`;
+            const safeTitle = task.title.replace(/[<>&]/g, (c) => ({'<':'&lt;', '>':'&gt;', '&':'&amp;'}[c]));
+            const safeUsername = (task.assignedTo?.username || 'Unassigned').replace(/[<>&]/g, (c) => ({'<':'&lt;', '>':'&gt;', '&':'&amp;'}[c]));
+            message += `${priority} ${safeTitle}\n`;
+            message += `👤 Assigned to: ${safeUsername}\n\n`;
           });
           
           if (questTasksIncomplete.length > 3) {
@@ -63,20 +66,33 @@ Get your quest code from your admin or TaskQuest dashboard.`;
           }
         }
         
-        message += `💼 *As admin, you can:*\n`;
+        message += `💼 <b>As admin, you can:</b>\n`;
         message += `• Create new tasks via dashboard\n`;
         message += `• Assign tasks to team members\n`;
         message += `• Monitor team progress\n\n`;
-        message += `🌐 Access your dashboard to manage tasks`;
+        
+        if (process.env.FRONTEND_URL) {
+          message += `🌐 Access your dashboard to manage tasks`;
+        } else {
+          message += `💡 Configure FRONTEND_URL in your env file to access the web dashboard`;
+        }
       }
       
-      await ctx.reply(message, { 
-        parse_mode: 'Markdown',
-        reply_markup: {
+      // Only add inline keyboard if FRONTEND_URL is set and valid
+      const replyOptions = {};
+      
+      if (process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes('localhost')) {
+        replyOptions.reply_markup = {
           inline_keyboard: [[
-            { text: '🌐 Open Dashboard', url: `${process.env.FRONTEND_URL || 'http://localhost:4000'}/dashboard` }
+            { text: '🌐 Open Dashboard', url: `${process.env.FRONTEND_URL}/dashboard` }
           ]]
-        }
+        };
+      }
+      
+      // Use HTML parse mode for better compatibility with user-generated content
+      await ctx.reply(message, { 
+        ...replyOptions,
+        parse_mode: 'HTML' 
       });
       return;
     }
@@ -86,21 +102,24 @@ Get your quest code from your admin or TaskQuest dashboard.`;
       return;
     }
 
-    let message = `📋 *Your Tasks*\n\n`;
+    let message = `📋 <b>Your Tasks</b>\n\n`;
     
     // Show incomplete tasks first
     if (incompleteTasks.length > 0) {
-      message += `⏳ *Pending Tasks (${incompleteTasks.length}):*\n\n`;
+      message += `⏳ <b>Pending Tasks (${incompleteTasks.length}):</b>\n\n`;
       
       const inlineKeyboard = [];
       
       incompleteTasks.forEach((task, index) => {
         const priority = task.priority === 'HIGH' ? '🔴' : task.priority === 'MEDIUM' ? '🟡' : '🟢';
+        const safeTitle = task.title.replace(/[<>&]/g, (c) => ({'<':'&lt;', '>':'&gt;', '&':'&amp;'}[c]));
+        const safeDesc = task.description.replace(/[<>&]/g, (c) => ({'<':'&lt;', '>':'&gt;', '&':'&amp;'}[c]));
+        const safeQuest = (task.quest?.title || 'No quest').replace(/[<>&]/g, (c) => ({'<':'&lt;', '>':'&gt;', '&':'&amp;'}[c]));
         
-        message += `⏳ *Task ${index + 1}:* ${task.title}\n`;
+        message += `⏳ <b>Task ${index + 1}:</b> ${safeTitle}\n`;
         message += `${priority} Priority: ${task.priority}\n`;
-        message += `📖 ${task.description}\n`;
-        message += `🎯 Quest: ${task.quest?.title || 'No quest'}\n`;
+        message += `📖 ${safeDesc}\n`;
+        message += `🎯 Quest: ${safeQuest}\n`;
         if (task.dueDate) {
           message += `📅 Due: ${new Date(task.dueDate).toLocaleDateString()}\n`;
         }
@@ -117,25 +136,25 @@ Get your quest code from your admin or TaskQuest dashboard.`;
       
       // Show completed tasks summary
       if (completedTasks.length > 0) {
-        message += `✅ *Completed Tasks:* ${completedTasks.length}\n`;
-        message += `📊 *Progress:* ${Math.round((completedTasks.length / allTasks.length) * 100)}% complete\n\n`;
+        message += `✅ <b>Completed Tasks:</b> ${completedTasks.length}\n`;
+        message += `📊 <b>Progress:</b> ${Math.round((completedTasks.length / allTasks.length) * 100)}% complete\n\n`;
       }
 
       await ctx.reply(message, { 
-        parse_mode: 'Markdown',
+        parse_mode: 'HTML',
         reply_markup: {
           inline_keyboard: inlineKeyboard
         }
       });
     } else {
       // All tasks are completed
-      message += `🎉 *All Tasks Completed!*\n\n`;
+      message += `🎉 <b>All Tasks Completed!</b>\n\n`;
       message += `✅ You have completed all ${completedTasks.length} task(s)!\n`;
       message += `📊 Progress: 100% complete\n\n`;
       message += `Great work! 🎊`;
 
       await ctx.reply(message, { 
-        parse_mode: 'Markdown'
+        parse_mode: 'HTML'
       });
     }
 

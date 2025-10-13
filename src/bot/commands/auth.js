@@ -141,6 +141,31 @@ async function authenticateAdmin(adminCode, telegramUser) {
             };
         }
 
+        // Check if this Telegram account is already linked to another user
+        const existingTelegramUser = await User.findOne({ 
+            telegramId: telegramUser.id.toString(),
+            _id: { $ne: adminUser._id } // Exclude current user
+        });
+
+        if (existingTelegramUser) {
+            console.log(`⚠️ Telegram ID ${telegramUser.id} is already linked to user: ${existingTelegramUser.username}`);
+            console.log(`🔄 Unlinking Telegram from previous user to allow re-authentication...`);
+            
+            // Unlink from previous user to allow re-authentication
+            existingTelegramUser.telegramId = null;
+            existingTelegramUser.telegramUsername = null;
+            existingTelegramUser.telegramLinked = false;
+            await existingTelegramUser.save();
+            
+            console.log(`✅ Telegram unlinked from ${existingTelegramUser.username}`);
+        }
+
+        // If admin user is already linked to a different Telegram account, unlink it
+        if (adminUser.telegramLinked && adminUser.telegramId && adminUser.telegramId !== telegramUser.id.toString()) {
+            console.log(`⚠️ Admin ${adminUser.username} was linked to Telegram ID: ${adminUser.telegramId}`);
+            console.log(`🔄 Switching to new Telegram account...`);
+        }
+
         // Link Telegram account to admin user
         adminUser.telegramId = telegramUser.id.toString();
         adminUser.telegramUsername = telegramUser.username;
@@ -207,6 +232,31 @@ async function authenticateUser(userCode, telegramUser) {
             };
         }
 
+        // Check if this Telegram account is already linked to another user
+        const existingTelegramUser = await User.findOne({ 
+            telegramId: telegramUser.id.toString(),
+            _id: { $ne: user._id } // Exclude current user
+        });
+
+        if (existingTelegramUser) {
+            console.log(`⚠️ Telegram ID ${telegramUser.id} is already linked to user: ${existingTelegramUser.username}`);
+            console.log(`🔄 Unlinking Telegram from previous user to allow re-authentication...`);
+            
+            // Unlink from previous user to allow re-authentication
+            existingTelegramUser.telegramId = null;
+            existingTelegramUser.telegramUsername = null;
+            existingTelegramUser.telegramLinked = false;
+            await existingTelegramUser.save();
+            
+            console.log(`✅ Telegram unlinked from ${existingTelegramUser.username}`);
+        }
+
+        // If user is already linked to a different Telegram account, unlink it
+        if (user.telegramLinked && user.telegramId && user.telegramId !== telegramUser.id.toString()) {
+            console.log(`⚠️ User ${user.username} was linked to Telegram ID: ${user.telegramId}`);
+            console.log(`🔄 Switching to new Telegram account...`);
+        }
+
         // Link Telegram account to user
         user.telegramId = telegramUser.id.toString();
         user.telegramUsername = telegramUser.username;
@@ -216,7 +266,9 @@ async function authenticateUser(userCode, telegramUser) {
         user.linkCode = null;
         user.linkCodeExpires = null;
         
+        console.log(`✅ Attempting to save user with telegramId: ${user.telegramId}`);
         await user.save();
+        console.log(`✅ User saved successfully!`);
 
         return {
             success: true,
@@ -287,6 +339,31 @@ async function authenticateLegacyQuest(questCode, telegramUser) {
             });
             await user.save();
         } else {
+            // Check if this Telegram ID is already linked to another user
+            const existingTelegramUser = await User.findOne({ 
+                telegramId: telegramUser.id.toString(),
+                _id: { $ne: user._id } // Exclude current user
+            });
+
+            if (existingTelegramUser) {
+                console.log(`⚠️ Telegram ID ${telegramUser.id} is already linked to user: ${existingTelegramUser.username}`);
+                console.log(`🔄 Unlinking Telegram from previous user to allow re-authentication...`);
+                
+                // Unlink from previous user to allow re-authentication
+                existingTelegramUser.telegramId = null;
+                existingTelegramUser.telegramUsername = null;
+                existingTelegramUser.telegramLinked = false;
+                await existingTelegramUser.save();
+                
+                console.log(`✅ Telegram unlinked from ${existingTelegramUser.username}`);
+            }
+
+            // If user is already linked to a different Telegram account, allow switching
+            if (user.telegramLinked && user.telegramId && user.telegramId !== telegramUser.id.toString()) {
+                console.log(`⚠️ User ${user.username} was linked to Telegram ID: ${user.telegramId}`);
+                console.log(`🔄 Switching to new Telegram account...`);
+            }
+
             // Update existing user with Telegram info
             user.telegramId = telegramUser.id.toString();
             user.telegramUsername = telegramUser.username;
@@ -343,14 +420,18 @@ ${isNewUser ? '✨ **New TaskQuest account created**' : '👋 **Existing user jo
             const { getBotInstance } = await import('../index.js');
             const bot = getBotInstance();
             if (bot) {
-                await bot.telegram.sendMessage(admin.telegramId, message, { 
-                    parse_mode: 'Markdown',
-                    reply_markup: {
+                const messageOptions = { parse_mode: 'Markdown' };
+                
+                // Only add inline keyboard if FRONTEND_URL is set and not localhost
+                if (process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes('localhost')) {
+                    messageOptions.reply_markup = {
                         inline_keyboard: [[
-                            { text: '📊 View Quest Dashboard', url: `${process.env.FRONTEND_URL || 'http://localhost:4000'}/dashboard` }
+                            { text: '📊 View Quest Dashboard', url: `${process.env.FRONTEND_URL}/dashboard` }
                         ]]
-                    }
-                });
+                    };
+                }
+                
+                await bot.telegram.sendMessage(admin.telegramId, message, messageOptions);
             }
         }
     } catch (error) {
